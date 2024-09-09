@@ -41,7 +41,6 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 
-
 /* Initialize Express App */
 const app = express();
 
@@ -197,7 +196,7 @@ app.get('/', (req, res) => {
     res.render('index', {
         title: "Home",
         css: ["index.css"],
-        layout: "bodyOnly"
+        layout: "main"
     });
 });
 
@@ -250,17 +249,17 @@ function ensureAuthenticated(req, res, next) {
 }
 
 
-const cron = require('node-cron');
-const { autoRejectDueBookings } = require('./controllers/bookingController');
+// const cron = require('node-cron');
+// const { autoRejectDueBookings } = require('./controllers/bookingController');
 
-// // Schedule the task to run every hour
-// cron.schedule('0 * * * *', () => {
+// // // Schedule the task to run every hour
+// // cron.schedule('0 * * * *', () => {
+// //     console.log('Running auto-reject task');
+// //     autoRejectDueBookings();
+// // });
+
+// // Scheduled Task Tester (run tasks per minute)
+// cron.schedule('* * * * *', () => {
 //     console.log('Running auto-reject task');
 //     autoRejectDueBookings();
-// });
-
-// Scheduled Task Tester (run tasks per minute)
-cron.schedule('* * * * *', () => {
-    console.log('Running auto-reject task');
-    autoRejectDueBookings();
-}); 
+// }); 
