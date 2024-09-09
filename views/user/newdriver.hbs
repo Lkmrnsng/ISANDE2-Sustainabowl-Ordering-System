@@ -1,0 +1,24 @@
+<div class="container">
+        <h1>Update Driver Information</h1>
+        <form action="/user/regDriver" method="POST" enctype="multipart/form-data">
+
+            <div>
+                <label for="driverLicense">Driver License</label>
+                <input type="file" id="driverLicense" name="driverLicense" required>
+            </div>
+            <div>
+                <label for="carMake">Car Make</label>
+                <input type="text" id="carMake" name="carMake" required>
+            </div>
+            <div>
+                <label for="carModel">Car Model</label>
+                <input type="text" id="carModel" name="carModel" required>
+            </div>
+            <div>
+                <label for="carPlate">Car Plate</label>
+                <input type="text" id="carPlate" name="carPlate" required>
+            </div>
+            
+            <button type="submit">Be a Driver</button>
+        </form>
+    </div>

@@ -1,0 +1,62 @@
+<header>
+    <div class="header-container">
+        <a href="/"><img    
+            src="/img/UniRide text.svg" 
+            alt="UniRide Logo" 
+            class="logo"
+        >
+        </a>
+            <ul class="nav-links">
+                <li><a href="/">Search</a></li>
+                <li><a href="/ride/driverhome">Post your Ride</a></li>
+                <li class="user-dropdown">
+                    {{#if user}}
+                    <img id="user-icon" class="usericon-header" src={{user.profilePicture}}>
+                    <ul class="dropdown-menu" id="dropdown-menu">
+                        {{#if user.isVerifiedPassenger}}
+                        <li class="name"> {{user.name}}</li>
+                        <li><a href="/booking/myBookings" class="dropdown-item">My Bookings</a></li>
+                            {{#if (eq user.isVerifiedDriver false)}}
+                            <li><a href="/user/newdriver" class="dropdown-item">Be a Driver</a></li>
+                            {{/if}}
+                        {{/if}}
+
+                        {{#if user.isVerifiedDriver}}
+                            <li><a href="/ride/myRides" class="dropdown-item">My Rides</a></li>
+                            <li><a href="/booking/dashboard" class="dropdown-item">Driver Dashboard</a></li>
+                        {{/if}}    
+                        <li><a href="/user/{{user.userID}}" class="dropdown-item">View Account</a></li>
+                        <li><a href="/auth/logout" class="dropdown-item">Logout</a></li>
+                    </ul>
+
+                    {{else}}
+                    <a href="#" id="user-icon"><i class="fa-solid fa-user"></i></a>
+                    <ul class="dropdown-menu" id="dropdown-menu">
+                        <li><a href="/login" class="dropdown-item">Login</a></li>
+                        <li><a href="/auth/register" class="dropdown-item">Register</a></li>
+                    </ul>
+                    {{/if}}
+                </li>     
+            </ul>
+    </div>
+</header>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const userIcon = document.getElementById('user-icon');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+
+    userIcon.addEventListener('click', function(event) {
+        event.preventDefault();
+        dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Close the dropdown menu if the user clicks outside of it
+    document.addEventListener('click', function(event) {
+        if (!userIcon.contains(event.target) && !dropdownMenu.contains(event.target)) {
+            dropdownMenu.style.display = 'none';
+        }
+    });
+});
+
+</script>

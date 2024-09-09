@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="_index.css">
+    <link rel="stylesheet" href="_ride.css">
+    <!-- <link rel="stylesheet" href="/css/index.css"> -->
+
+    <script src="https://kit.fontawesome.com/6c86c27b89.js" crossorigin="anonymous"></script>
+
+    <title>UniRide</title>
+</head>
+     
+<body>
+    <header>
+        <div class="header-container">
+            <img src="public\img\UniRide text.svg" alt="UniRide Logo" class="logo">
+                <ul class="nav-links">
+                    <li><a href="#">Search</a></li>
+                    <li><a href="_ridecreate.html">Create a Ride</a></li>
+                    <li><a href="#"><i class="fa-solid fa-user"></i></a></li>
+                </ul>
+        </div>
+    </header>
+
+<div class="ride-wrapper">
+    <div class="ridecard">
+        <div class="ridefirstinfo">
+            <h1>Publish a New Ride</h1>
+            <form action="/ride/postRide" method="POST" id="rideForm">
+                <div class="ridetype">
+                    <label for="rideType">Ride Type:</label>
+                    <select id="rideType" name="rideType" required onchange="toggleRideType()">
+                        <option value="toUniversity">From Home to University</option>
+                        <option value="fromUniversity">From University to Home</option>
+                    </select>
+                </div>
+        
+                <div class="ridelocation">
+                    <div class="pickupContainer">
+                        <label for="pickupPoint">Pickup Location:</label>
+                        <select id="pickupPoint" name="pickupPoint" required>
+                            {{#each pickupLocations}}
+                            <option value="{{this}}">{{this}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+            
+                    <div class="dropoffContainer">
+                        <label for="dropoffPoint">Dropoff Location:</label>
+                        <select id="dropoffPoint" name="dropoffPoint" required>
+                            {{#each dropoffLocations}}
+                            <option value="{{this}}">{{this}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+    
+                </div>
+        
+                <div class="ridedetails">
+                    <label for="route">Route (Optional):</label>
+                    <textarea id="route" name="route" placeholder="e.g. via Osmena Highway"></textarea>
+                    <label for="pickupAreas">Additional Pickup/Dropoff Areas (Optional):</label>
+                    <input type="text" id="pickupAreas" name="pickupAreas">
+                </div>
+        </div>
+    
+        <div class="ridesecondinfo">
+            <label>Available Days:</label>
+            <div class="ridesched">
+                <div class="day-container">
+                    <input type="checkbox" id="sunday" name="availableDays" value="sunday">
+                    <label for="sunday">S</label>
+                </div>
+                <div class="day-container">
+                    <input type="checkbox" id="monday" name="availableDays" value="monday">
+                    <label for="monday">M</label>
+                </div>
+                <div class="day-container">
+                    <input type="checkbox" id="tuesday" name="availableDays" value="tuesday">
+                    <label for="tuesday">T</label>
+                </div>
+                <div class="day-container">
+                    <input type="checkbox" id="wednesday" name="availableDays" value="wednesday">
+                    <label for="wednesday">W</label>
+                </div>
+                <div class="day-container">
+                    <input type="checkbox" id="thursday" name="availableDays" value="thursday">
+                    <label for="thursday">H</label>
+                </div>
+                <div class="day-container">
+                    <input type="checkbox" id="friday" name="availableDays" value="friday">
+                    <label for="friday">F</label>
+                </div>
+                <div class="day-container">
+                    <input type="checkbox" id="saturday" name="availableDays" value="saturday">
+                    <label for="saturday">S</label>
+                </div>
+            </div>
+            
+            
+                <div class="rideotherdetails">
+                    <label for="departureTime">Departure Time:</label>
+                    <input type="time" id="departureTime" name="departureTime" required>
+                </div>
+        
+                <div class="rideotherdetails">
+                    <label for="numSeats">Number of Passengers:</label>
+                    <input type="number" id="numSeats" name="numSeats" min="1" max="4" required>
+                </div>
+        
+                <div class="rideotherdetails">
+                    <label for="price">Price per Seat (PHP):</label>
+                    <input type="number" id="price" name="price" min="50" max="1000" required>
+                </div>
+        
+                <button type="submit" class="ridepublish">Publish Ride</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+
+<script>
+    function toggleRideType() {
+        const rideType = document.getElementById('rideType').value;
+        const pickupContainer = document.getElementById('pickupContainer');
+        const dropoffContainer = document.getElementById('dropoffContainer');
+        
+        if (rideType === 'toUniversity') {
+            pickupContainer.innerHTML = `
+                <label for="pickupPoint">Pickup Location:</label>
+                <select id="pickupPoint" name="pickupPoint" required>
+                    {{#each pickupLocations}}
+                    <option value="{{this}}">{{this}}</option>
+                    {{/each}}
+                </select>
+            `;
+            dropoffContainer.innerHTML = `
+                <label for="dropoffPoint">Dropoff Location:</label>
+                <select id="dropoffPoint" name="dropoffPoint" required>
+                    {{#each dropoffLocations}}
+                    <option value="{{this}}">{{this}}</option>
+                    {{/each}}
+                </select>
+            `;
+        } else {
+            pickupContainer.innerHTML = `
+                <label for="pickupPoint">Pickup Location:</label>
+                <select id="pickupPoint" name="pickupPoint" required>
+                    {{#each dropoffLocations}}
+                    <option value="{{this}}">{{this}}</option>
+                    {{/each}}
+                </select>
+            `;
+            dropoffContainer.innerHTML = `
+                <label for="dropoffPoint">Dropoff Location:</label>
+                <select id="dropoffPoint" name="dropoffPoint" required>
+                    {{#each pickupLocations}}
+                    <option value="{{this}}">{{this}}</option>
+                    {{/each}}
+                </select>
+            `;
+        }
+    }
+</script>

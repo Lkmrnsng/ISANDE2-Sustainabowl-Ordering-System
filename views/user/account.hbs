@@ -1,0 +1,37 @@
+{{!-- account-details.hbs --}}
+<div style="margin-top: 100px;"></div>
+
+<h1>Account Details</h1>
+
+<div class="account-info">
+  <img src="{{user.profilePicture}}" alt="Profile Picture" class="profile-picture" style="max-width: 200px;">
+  <p><strong>Name:</strong> {{user.name}}</p>
+  <p><strong>Email:</strong> {{user.email}}</p>
+  <p><strong>Phone Number:</strong> {{user.phoneNumber}}</p>
+  <p><strong>University:</strong> {{university}}</p>
+
+  <p><strong>Account Status:</strong> 
+    {{#if user.isVerifiedDriver}}
+      Verified Driver 
+    {{else if user.isVerifiedPassenger}}
+      Verified User
+    {{else}}
+      Account for Approval
+    {{/if}}
+
+    {{#if noApplications}}
+      <a href="/user/newdriver">Be a Student Driver</a>
+    {{/if}}
+  </p>
+
+  {{#if user.isVerifiedDriver}}
+    <h2>Driver Details</h2>
+    <p><strong>Balance:</strong> ₱{{user.balance}}</p>
+    <p><strong>Driver License:</strong></p>
+    <img src="{{user.driverLicense}}" alt="Driver's License" class="driver-license" style="max-width: 200px;">
+    <h3>Car Details</h3>
+    <p><strong>Make:</strong> {{user.carMake}}</p>
+    <p><strong>Model:</strong> {{user.carModel}}</p>
+    <p><strong>Plate Number:</strong> {{user.carPlate}}</p>
+  {{/if}}
+</div>

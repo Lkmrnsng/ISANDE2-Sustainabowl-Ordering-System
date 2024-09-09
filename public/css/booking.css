@@ -1,0 +1,168 @@
+.bookings-container{
+  margin-top: 100px;
+  margin-bottom: 30px;
+  background-color: var(--secondary-color);
+  padding: 20px;
+  border-radius: 28px;
+  display: flex;
+  flex-direction: column;
+}
+
+.bookings-wrapper{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.other-bookings{
+  display: flex;
+  flex-direction: column;
+}
+
+.booking-list{
+  margin-top: 20px;
+
+}
+
+.booking-item {
+  background-color: #f8f9fa;
+  border-radius: 28px;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+}
+  
+
+.booking-item a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+
+}
+
+.booking-item:hover {
+  background-color: #f0f0f0;
+}
+
+
+.driver-photo {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 20px;
+  border: 2px solid var(--quinary-color);
+}
+
+.driver-info {
+  display: flex;
+  align-items: center;
+}
+
+.status-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.status {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: bold;
+
+}
+
+.ride-points{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-weight: bold;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.ride-points img{
+  height: 10px;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.booking-actions{
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.booking-actions button{
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  cursor: pointer;
+  margin-right: 20px;
+}
+
+.booking-actions button:hover{
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+}
+
+.booking-actions a{
+  text-decoration: none;
+  color: var(--tertiary-color);
+}
+
+.ride-info{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: large;
+  
+}
+
+.ride-info-title{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  font-weight: normal;
+}
+
+.ride-info p{
+  font-family: "Maven Pro", sans-serif;
+  font-weight: bold;
+  font-size: 26px;
+}
+.ride-id{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+}
+
+.ride-id p{
+  font-family: "Maven Pro", sans-serif;
+  font-weight: bold;
+}
+
+.today-bookings{
+  display: flex;
+  flex-direction: column;
+  margin-right: 20px;
+  width: 500px;
+}
