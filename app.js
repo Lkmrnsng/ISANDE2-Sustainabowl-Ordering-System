@@ -13,10 +13,10 @@ const User = require('./models/User'); // Import the User model
  * 12345 is the password
  * itisdev-mvp is the database name
  */
-const dbURI = 'mongodb+srv://admin:12345@itisdev-mvp.jary1la.mongodb.net/itisdev-mvp'; 
+const dbURI = 'mongodb+srv://dbuser1:PioneeringParagons2024@isande2.zq1ez.mongodb.net/'; 
 mongoose.connect(dbURI)
     .then((result) => {
-        console.log("App connected to MongoDB Atlas itisdev-mvp database.");
+        console.log("App connected to MongoDB Atlas ISANDE2 database.");
         /* If the DB connection was successful, listen for requests on localhost:3000 */
         app.listen(3000, () => {
             console.log("App started. Listening on port 3000.");
@@ -39,17 +39,7 @@ initializePassport(passport);
 /* Imported Routes */
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-const rideRoutes = require('./routes/rideRoutes');
-const bookingRoutes = require('./routes/bookingRoutes');
-const reviewRoutes = require('./routes/reviewRoutes');
-const chatRoutes = require('./routes/chatRoutes');
 
-// Import all models
-require('./models/User');
-require('./models/Ride');
-require('./models/Booking');
-require('./models/University');
-require('./models/City');
 
 
 /* Initialize Express App */
@@ -196,16 +186,6 @@ app.use((req, res, next) => {
 });
 
 
-
-// App Routes
-app.use('/auth', authRoutes); // Use the authRoutes module for all routes starting with /auth
-app.use('/user', userRoutes); // Use the userRoutes module for all routes starting with /user
-app.use('/ride', rideRoutes); // Use the rideRoutes module for all routes starting with /ride
-app.use('/booking', bookingRoutes); // Use the bookingRoutes module for all routes starting with /booking
-app.use('/review', reviewRoutes); // Use the reviewRoutes module for all routes starting with /review
-app.use('/chat', chatRoutes); // Use the chatRoutes module for all routes starting with /chat
-
-const University = require('./models/University');
 const City = require('./models/City');
 
 app.use((req, res, next) => {
@@ -214,29 +194,11 @@ app.use((req, res, next) => {
 });
 
 app.get('/', (req, res) => {
-    // Get universities and cities from db concurrently
-    Promise.all([University.find(), City.find()])
-        .then(([universities, cities]) => {
-            const universityNames = universities.map(university => university.name);
-            const cityNames = cities.map(city => city.name);
-
-            // Display in cmd
-            console.log('Universities:', universityNames);
-            console.log('Cities:', cityNames);
-
-            res.render('index', {
-                title: "Uniride",
-                dropoffLocations: universityNames,
-                pickupLocations: cityNames,
-                css: ["index.css"], 
-                layout: "main",
-                messages: req.flash('error')
-            });
-        })
-        .catch((err) => {
-            console.error(err);
-            res.status(500).send('Error retrieving data');
-        });
+    res.render('index', {
+        title: "Home",
+        css: ["index.css"],
+        layout: "bodyOnly"
+    });
 });
 
 
