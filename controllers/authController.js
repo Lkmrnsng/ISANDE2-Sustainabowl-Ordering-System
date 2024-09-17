@@ -40,17 +40,6 @@ async function uploadUser(req, res) {
                 name: name,
                 email: email,
                 password: hashedPassword,
-                phoneNumber: phoneNumber,
-                universityID: universityID,
-                profilePicture: req.files['profilePicture'] ? "/profile-pictures/" + req.files['profilePicture'][0].filename : "/profile-pictures/default.png",
-                enrollmentProof: req.files['enrollmentProof'] ? "/profile-pictures/" + req.files['enrollmentProof'][0].filename : '',
-                isVerifiedPassenger: false,
-                isVerifiedDriver: false,
-                balance: 0,
-                driverLicense: '',
-                carMake: '',
-                carModel: '',
-                carPlate: '',
             });
 
             if (newUser) {

@@ -9,9 +9,9 @@ const User = require('./models/User'); // Import the User model
 
 /* Connect to MongoDB and then Listen for Requests */
 /**
- * admin is the username
- * 12345 is the password
- * itisdev-mvp is the database name
+ * dbuser1 is the username
+ * PioneeringParagons2024 is the password
+ * isande2 is the database name
  */
 const dbURI = 'mongodb+srv://dbuser1:PioneeringParagons2024@isande2.zq1ez.mongodb.net/'; 
 mongoose.connect(dbURI)
@@ -37,133 +37,60 @@ const initializePassport = require('./passport-config.js');
 initializePassport(passport);
 
 /* Imported Routes */
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
 
 
 /* Initialize Express App */
 const app = express();
 
-/* Middleware */
-app.use(express.static(__dirname + "/public")); // Set static folder
-app.use(express.urlencoded({ extended: true })); // Allows you to access req.body for POST routes
-app.use(bodyParser.urlencoded({ extended: false }));
-
 // Use Handlebars as the view engine
 const hbs = exphbs.create({
     extname: 'hbs',
     helpers: {
-        // JSON
+        // JSON helper
         json: function (context) {
             return JSON.stringify(context);
         },
+        // Equality helper
         eq: function (a, b) {
             return a === b;
-        },
-        join: function (arr, separator) {
-        return arr.join(separator);
-        },
-        formatTime: function (hour, minute) {
-        return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        },
-        formatTime1: function(timeObj) {
-            return `${timeObj.hour.toString().padStart(2, '0')}:${timeObj.minute.toString().padStart(2, '0')}`;
-        },
-        formatTime2: function(time) {
-            if (!time || !time.hour || !time.minute) {
-                return '';
-              }
-              
-              const hour = time.hour.toString().padStart(2, '0');
-              const minute = time.minute.toString().padStart(2, '0');
-              
-              return `${hour}:${minute}`;
-        },
-        formatDate: function (date) {
-        return new Date(date).toLocaleDateString();
-        },
-        formatDates: function(dates) {
-            return Array.isArray(dates) ? dates.map(date => new Date(date).toLocaleDateString()).join(', ') : '';
-        },
-        formatMonth(date) {
-        return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long' }).format(date);
-        }, 
-        isEndOfWeek(index) {
-            return (index + 1) % 7 === 0;
-        },
-        formatDuration(startTime, endTime) {
-            const start = new Date(startTime);
-            const end = new Date(endTime);
-            const durationMs = end - start;
-            const hours = Math.floor(durationMs / (1000 * 60 * 60));
-            const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
-            
-            if (hours > 0) {
-              return `${hours} hr ${minutes} min`;
-            } else {
-              return `${minutes} min`;
-            }
-        },
-        array: function() {
-            return Array.prototype.slice.call(arguments, 0, -1);
-        },
-        includes: function(item, list) {
-            return list.includes(item);
-        },
-        includes2: function(array, value) {
-            if (Array.isArray(array)) {
-                return array.includes(value);
-            }
-            return false;
-        },
-        isActive: function(rideStatus, responseStatus) {
-            if (rideStatus === 'completed' || responseStatus === 'rejected' || rideStatus === 'cancelled') {
-                return false;
-            } else {
-                return true;
-            }
-        },
-        gte: function(a, b) {
-            return a >= b;
-        },
-        not: function (a){
-            return !a
-        },
-        firstChar: function (str) {
-            return str.charAt(0).toUpperCase();
-        },
-
+        }
     },
     runtimeOptions: {
         allowProtoPropertiesByDefault: true,
         allowProtoMethodsByDefault: true,
     }
-    
 });
 
+// Setting up Handlebars engine
+app.engine("hbs", hbs.engine); // Inform Express to use Handlebars as the engine
+app.set("view engine", "hbs");  // Set default file extension for views to .hbs
+app.set("views", "./views");    // Set the directory for the views
+
+// Middleware
+app.use(express.static(__dirname + "/public"));
+app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
+
 app.use(express.json());
-app.engine("hbs", hbs.engine); // Inform the handlebars engine that file extension to read is .hbs
-app.set("view engine", "hbs"); // Set express' default file extension for views as .hbs
-app.set("views", "./views"); // Set the directory for the views
 
 // Use sessions
-app.use(flash());
+app.use(flash()); // Only call once
 app.use(session({
     secret: 'CKA8mqzpyGEuQRCZHJHhK39qCbtxYwu8',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ 
         mongoUrl: dbURI,
-        collectionName: 'sessions' // Optional: specify the collection name
+        collectionName: 'sessions'
     }),
     cookie: { 
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(passport.initialize()); // Only call once
+app.use(passport.session()); // Only call once
 
-app.use(methodOverride('_method')); // To allow the POST logout form to become a DELETE request
+app.use(methodOverride('_method'));
 
 // Middleware to check and refresh session
 app.use((req, res, next) => {
@@ -173,22 +100,16 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(flash());
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Middleware to log session info (for debugging)
+// Middleware to log session info
 app.use((req, res, next) => {
     console.log('Session ID:', req.sessionID);
     console.log('Is Authenticated:', req.isAuthenticated());
     next();
 });
 
-
-const City = require('./models/City');
-
+// Make user available in all views
 app.use((req, res, next) => {
-    res.locals.user = req.user || null; // Make user available in all views
+    res.locals.user = req.user || null;
     next();
 });
 
@@ -241,7 +162,7 @@ app.get('/login-failed', (req, res) => {
 
 
 function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) { // Assuming you are using Passport.js
+    if (req.isAuthenticated()) { //  using Passport.js
         res.locals.user = req.user;
         return next();
     }

@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-module.exports = router; 
+
 
 /* Import Controllers */
 const userController = require('../controllers/userController.js');
@@ -35,3 +35,5 @@ router.put('/profile', userController.editProfile);
 router.delete('/profile', userController.deleteProfile);
 router.post('/withdraw', userController.withdrawBalance);
 router.get('/:userID', userController.getProfilePage);
+
+module.exports = router; 

@@ -2,7 +2,7 @@
 /* Import express & define router */
 const express = require('express');
 const router = express.Router();
-module.exports = router; // Export router so it can be used in app.js
+
 
 /* Import Multer & Path */
 const multer = require('multer'); // This is only if there will be file uploads
@@ -61,3 +61,5 @@ router.get('/logout', (req, res) => {
 });
 
 router.get('/verify-email/:token', authController.verifyEmail);
+
+module.exports = router; // Export router so it can be used in app.js
