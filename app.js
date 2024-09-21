@@ -113,11 +113,20 @@ app.use((req, res, next) => {
     next();
 });
 
+// app.get('/', (req, res) => {
+//     res.render('index', {
+//         title: "Home",
+//         css: ["index.css"],
+//         layout: "main"
+//     });
+// });
+
+// megan test 
 app.get('/', (req, res) => {
-    res.render('index', {
+    res.render('marketplace_catalog', {
         title: "Home",
         css: ["index.css"],
-        layout: "main"
+        layout: "marketplace"
     });
 });
 

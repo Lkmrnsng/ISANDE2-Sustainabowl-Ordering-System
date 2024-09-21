@@ -1,0 +1,33 @@
+<main>
+    <div id="banner-div">
+        <div id="left-banner-div">
+            <h1>Place a Recurring Request</h1>
+            <p>Want to have your food supplies delivered regularly? Place a recurring order request with us and we will see to your restaurant's needs! Look our for us in your chat menu after you place the request.</p>
+        </div>
+
+        <div id="right-banner-div">
+            <img src="/img/tasty-produce.png" alt="tasty-produce" width="120px" height="120px">
+        </div>
+    </div>
+
+    <div id="catalog-div">
+        <h2>Featured Products</h2>
+        <p>Need to add: card layout, repeat cards.</p>
+        <p>Card requirements: have plus/minus button, have add to cart, are clickable to show item info, should display data dynamically.</p>
+
+        <div class="card-container">
+            {{#each card}}
+                <div id="card-element">
+                    <img src="/img/{{this.image}}.png" alt="{{this.image}}" width="40px" height="40px">
+                    <h3>{{this.name}}</h3>
+                    <p>₱{{this.price}} / kg</p>
+                    <img src="plus-icon.png" width="40px" height="40px" onclick="addQty()">
+                    <p>X kg</p>
+                    <img src="minus-icon.png" width="40px" height="40px" onclick="lessQty()">
+                    <button onClick="addToCart()">Add to Request</button>
+                </div>
+            {{/each}}
+        </div>
+        
+    </div>
+</main>

@@ -1,0 +1,24 @@
+<header>
+    <div id="header-left">
+        <img src="/img/Sustainabowl.svg" alt="sustainabowl-logo" width="160px" height="90px">
+    </div>
+
+    {{#if homepage}}
+        <div id="header-middle">
+            <form action="/search.hbs" method="get">
+                <input type="text" placeholder="Search Produce.." id="search">
+                <button type="submit" class="image-btn">
+                    <img src="/img/search-icon.png" width="150px" height="150px">
+                </button>
+            </form>
+        </div>
+    {{/if}}
+
+    <div id="header-right">
+        <p>Customer</p>
+        <img src="account-icon.png" width="150px" height="150px" onclick="openAccount()">
+        {{#if homepage}}
+            <img src="cart-icon.png" width="150px" height="150px" onclick="openCart()">
+        {{/if}}
+    </div>
+</header>
