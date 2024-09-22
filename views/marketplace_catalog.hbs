@@ -22,12 +22,42 @@
                     <h3>{{this.name}}</h3>
                     <p>₱{{this.price}} / kg</p>
                     <img src="plus-icon.png" width="40px" height="40px" onclick="addQty()">
-                    <p>X kg</p>
+                    <p>1 kg</p>
                     <img src="minus-icon.png" width="40px" height="40px" onclick="lessQty()">
-                    <button onClick="addToCart()">Add to Request</button>
+                    <button onclick="addToCart()">Add to Request</button>
                 </div>
             {{/each}}
         </div>
-        
+    </div>
+
+    {{!-- Produce Description Overlay --}}
+    <div id="description-overlay">
+        <img src="x-icon.png" width="40px" height="40px" onclick="closeOverlay()">
+        <h2>More About: {{item}}</h2>
+        <img src="/img/{{image}}.png" alt="{{this.image}}" width="160px" height="160px">
+        <p>₱ {{price}} / kg</p>
+        <button onclick="addToCartOverlay()">Add to Request</button>
+        <h3>Product Description:</h3>
+        <p>{{description}}</p>
+    </div>
+
+    {{!-- Cart Overlay --}}
+    <div id="cart-overlay">
+        {{#each cartItem}}
+            <img src="/img/{{this.image}}.png" alt="{{this.image}}" width="40px" height="40px">
+            <h3>{{this.name}}</h3>
+            <img src="plus-icon.png" width="40px" height="40px" onclick="addQty()">
+            <p>{{this.quantity}}</p>
+            <img src="minus-icon.png" width="40px" height="40px" onclick="lessQty()">
+            <p>x ₱ {{this.price}} / kg</p>
+            <p>₱ {{subtotal}}</p> 
+        {{/each}}
+
+        <hr>
+
+        <h3>Request Total:</h3>
+        <h3>₱ {{total}}</h3>
+        <button onclick="checkout()">Proceed to Checkout</button>
+        <button onclick="closeCartOverlay">Close</button>
     </div>
 </main>
