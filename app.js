@@ -37,7 +37,7 @@ const initializePassport = require('./passport-config.js');
 initializePassport(passport);
 
 /* Imported Routes */
-
+const customerRoutes = require('./routes/customerRoutes');
 
 /* Initialize Express App */
 const app = express();
