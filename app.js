@@ -131,6 +131,16 @@ app.get('/', (req, res) => {
 });
 
 
+// // ishi test
+// app.get('/', (req, res) => {
+//     res.render('logistics_dashboard', {
+//         title: "Home",
+//         css: ["logistics_dashboard.css"],
+//         layout: "main"
+//     });
+// });
+
+
 app.post('/login', 
     passport.authenticate('local', {
         failureRedirect: '/login-failed',
@@ -145,6 +155,7 @@ app.post('/login',
         res.redirect('/'); 
     }
 );
+
 
 
 app.get('/login', (req, res) => {
