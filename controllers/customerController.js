@@ -1,7 +1,7 @@
 //Import Models
 const User = require('../models/User');
 const Request = require('../models/Request');
-const Delivery = require('../models/Delivery');
+const Order = require('../models/Order');
 const Item = require('../models/Item');
 
 //Define Functions

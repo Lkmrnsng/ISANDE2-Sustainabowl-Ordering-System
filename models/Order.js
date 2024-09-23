@@ -1,14 +1,16 @@
-//Model Testing
-
 const mongoose = require('mongoose');
 
 const OrderSchema = new mongoose.Schema({
-    orderID: { type: Number },
-    customerID: { type: Number },
-    fulfilledStatus: { type: Boolean },
-    totalDeliveries: { type: Number },
-    fulfilledDeliveries: { type: Number },
-    specialInstructions: { type: String },
+    OrderID: { type: Number },
+    requestID: { type: Number },
+    // Received, Negotiation, Approved, Prepared, Dispatched, Delivered [1-6] or Cancelled
+    status: { type: String }, 
+    OrderDate: { type: Date },
+    items: {
+        itemID: { type: Number },
+        quantity: { type: Number }
+    },
+    customizations: { type: String }
 });
 
 const Order = mongoose.model('orders', OrderSchema);
