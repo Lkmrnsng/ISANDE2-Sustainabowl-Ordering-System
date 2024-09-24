@@ -1,0 +1,77 @@
+<main class="dashboard-container">
+<!-- PLEASE HELP ME HAHAHAHHAH -->
+    <!-- Task Calendar Section -->
+    <div class="task-calendar">
+        <h2>Task Calendar</h2>
+        <div class="calendar-header">
+            <span>Jul 2024</span>
+        </div>
+        <div class="calendar-grid">
+            {{!-- Loop through weeks and days to dynamically render the task calendar --}}
+            {{#each weeks as |week|}}
+                <div class="calendar-row">
+                    {{#each week.days as |day|}}
+                        <div class="calendar-cell {{day.hasTask}}">
+                            <span class="day-number">{{day.date}}</span>
+                            <div class="task-details">{{day.task}}</div>
+                        </div>
+                    {{/each}}
+                </div>
+            {{/each}}
+        </div>
+    </div>
+
+    <!-- Tasklist Section -->
+    <div class="tasklist-section">
+        <h2>Your Tasklist</h2>
+        <table class="tasklist-table">
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Request ID</th>
+                    <th>Date</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each tasklist as |task|}}
+                    <tr>
+                        <td>{{task.title}}</td>
+                        <td>{{task.requestId}}</td>
+                        <td>{{task.date}}</td>
+                        <td>{{task.details}}</td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Delivery Details Section -->
+    <div class="delivery-details-section">
+        <h2>Delivery: 1000002</h2>
+        <div class="delivery-info">
+            <div class="delivery-item">
+                <strong>Deliver To:</strong>
+                <p>{{delivery.to}}</p>
+            </div>
+            <div class="delivery-item">
+                <strong>Point Person:</strong>
+                <p>{{delivery.pointPerson}}</p>
+            </div>
+            <div class="delivery-item">
+                <strong>Produce Requested:</strong>
+                <p>{{delivery.produce}}</p>
+            </div>
+            <div class="delivery-item">
+                <strong>Delivery Schedule:</strong>
+                <p>{{delivery.schedule}}</p>
+            </div>
+        </div>
+        <div class="delivery-timeline">
+            <div class="timeline-point">Warehouse</div>
+            <div class="timeline-point">Booked</div>
+            <div class="timeline-point">On Transit</div>
+            <div class="timeline-point">Delivered</div>
+        </div>
+    </div>
+</main>
