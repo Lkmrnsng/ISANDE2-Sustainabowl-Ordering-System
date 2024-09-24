@@ -36,8 +36,7 @@ const MongoStore = require('connect-mongo');
 const initializePassport = require('./passport-config.js');
 initializePassport(passport);
 
-/* Imported Routes */
-const customerRoutes = require('./routes/customerRoutes');
+
 
 /* Initialize Express App */
 const app = express();
@@ -112,6 +111,12 @@ app.use((req, res, next) => {
     res.locals.user = req.user || null;
     next();
 });
+
+/* Imported Routes */
+const customerRoutes = require('./routes/customerRoutes');
+
+/* Use Routes */
+app.use('/customer', customerRoutes);
 
 // app.get('/', (req, res) => {
 //     res.render('index', {

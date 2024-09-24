@@ -1,0 +1,42 @@
+[
+    {
+      "itemID": 20001,
+      "itemName": "Tomato",
+      "itemCategory": "Vegetable",
+      "itemDescription": "Fresh, ripe tomatoes",
+      "itemPrice": 2.50,
+      "itemStock": 100
+    },
+    {
+      "itemID": 20002,
+      "itemName": "Carrot",
+      "itemCategory": "Vegetable",
+      "itemDescription": "Crunchy, sweet carrots",
+      "itemPrice": 1.75,
+      "itemStock": 150
+    },
+    {
+      "itemID": 20003,
+      "itemName": "Spinach",
+      "itemCategory": "Vegetable",
+      "itemDescription": "Nutrient-rich leafy greens",
+      "itemPrice": 3.25,
+      "itemStock": 80
+    },
+    {
+      "itemID": 20004,
+      "itemName": "Bell Pepper",
+      "itemCategory": "Vegetable",
+      "itemDescription": "Colorful bell peppers",
+      "itemPrice": 1.99,
+      "itemStock": 75
+    },
+    {
+      "itemID": 20005,
+      "itemName": "Cucumber",
+      "itemCategory": "Vegetable",
+      "itemDescription": "Cool and crisp cucumbers",
+      "itemPrice": 1.50,
+      "itemStock": 120
+    }
+  ]

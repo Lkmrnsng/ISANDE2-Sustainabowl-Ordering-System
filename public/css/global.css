@@ -149,7 +149,7 @@ footer {
     background-color: var(--grey);
     margin-top: auto;
     padding: 0 50px;
-    position: relative;
+    position: absolute;
     bottom: 0;
   }
 

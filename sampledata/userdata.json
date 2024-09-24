@@ -1,0 +1,47 @@
+[
+    {
+      "userID": 10001,
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "password": "hashed_password_1",
+      "phone": "+1234567890",
+      "usertype": "Customer",
+      "restaurantName": "Doe's Diner"
+    },
+    {
+      "userID": 10002,
+      "name": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "password": "hashed_password_2",
+      "phone": "+1987654321",
+      "usertype": "Sales",
+      "restaurantName": null
+    },
+    {
+      "userID": 10003,
+      "name": "Bob Johnson",
+      "email": "bob.johnson@example.com",
+      "password": "hashed_password_3",
+      "phone": "+1122334455",
+      "usertype": "Logistics",
+      "restaurantName": null
+    },
+    {
+      "userID": 10004,
+      "name": "Alice Brown",
+      "email": "alice.brown@example.com",
+      "password": "hashed_password_4",
+      "phone": "+1555666777",
+      "usertype": "Customer",
+      "restaurantName": "Brown's Bistro"
+    },
+    {
+      "userID": 10005,
+      "name": "Charlie Davis",
+      "email": "charlie.davis@example.com",
+      "password": "hashed_password_5",
+      "phone": "+1999888777",
+      "usertype": "Sales",
+      "restaurantName": null
+    }
+  ]

@@ -1,0 +1,27 @@
+[
+    {
+      "requestID": 30001,
+      "customerID": 10001,
+      "status": "Received"
+    },
+    {
+      "requestID": 30002,
+      "customerID": 10004,
+      "status": "Negotiation"
+    },
+    {
+      "requestID": 30003,
+      "customerID": 10001,
+      "status": "Approved"
+    },
+    {
+      "requestID": 30004,
+      "customerID": 10004,
+      "status": "Cancelled"
+    },
+    {
+      "requestID": 30005,
+      "customerID": 10001,
+      "status": "Received"
+    }
+  ]
