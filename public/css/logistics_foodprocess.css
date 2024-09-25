@@ -1,0 +1,140 @@
+.dashboard-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 100px;
+    padding: 20px;
+}
+
+.food-processing {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.processing-list, .processing-details {
+    width: 48%;  /* Reduced width slightly to allow space for margin */
+    background-color: #F5F5F5;
+    padding: 30px; /* Padding for inside spacing */
+    border-radius: 8px;
+    margin-right: 20px; /* Adds space between the boxes */
+}
+
+.processing-details {
+    margin-left: 20px; /* Adds space between the boxes */
+}
+
+h2 {
+    font-size: 26px;
+    margin-bottom: 25px;
+}
+
+.processing-table, .produce-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.processing-table th, .processing-table td,
+.produce-table th, .produce-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    height: 50px;
+}
+
+.processing-table th, .produce-table th {
+    font-weight: bold;
+}
+
+button.request-id-btn, .details-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--turquoise);
+}
+
+button.request-id-btn:hover, .details-btn:hover {
+    text-decoration: underline;
+}
+
+.alert-icon {
+    color: var(--magenta);
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+button.prev-page-btn, button.next-page-btn {
+    background-color: var(--green);
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+button.cancel-btn, button.complete-btn {
+    background-color: var(--magenta);
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button.complete-btn {
+    background-color: var(--green);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.close-btn {
+    align-self: flex-end;
+    cursor: pointer;
+    font-size: 24px;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.hidden {
+    display: none;
+}

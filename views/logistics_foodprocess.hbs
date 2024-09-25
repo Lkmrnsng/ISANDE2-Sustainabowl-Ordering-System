@@ -1,0 +1,92 @@
+<main class="dashboard-container">
+    <div class="food-processing">
+        <div class="processing-list">
+            <h2>Food Processing</h2>
+            <table class="processing-table">
+                <thead>
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Name</th>
+                        <th>To Process</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each processingRequests as |request|}}
+                    <tr>
+                        <td><button class="request-id-btn" data-request-id="{{request.id}}">{{request.id}}</button></td>
+                        <td>{{request.name}}</td>
+                        <td>{{request.toProcess}}</td>
+                        <td>{{request.status}} 
+                            {{#if request.alertIcon}}
+                            <i class="alert-icon">!</i>
+                            {{/if}}
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+            <div class="pagination">
+                <button class="prev-page-btn">&lt;</button>
+                <span>Page {{currentPage}} of {{totalPages}}</span>
+                <button class="next-page-btn">&gt;</button>
+            </div>
+        </div>
+
+        <div class="processing-details">
+            <h2>{{selectedRequest.name}}</h2>
+            <div class="details-header">
+                <span>ID: {{selectedRequest.id}}</span>
+            </div>
+            <table class="produce-table">
+                <thead>
+                    <tr>
+                        <th>Produce</th>
+                        <th>Process</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each selectedRequest.produce as |item|}}
+                    <tr>
+                        <td>{{item.name}}</td>
+                        <td>{{item.process}}</td>
+                        <td>
+                            <button class="details-btn" data-produce-id="{{item.id}}">→</button>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+            <div class="pagination">
+                <button class="prev-page-btn">&lt;</button>
+                <span>Page {{produceCurrentPage}} of {{produceTotalPages}}</span>
+                <button class="next-page-btn">&gt;</button>
+            </div>
+            <div class="actions">
+                <button class="cancel-btn">Cancel</button>
+                <button class="complete-btn">Complete</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Popup for Process Details -->
+<div class="modal hidden" id="process-details-modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Processing Details</h2>
+        <div class="details-grid">
+            <p>Request ID: {{modalData.requestId}}</p>
+            <p>Produce: {{modalData.produce}}</p>
+            <p>Process: {{modalData.process}}</p>
+            <p>Deliver By: {{modalData.deliverBy}}</p>
+            <p>Quantity: {{modalData.quantity}}</p>
+            <p>Status: {{modalData.status}}</p>
+        </div>
+        <div class="modal-actions">
+            <button class="cancel-processing-btn">Cancel Processing</button>
+            <button class="mark-complete-btn">Mark Complete</button>
+        </div>
+    </div>
+</div>
