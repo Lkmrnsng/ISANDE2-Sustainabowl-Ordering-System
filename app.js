@@ -139,7 +139,7 @@ app.get('/', (req, res) => {
 // ishi test
 // app.get('/', (req, res) => {
 //     res.render('logistics_foodprocess', {
-//         title: "Food Processing",
+//         title: "Home",
 //         css: ["logistics_foodprocess.css"],
 //         layout: "main"
 //     });

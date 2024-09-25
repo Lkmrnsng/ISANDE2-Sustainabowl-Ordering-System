@@ -1,87 +1,102 @@
-<main>
-<main class="dashboard-container">
-    <div class="metrics-overview">
-        <div class="metric-card">
-            <h2>Monthly Expenses:</h2>
-            <p>₱95,000</p>
-            <span>↑ 2.1%</span>
-        </div>
-        <div class="metric-card">
-            <h2>Deliveries Completed:</h2>
-            <p>14 this month</p>
-            <span>↑ 0.8%</span>
-        </div>
-        <div class="metric-card">
-            <h2>Unpackaged Deliveries:</h2>
-            <p>4</p>
-        </div>
-        <div class="metric-card">
-            <h2>Active Shipments:</h2>
-            <p>24</p>
-            <span>↑ 42%</span>
-        </div>
+<div class="main-layout">
+    <div class="sidebar">
+        <ul>
+            <li><a href="/logistics_dashboard">Dashboard</a></li>
+            <li><a href="/logistics_calendar">Calendar</a></li>
+            <li><a href="/logistics_foodprocess">Food Processing</a></li>
+            <li><a href="/logistics_delivery">Delivery</a></li>
+            <li><a href="/logistics_warehouse">Warehouse Inventory</a></li>
+            <li><a href="/logistics_partners">Logistics Partners</a></li>
+            <li><a href="/logistics_procurement">Procurement</a></li>
+            <li><a href="/logistics_sendalert">Send an Alert</a></li>
+            <li><a href="/logistics_account">Account</a></li>
+        </ul>
     </div>
 
-    <div class="weekly-tasklist">
-        <h2>Weekly Tasklist</h2>
-        <div class="tasklist-grid">
-            {{!-- Render the weekly tasks dynamically --}}
-            {{#each tasks as |task|}}
-                <div class="task-card">
-                    <h3>{{task.title}}</h3>
-                    <p>{{task.time}}</p>
-                </div>
-            {{/each}}
-        </div>
-    </div>
-
-    <div class="procurement-section">
-        <h2>Procurement Shipments</h2>
-        <div class="shipment-grid">
-            <div class="shipment-header">
-                <span>Quantity</span>
-                <span>Items</span>
-                <span>Farm</span>
-                <span>Receive by Date</span>
-                <span>Status</span>
+    <main class="dashboard-container">
+        <div class="metrics-overview">
+            <div class="metric-card">
+                <h2>Monthly Expenses:</h2>
+                <p>₱95,000</p>
+                <span>↑ 2.1%</span>
             </div>
-            {{#each shipments as |shipment|}}
-                <div class="shipment-row">
-                    <span>{{shipment.quantity}}</span>
-                    <span>{{shipment.items}}</span>
-                    <span>{{shipment.farm}}</span>
-                    <span>{{shipment.date}}</span>
-                    <span>{{shipment.status}}</span>
-                </div>
-            {{/each}}
-        </div>
-        <button class="create-shipment-btn">Create +</button>
-    </div>
-
-    <div class="delivery-tasks-section">
-        <h2>Delivery Tasks</h2>
-        <div class="delivery-table">
-            <div class="delivery-header">
-                <span>Request ID</span>
-                <span>Weight (kg)</span>
-                <span>Delivery Status</span>
-                <span>Payment Status</span>
-                <span>Deliver By</span>
-                <span>Actions</span>
+            <div class="metric-card">
+                <h2>Deliveries Completed:</h2>
+                <p>14 this month</p>
+                <span>↑ 0.8%</span>
             </div>
-            {{#each deliveries as |delivery|}}
-                <div class="delivery-row">
-                    <span>{{delivery.id}}</span>
-                    <span>{{delivery.weight}}</span>
-                    <span>{{delivery.deliveryStatus}}</span>
-                    <span>{{delivery.paymentStatus}}</span>
-                    <span>{{delivery.deliverBy}}</span>
-                    <span>
-                        <button class="book-delivery-btn">Book Delivery</button>
-                        <button class="complete-delivery-btn">Complete</button>
-                    </span>
-                </div>
-            {{/each}}
+            <div class="metric-card">
+                <h2>Unpackaged Deliveries:</h2>
+                <p>4</p>
+            </div>
+            <div class="metric-card">
+                <h2>Active Shipments:</h2>
+                <p>24</p>
+                <span>↑ 42%</span>
+            </div>
         </div>
-    </div>
-</main>
+
+        <div class="weekly-tasklist">
+            <h2>Weekly Tasklist</h2>
+            <div class="tasklist-grid">
+                {{!-- Render the weekly tasks dynamically --}}
+                {{#each tasks as |task|}}
+                    <div class="task-card">
+                        <h3>{{task.title}}</h3>
+                        <p>{{task.time}}</p>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+
+        <div class="procurement-section">
+            <h2>Procurement Shipments</h2>
+            <div class="shipment-grid">
+                <div class="shipment-header">
+                    <span>Quantity</span>
+                    <span>Items</span>
+                    <span>Farm</span>
+                    <span>Receive by Date</span>
+                    <span>Status</span>
+                </div>
+                {{#each shipments as |shipment|}}
+                    <div class="shipment-row">
+                        <span>{{shipment.quantity}}</span>
+                        <span>{{shipment.items}}</span>
+                        <span>{{shipment.farm}}</span>
+                        <span>{{shipment.date}}</span>
+                        <span>{{shipment.status}}</span>
+                    </div>
+                {{/each}}
+            </div>
+            <button class="create-shipment-btn">Create +</button>
+        </div>
+
+        <div class="delivery-tasks-section">
+            <h2>Delivery Tasks</h2>
+            <div class="delivery-table">
+                <div class="delivery-header">
+                    <span>Request ID</span>
+                    <span>Weight (kg)</span>
+                    <span>Delivery Status</span>
+                    <span>Payment Status</span>
+                    <span>Deliver By</span>
+                    <span>Actions</span>
+                </div>
+                {{#each deliveries as |delivery|}}
+                    <div class="delivery-row">
+                        <span>{{delivery.id}}</span>
+                        <span>{{delivery.weight}}</span>
+                        <span>{{delivery.deliveryStatus}}</span>
+                        <span>{{delivery.paymentStatus}}</span>
+                        <span>{{delivery.deliverBy}}</span>
+                        <span>
+                            <button class="book-delivery-btn">Book Delivery</button>
+                            <button class="complete-delivery-btn">Complete</button>
+                        </span>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+    </main>
+</div>

@@ -1,3 +1,7 @@
+.main-layout {
+    display: flex;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -11,8 +15,45 @@ body {
     background-color: #fff;
 }
 
-.dashboard-container {
+.sidebar {
+    width: 200px;
+    background-color: #f0f0f0;
     padding: 20px;
+    height: calc(100vh - 60px); /* Adjust for navbar height */
+    position: fixed;
+    top: 60px; /* If you have a fixed navbar, adjust the top offset */
+    left: 0;
+    z-index: 10;
+    overflow-y: auto;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin-bottom: 15px;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: #333;
+}
+
+.sidebar ul li a:hover {
+    color: #018D9A;
+}
+
+/* Adjust the main container to account for the sidebar */
+.dashboard-container {
+    margin-left: 220px; /* Adjust based on sidebar width */
+    padding: 20px;
+}
+
+/* Additional styles */
+.task-calendar, .tasklist-section, .delivery-details-section {
+    margin-bottom: 40px;
 }
 
 .metrics-overview {
