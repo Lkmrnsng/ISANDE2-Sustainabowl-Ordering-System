@@ -10,3 +10,4 @@ const ItemSchema = new mongoose.Schema({
 });
 
 const Item = mongoose.model('items', ItemSchema);
+module.exports = Item;

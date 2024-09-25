@@ -1,57 +1,89 @@
+
+
 [
-    {
-      "OrderID": 40001,
-      "requestID": 30001,
-      "status": "Waiting Approval",
-      "OrderDate": "2024-09-24T10:00:00Z",
-      "items": {
+  {
+    "OrderID": 40001,
+    "requestID": 30001,
+    "status": "Waiting Approval",
+    "OrderDate": "2024-09-24T10:00:00Z",
+    "items": [
+      {
         "itemID": 20001,
         "quantity": 10
       },
-      "customizations": "Sliced"
-    },
-    {
-      "OrderID": 40002,
-      "requestID": 30002,
-      "status": "Preparing",
-      "OrderDate": "2024-09-24T11:30:00Z",
-      "items": {
+      {
+        "itemID": 20001,
+        "quantity": 5
+      },
+      {
+        "itemID": 20001,
+        "quantity": 8
+      }
+    ],
+    "customizations": "Sliced"
+  },
+  {
+    "OrderID": 40002,
+    "requestID": 30002,
+    "status": "Preparing",
+    "OrderDate": "2024-09-24T11:30:00Z",
+    "items": [
+      {
         "itemID": 20002,
         "quantity": 15
       },
-      "customizations": "Peeled"
-    },
-    {
-      "OrderID": 40003,
-      "requestID": 30003,
-      "status": "Dispatched",
-      "OrderDate": "2024-09-24T09:15:00Z",
-      "items": {
+      {
+        "itemID": 20003,
+        "quantity": 3
+      }
+    ],
+    "customizations": "Peeled"
+  },
+  {
+    "OrderID": 40003,
+    "requestID": 30003,
+    "status": "Dispatched",
+    "OrderDate": "2024-09-24T09:15:00Z",
+    "items": [
+      {
         "itemID": 20003,
         "quantity": 8
       },
-      "customizations": "Whole"
-    },
-    {
-      "OrderID": 40004,
-      "requestID": 30004,
-      "status": "Cancelled",
-      "OrderDate": "2024-09-24T14:45:00Z",
-      "items": {
+      {
+        "itemID": 20004,
+        "quantity": 6
+      }
+    ],
+    "customizations": "Whole"
+  },
+  {
+    "OrderID": 40004,
+    "requestID": 30004,
+    "status": "Cancelled",
+    "OrderDate": "2024-09-24T14:45:00Z",
+    "items": [
+      {
         "itemID": 20004,
         "quantity": 5
       },
-      "customizations": "Diced"
-    },
-    {
-      "OrderID": 40005,
-      "requestID": 30005,
-      "status": "Delivered",
-      "OrderDate": "2024-09-24T08:00:00Z",
-      "items": {
+      {
+        "itemID": 20005,
+        "quantity": 2
+      }
+    ],
+    "customizations": "Diced"
+  },
+  {
+    "OrderID": 40005,
+    "requestID": 30005,
+    "status": "Delivered",
+    "OrderDate": "2024-09-24T08:00:00Z",
+    "items": [
+      {
         "itemID": 20005,
         "quantity": 12
-      },
-      "customizations": "Thinly sliced"
-    }
-  ]
+      }
+    ],
+    "customizations": "Thinly sliced"
+  }
+]
