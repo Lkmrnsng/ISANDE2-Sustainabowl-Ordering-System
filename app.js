@@ -4,7 +4,6 @@ const exphbs = require('express-handlebars'); // Import Express-Handlebars, allo
 const mongoose = require('mongoose'); // Import Mongoose, allows you to connect to MongoDB
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt'); // For hashing passwords
-const User = require('./models/User'); // Import the User model
 
 
 /* Connect to MongoDB and then Listen for Requests */
@@ -13,7 +12,7 @@ const User = require('./models/User'); // Import the User model
  * PioneeringParagons2024 is the password
  * isande2 is the database name
  */
-const dbURI = 'mongodb+srv://dbuser1:PioneeringParagons2024@isande2.zq1ez.mongodb.net/'; 
+const dbURI = 'mongodb+srv://dbuser1:PioneeringParagons2024@isande2.zq1ez.mongodb.net/ISANDE2'; 
 mongoose.connect(dbURI)
     .then((result) => {
         console.log("App connected to MongoDB Atlas ISANDE2 database.");
@@ -25,6 +24,8 @@ mongoose.connect(dbURI)
     .catch((err) => {
         console.log(err);
     });
+
+
 
 // Imported for sessions
 const passport = require('passport');
@@ -38,8 +39,26 @@ initializePassport(passport);
 
 
 
+
+/* Imported Routes */
+const customerRoutes = require('./routes/customerRoutes');
+
+// Import Models
+const User = require('./models/User');
+const Request = require('./models/Request');
+const Order = require('./models/Order');
+const Item = require('./models/Item');
+
+
+
 /* Initialize Express App */
 const app = express();
+
+// Middleware
+app.use(express.static(__dirname + "/public"));
+app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
+
 
 // Use Handlebars as the view engine
 const hbs = exphbs.create({
@@ -61,14 +80,11 @@ const hbs = exphbs.create({
 });
 
 // Setting up Handlebars engine
+
 app.engine("hbs", hbs.engine); // Inform Express to use Handlebars as the engine
 app.set("view engine", "hbs");  // Set default file extension for views to .hbs
 app.set("views", "./views");    // Set the directory for the views
 
-// Middleware
-app.use(express.static(__dirname + "/public"));
-app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.json());
 
@@ -112,11 +128,11 @@ app.use((req, res, next) => {
     next();
 });
 
-/* Imported Routes */
-const customerRoutes = require('./routes/customerRoutes');
-
-/* Use Routes */
+// Routes
 app.use('/customer', customerRoutes);
+
+
+
 
 // app.get('/', (req, res) => {
 //     res.render('index', {
@@ -127,13 +143,16 @@ app.use('/customer', customerRoutes);
 // });
 
 // megan test 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
+
+
     res.render('marketplace_catalog', {
         title: "Home",
         css: ["index.css"],
         layout: "marketplace"
     });
 });
+
 
 
 // ishi test
@@ -160,7 +179,6 @@ app.post('/login',
         res.redirect('/'); 
     }
 );
-
 
 
 app.get('/login', (req, res) => {
