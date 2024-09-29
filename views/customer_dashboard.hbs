@@ -29,13 +29,13 @@
                 {{#each requests}}
                 <tr class="request-row" 
                     data-deliveriesCount="{{this.deliveriesCount}}" 
-                    data-deliveryDates="{{this.deliveryDates}}"
-                    data-totalItemsBreakdown="{{json this.totalItemsBreakdown}}">
+                    data-deliveryDates='{{json this.deliveryDates}}'
+                    data-totalItemsBreakdown='{{json this.totalItemsBreakdown}}'>
                     <td>{{this.requestID}}</td>
                     <td>{{this.status}}</td>
                     <td>{{formatDates this.deliveryDates}}</td>
                     <td>{{this.items}}</td>
-                    <td>More Details</td>
+                    <td>View Details</td>
                 </tr>
                 {{/each}}
             </tbody>
@@ -54,15 +54,17 @@
 
 <script>
     document.querySelectorAll('.request-row').forEach(row => {
-        row.addEventListener('mouseenter', function() {
+        row.addEventListener('click', function() {
             const deliveriesCount = this.dataset.deliveriescount;
-            const deliveryDates = JSON.parse(this.dataset.deliverydates); // Parse the string to array
-            const totalItemsBreakdown = JSON.parse(this.dataset.totalitemsbreakdown); // Parse the string to array
+            const deliveryDates = JSON.parse(this.dataset.deliverydates); // Parse delivery dates
+            const totalItemsBreakdown = JSON.parse(this.dataset.totalitemsbreakdown); // Parse items breakdown
 
-            // Log to debug
-            console.log("Deliveries Count:", deliveriesCount);
-            console.log("Delivery Dates:", deliveryDates);
-            console.log("Total Items Breakdown:", totalItemsBreakdown);
+            // Log to debug (optional)
+            console.log("Clicked request details: ", {
+                deliveriesCount,
+                deliveryDates,
+                totalItemsBreakdown
+            });
 
             // Update the request details section
             document.getElementById('deliveriesCount').textContent = deliveriesCount;
@@ -70,6 +72,10 @@
             document.getElementById('totalItemsBreakdown').textContent = totalItemsBreakdown
                 .map(item => `Item ID: ${item.itemID}, Quantity: ${item.quantity}`)
                 .join(', ');
+
+            // Optionally highlight the selected row
+            document.querySelectorAll('.request-row').forEach(r => r.classList.remove('selected'));
+            this.classList.add('selected');
         });
     });
 </script>

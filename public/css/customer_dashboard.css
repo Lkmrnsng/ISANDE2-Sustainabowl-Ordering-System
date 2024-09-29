@@ -52,7 +52,7 @@ tr:hover {
 }
 
 .selected {
-    background-color: #e0e0e0;
+    background-color: #e0e0e0; /* Highlight selected row */
 }
 
 .search-bar {
