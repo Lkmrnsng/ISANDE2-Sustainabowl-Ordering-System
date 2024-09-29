@@ -27,12 +27,15 @@
             </thead>
             <tbody>
                 {{#each requests}}
-                <tr>
+                <tr class="request-row" 
+                    data-deliveriesCount="{{this.deliveriesCount}}" 
+                    data-deliveryDates="{{this.deliveryDates}}"
+                    data-totalItemsBreakdown="{{json this.totalItemsBreakdown}}">
                     <td>{{this.requestID}}</td>
                     <td>{{this.status}}</td>
-                    <td>{{this.date}}</td>
+                    <td>{{formatDates this.deliveryDates}}</td>
                     <td>{{this.items}}</td>
-                    <td><a href="/track-request/{{this.requestID}}">Track Request</a></td>
+                    <td>More Details</td>
                 </tr>
                 {{/each}}
             </tbody>
@@ -42,16 +45,31 @@
 
     <div class="request-details">
         <h2>Request Details</h2>
-        {{#if selectedRequest}}
-        <img src="/images/{{selectedRequest.itemName}}.jpg" alt="{{selectedRequest.itemName}}">
-        <h3>{{selectedRequest.itemName}}</h3>
-        <p>{{selectedRequest.quantity}} kg</p>
-        <p>₱ {{selectedRequest.price}}</p>
-        <p>Request Total: ₱ {{selectedRequest.total}}</p>
-        <p>Status: {{selectedRequest.status}}</p>
-        {{else}}
-        <p>Select a request to view details</p>
-        {{/if}}
+        <p><strong>Number of Deliveries:</strong> <span id="deliveriesCount"></span></p>
+        <p><strong>Delivery Dates:</strong> <span id="deliveryDates"></span></p>
+        <p><strong>Total Items Breakdown:</strong> <span id="totalItemsBreakdown"></span></p>
         <button class="give-feedback-btn">Give Feedback</button>
     </div>
 </div>
+
+<script>
+    document.querySelectorAll('.request-row').forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            const deliveriesCount = this.dataset.deliveriescount;
+            const deliveryDates = JSON.parse(this.dataset.deliverydates); // Parse the string to array
+            const totalItemsBreakdown = JSON.parse(this.dataset.totalitemsbreakdown); // Parse the string to array
+
+            // Log to debug
+            console.log("Deliveries Count:", deliveriesCount);
+            console.log("Delivery Dates:", deliveryDates);
+            console.log("Total Items Breakdown:", totalItemsBreakdown);
+
+            // Update the request details section
+            document.getElementById('deliveriesCount').textContent = deliveriesCount;
+            document.getElementById('deliveryDates').textContent = deliveryDates.join(', ');
+            document.getElementById('totalItemsBreakdown').textContent = totalItemsBreakdown
+                .map(item => `Item ID: ${item.itemID}, Quantity: ${item.quantity}`)
+                .join(', ');
+        });
+    });
+</script>

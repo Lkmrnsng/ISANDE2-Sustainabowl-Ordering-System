@@ -4,12 +4,16 @@ const OrderSchema = new mongoose.Schema({
     OrderID: { type: Number },
     requestID: { type: Number }, 
     status: { type: String }, // Waiting Approval, Preparing, Dispatched, Delivered or Cancelled
-    OrderDate: { type: Date },
+    deliveryDate: { type: Date },
+    deliveryAddress: { type: String},
+    deliveryTimeRange: { type: String }, //Morning, Afternoon, Evening
     items: [{
         itemID: { type: Number },
         quantity: { type: Number }
     }],
-    customizations: { type: String }
+    customizations: { type: String },
+    pointPersonID: { type: Number },
+    paymentMethod: { type: String }, // Cash on Delivery, Card, Mobile Money
 });
 
 const Order = mongoose.model('orders', OrderSchema);

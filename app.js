@@ -71,7 +71,17 @@ const hbs = exphbs.create({
         // Equality helper
         eq: function (a, b) {
             return a === b;
+        },
+        //Format Date
+        formatDate: function (date) {
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        },
+        //Format An Array of Dates, separated by | 
+        formatDates: function (dates) {
+            return dates.map(date => date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })).join(' | ');
         }
+
+
     },
     runtimeOptions: {
         allowProtoPropertiesByDefault: true,

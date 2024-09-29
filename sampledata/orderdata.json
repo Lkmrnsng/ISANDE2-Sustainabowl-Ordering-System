@@ -1,5 +1,3 @@
-
-
 [
   {
     "OrderID": 40001,
@@ -12,15 +10,20 @@
         "quantity": 10
       },
       {
-        "itemID": 20001,
+        "itemID": 20002,
         "quantity": 5
       },
       {
-        "itemID": 20001,
+        "itemID": 20003,
         "quantity": 8
       }
     ],
-    "customizations": "Sliced"
+    "customizations": "Sliced",
+    "deliveryDate": "2024-09-26T14:00:00Z",
+    "deliveryAddress": "123 Main St, Anytown, AN 12345",
+    "deliveryTimeRange": "Afternoon",
+    "pointPersonID": 10002,
+    "paymentMethod": "Card"
   },
   {
     "OrderID": 40002,
@@ -37,7 +40,12 @@
         "quantity": 3
       }
     ],
-    "customizations": "Peeled"
+    "customizations": "Peeled",
+    "deliveryDate": "2024-09-25T10:00:00Z",
+    "deliveryAddress": "456 Elm St, Somewhere, SW 67890",
+    "deliveryTimeRange": "Morning",
+    "pointPersonID": 10002,
+    "paymentMethod": "Cash on Delivery"
   },
   {
     "OrderID": 40003,
@@ -54,7 +62,12 @@
         "quantity": 6
       }
     ],
-    "customizations": "Whole"
+    "customizations": "Whole",
+    "deliveryDate": "2024-09-24T16:00:00Z",
+    "deliveryAddress": "789 Oak Rd, Elsewhere, EL 13579",
+    "deliveryTimeRange": "Evening",
+    "pointPersonID": 10002,
+    "paymentMethod": "Mobile Money"
   },
   {
     "OrderID": 40004,
@@ -71,7 +84,12 @@
         "quantity": 2
       }
     ],
-    "customizations": "Diced"
+    "customizations": "Diced",
+    "deliveryDate": null,
+    "deliveryAddress": "101 Pine Ln, Nowheresville, NW 24680",
+    "deliveryTimeRange": "Morning",
+    "pointPersonID": 10002,
+    "paymentMethod": "Card"
   },
   {
     "OrderID": 40005,
@@ -84,6 +102,117 @@
         "quantity": 12
       }
     ],
-    "customizations": "Thinly sliced"
+    "customizations": "Thinly sliced",
+    "deliveryDate": "2024-09-24T13:30:00Z",
+    "deliveryAddress": "202 Maple Ave, Someplace, SP 97531",
+    "deliveryTimeRange": "Afternoon",
+    "pointPersonID": 10002,
+    "paymentMethod": "Cash on Delivery"
+  },
+  {
+    "OrderID": 40006,
+    "requestID": 30001,
+    "status": "Waiting Approval",
+    "OrderDate": "2024-09-25T09:30:00Z",
+    "items": [
+      {
+        "itemID": 20001,
+        "quantity": 7
+      },
+      {
+        "itemID": 20003,
+        "quantity": 4
+      }
+    ],
+    "customizations": "Cubed",
+    "deliveryDate": "2024-09-27T11:00:00Z",
+    "deliveryAddress": "303 Birch Blvd, Anyville, AV 35791",
+    "deliveryTimeRange": "Morning",
+    "pointPersonID": 10003,
+    "paymentMethod": "Mobile Money"
+  },
+  {
+    "OrderID": 40007,
+    "requestID": 30001,
+    "status": "Preparing",
+    "OrderDate": "2024-09-25T13:15:00Z",
+    "items": [
+      {
+        "itemID": 20002,
+        "quantity": 20
+      }
+    ],
+    "customizations": "Julienned",
+    "deliveryDate": "2024-09-26T16:30:00Z",
+    "deliveryAddress": "404 Cedar Ct, Sometown, ST 86420",
+    "deliveryTimeRange": "Evening",
+    "pointPersonID": 10003,
+    "paymentMethod": "Card"
+  },
+  {
+    "OrderID": 40008,
+    "requestID": 30003,
+    "status": "Dispatched",
+    "OrderDate": "2024-09-25T10:45:00Z",
+    "items": [
+      {
+        "itemID": 20004,
+        "quantity": 9
+      },
+      {
+        "itemID": 20005,
+        "quantity": 6
+      }
+    ],
+    "customizations": "Quartered",
+    "deliveryDate": "2024-09-25T15:00:00Z",
+    "deliveryAddress": "505 Dogwood Dr, Elsewhere, EL 75319",
+    "deliveryTimeRange": "Afternoon",
+    "pointPersonID": 10004,
+    "paymentMethod": "Cash on Delivery"
+  },
+  {
+    "OrderID": 40009,
+    "requestID": 30003,
+    "status": "Delivered",
+    "OrderDate": "2024-09-25T08:00:00Z",
+    "items": [
+      {
+        "itemID": 20001,
+        "quantity": 15
+      },
+      {
+        "itemID": 20002,
+        "quantity": 10
+      }
+    ],
+    "customizations": "Minced",
+    "deliveryDate": "2024-09-25T12:45:00Z",
+    "deliveryAddress": "606 Elm Rd, Somewhere, SW 13579",
+    "deliveryTimeRange": "Morning",
+    "pointPersonID": 10004,
+    "paymentMethod": "Mobile Money"
+  },
+  {
+    "OrderID": 40010,
+    "requestID": 30003,
+    "status": "Waiting Approval",
+    "OrderDate": "2024-09-25T16:30:00Z",
+    "items": [
+      {
+        "itemID": 20003,
+        "quantity": 12
+      },
+      {
+        "itemID": 20005,
+        "quantity": 8
+      }
+    ],
+    "customizations": "Grated",
+    "deliveryDate": "2024-09-27T09:00:00Z",
+    "deliveryAddress": "707 Fir Ln, Anyplace, AP 24680",
+    "deliveryTimeRange": "Morning",
+    "pointPersonID": 10005,
+    "paymentMethod": "Card"
   }
 ]
