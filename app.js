@@ -167,9 +167,9 @@ app.get('/', async (req, res) => {
 
 // ishi test
 // app.get('/', (req, res) => {
-//     res.render('logistics_foodprocess', {
+//     res.render('logistics_delivery', {
 //         title: "Home",
-//         css: ["logistics_foodprocess.css"],
+//         css: ["logistics_delivery.css"],
 //         layout: "main"
 //     });
 // });
