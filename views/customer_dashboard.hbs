@@ -2,9 +2,9 @@
     <h2>Main Menu</h2>
     <ul>
         <li><a href="/my-requests">My Requests</a></li>
-        <li><a href="/track-request">Track Request</a></li>
+        <li><a href="/my-orders">My Orders</a></li>
         <li><a href="/chats">Chats</a></li>
-        <li><a href="/cancel-request">Cancel Request</a></li>
+        <li><a href="/cancel-order">Cancel Orders</a></li>
         <li><a href="/account">Account</a></li>
     </ul>
 </div>
@@ -22,7 +22,7 @@
                     <th>Status</th>
                     <th>Date/s</th>
                     <th>Items</th>
-                    <th>Action</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -34,7 +34,7 @@
                     <td>{{this.requestID}}</td>
                     <td>{{this.status}}</td>
                     <td>{{formatDates this.deliveryDates}}</td>
-                    <td>{{this.items}}</td>
+                    <td>{{this.itemNames}}</td>
                     <td>View Details</td>
                 </tr>
                 {{/each}}
@@ -44,7 +44,7 @@
     </div>
 
     <div class="request-details">
-        <h2>Request Details</h2>
+        <h2>Request Details</h2>    
         <p><strong>Number of Deliveries:</strong> <span id="deliveriesCount"></span></p>
         <p><strong>Delivery Dates:</strong> <span id="deliveryDates"></span></p>
         <p><strong>Total Items Breakdown:</strong> <span id="totalItemsBreakdown"></span></p>
@@ -68,7 +68,7 @@
 
             // Update the request details section
             document.getElementById('deliveriesCount').textContent = deliveriesCount;
-            document.getElementById('deliveryDates').textContent = deliveryDates.join(', ');
+            document.getElementById('deliveryDates').textContent =  deliveryDates.join('| ');
             document.getElementById('totalItemsBreakdown').textContent = totalItemsBreakdown
                 .map(item => `Item ID: ${item.itemID}, Quantity: ${item.quantity}`)
                 .join(', ');

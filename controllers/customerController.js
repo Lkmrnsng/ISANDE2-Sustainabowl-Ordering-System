@@ -14,15 +14,14 @@ async function getDashboard(req, res) {
         const customerId = 10001; // Test ID
 
         // Fetch requests for this customer
-        const requests = await Request.find({ customerID: customerId }).sort({ requestID: -1 });
+        let requests = await Request.find({ customerID: customerId }).sort({ requestID: -1 });
 
         if (requests.length === 0) {
             return res.render('customer_dashboard', {
                 title: 'Dashboard',
                 css: ['customer_dashboard.css'],
                 layout: 'main',
-                requests: [],
-                selectedRequest: null
+                requests: []
             });
         }
 
@@ -30,29 +29,44 @@ async function getDashboard(req, res) {
         const orders = await Order.find({ requestID: { $in: orderIDs } });
         
         // Process the requests
-        requests.forEach(request => {
+        requests = await Promise.all(requests.map(async (request) => {
             let deliveryDates = [];
             let deliveriesCount = 0;
             let totalItemsBreakdown = [];
-            orders.forEach(order => {
-                if (order.requestID === request.requestID) {
-                    deliveryDates.push(order.deliveryDate);
-                    deliveriesCount++;
-                    order.items.forEach(item => {
-                        const itemIndex = totalItemsBreakdown.findIndex(i => i.itemID === item.itemID);
-                        if (itemIndex === -1) {
-                            totalItemsBreakdown.push({ itemID: item.itemID, quantity: item.quantity });
-                        } else {
-                            totalItemsBreakdown[itemIndex].quantity += item.quantity;
-                        }
-                    });
-                }
-            });
+            let itemNames = [];
 
-            request.deliveriesCount = deliveriesCount;
-            request.deliveryDates = deliveryDates;
-            request.totalItemsBreakdown = totalItemsBreakdown;
-        });
+            const requestOrders = orders.filter(order => order.requestID === request.requestID);
+
+            for (const order of requestOrders) {
+                deliveryDates.push(order.deliveryDate);
+                deliveriesCount++;
+
+                for (const item of order.items) {
+                    const itemDetails = await Item.findOne({ itemID: item.itemID });
+                    const itemIndex = totalItemsBreakdown.findIndex(i => i.itemID === item.itemID);
+                    if (itemIndex === -1) {
+                        totalItemsBreakdown.push({ 
+                            itemID: item.itemID, 
+                            quantity: item.quantity, 
+                            itemName: itemDetails.itemName 
+                        });
+                        itemNames.push(itemDetails.itemName);
+                    } else {
+                        totalItemsBreakdown[itemIndex].quantity += item.quantity;
+                    }
+                }
+            }
+
+            return {
+                ...request.toObject(),
+                deliveriesCount,
+                deliveryDates,
+                totalItemsBreakdown,
+                itemNames: itemNames.join(', ')
+            };
+        }));
+
+        console.log('Processed requests:', requests); // Log the processed requests
 
         res.render('customer_dashboard', {
             title: 'Dashboard',
