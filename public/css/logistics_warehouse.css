@@ -1,0 +1,115 @@
+/* General styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Onest', sans-serif;
+    color: #000;
+    background-color: #fff;
+}
+
+.main-layout {
+    display: flex;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 200px;
+    background-color: #f0f0f0;
+    padding: 20px;
+    height: calc(100vh - 60px); 
+    position: fixed;
+    top: 60px; 
+    left: 0;
+    z-index: 10;
+    overflow-y: auto;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin-bottom: 15px;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: #333;
+}
+
+.sidebar ul li a:hover {
+    color: #018D9A;
+}
+
+/* Warehouse Inventory Styles */
+.warehouse-inventory-container {
+    margin-left: 220px; /* Space for sidebar */
+    padding: 20px;
+    width: calc(100% - 220px);
+}
+
+.warehouse-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+}
+
+h2 {
+    font-size: 36px;
+    font-weight: bold;
+}
+
+.import-button {
+    background-color: var(--green);
+    color: var(--white);
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.import-button i {
+    margin-left: 5px;
+}
+
+/* Inventory Table Styles */
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #F5F5F5;
+}
+
+.inventory-table thead th {
+    background-color: var(--turquoise);
+    color: var(--white);
+    padding: 15px;
+    text-align: left;
+}
+
+.inventory-table tbody td {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.user-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-left: 10px;
+}
+
+.edit-icon {
+    cursor: pointer;
+    color: var(--green);
+}
+
+.edit-icon:hover {
+    color: var(--dark-magenta);
+}

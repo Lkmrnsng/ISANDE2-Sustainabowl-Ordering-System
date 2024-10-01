@@ -1,0 +1,116 @@
+
+        {{!-- <table class="inventory-table">
+            <thead>
+                <tr>
+                    <th>Particular</th>
+                    <th>Available (kg)</th>
+                    <th>Reserved (kg)</th>
+                    <th>Total (kg)</th>
+                    <th>Incoming (kg)</th>
+                    <th>Incoming Date</th>
+                    <th>Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each inventoryItems as |item|}}
+                <tr>
+                    <td>{{item.particular}}</td>
+                    <td>
+                        {{item.available}}
+                        {{#if item.userIcon}}
+                        <img src="{{item.userIcon}}" class="user-icon" />
+                        {{/if}}
+                    </td>
+                    <td>{{item.reserved}}</td>
+                    <td>{{item.total}}</td>
+                    <td>{{item.incoming}}</td>
+                    <td>{{item.incomingDate}}</td>
+                    <td><i class="edit-icon">✏️</i></td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table> --}}
+        
+<div class="main-layout">
+    <div class="sidebar">
+        <ul>
+            <li><a href="/logistics_dashboard">Dashboard</a></li>
+            <li><a href="/logistics_calendar">Calendar</a></li>
+            <li><a href="/logistics_foodprocess">Food Processing</a></li>
+            <li><a href="/logistics_delivery">Delivery</a></li>
+            <li><a href="/logistics_warehouse">Warehouse Inventory</a></li>
+            <li><a href="/logistics_partners">Logistics Partners</a></li>
+            <li><a href="/logistics_procurement">Procurement</a></li>
+            <li><a href="/logistics_sendalert">Send an Alert</a></li>
+            <li><a href="/logistics_account">Account</a></li>
+        </ul>
+    </div>
+
+    <main class="warehouse-inventory-container">
+        <div class="warehouse-header">
+            <h2>Warehouse Inventory</h2>
+            <button class="import-button">Import <i class="plus-icon">+</i></button>
+        </div>
+
+        <table class="inventory-table">
+            <thead>
+                <tr>
+                    <th>Particular</th>
+                    <th>Available (kg)</th>
+                    <th>Reserved (kg)</th>
+                    <th>Total (kg)</th>
+                    <th>Incoming (kg)</th>
+                    <th>Incoming Date</th>
+                    <th>Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Rice</td>
+                    <td>500 </td>
+                    <td>50</td>
+                    <td>550</td>
+                    <td>100</td>
+                    <td>2024-10-05</td>
+                    <td><i class="edit-icon">✏️</i></td>
+                </tr>
+                <tr>
+                    <td>Wheat Flour</td>
+                    <td>300 </td>
+                    <td>30</td>
+                    <td>330</td>
+                    <td>120</td>
+                    <td>2024-10-10</td>
+                    <td><i class="edit-icon">✏️</i></td>
+                </tr>
+                <tr>
+                    <td>Sugar</td>
+                    <td>200 </td>
+                    <td>20</td>
+                    <td>220</td>
+                    <td>80</td>
+                    <td>2024-10-07</td>
+                    <td><i class="edit-icon">✏️</i></td>
+                </tr>
+                <tr>
+                    <td>Salt</td>
+                    <td>150</td>
+                    <td>15</td>
+                    <td>165</td>
+                    <td>50</td>
+                    <td>2024-10-12</td>
+                    <td><i class="edit-icon">✏️</i></td>
+                </tr>
+                <tr>
+                    <td>Cooking Oil</td>
+                    <td>80 </td>
+                    <td>10</td>
+                    <td>90</td>
+                    <td>60</td>
+                    <td>2024-10-08</td>
+                    <td><i class="edit-icon">✏️</i></td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+</div>
