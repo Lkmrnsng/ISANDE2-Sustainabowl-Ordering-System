@@ -48,7 +48,8 @@ async function getDashboard(req, res) {
                         totalItemsBreakdown.push({ 
                             itemID: item.itemID, 
                             quantity: item.quantity, 
-                            itemName: itemDetails.itemName 
+                            itemName: itemDetails.itemName,
+                            itemPrice: itemDetails.itemPrice
                         });
                         itemNames.push(itemDetails.itemName);
                     } else {
@@ -57,12 +58,18 @@ async function getDashboard(req, res) {
                 }
             }
 
+            //get the name of the Sales Rep
+            const pointPerson = await User.findOne({ userID: request.pointPersonID });
+            
+
             return {
                 ...request.toObject(),
                 deliveriesCount,
                 deliveryDates,
                 totalItemsBreakdown,
-                itemNames: itemNames.join(', ')
+                itemNames: itemNames.join(', '),
+                pointPersonName: pointPerson.name
+                
             };
         }));
 
@@ -81,7 +88,38 @@ async function getDashboard(req, res) {
     }
 }
 
+async function getBreakdown(req, res) {
+    try {
+        const requestId = req.params.requestId;
+        
+        // Fetch the request by ID
+        const request = await Request.findById(requestId);
+        
+        // Fetch the associated items using the item IDs from the request
+        const items = await Item.find({ _id: { $in: request.items } });
+        
+        // Map the items to include the breakdown data
+        const breakdownData = items.map(item => {
+            // Count the number of times this item appears in the request
+            const quantity = request.items.filter(id => id.equals(item._id)).length;
+
+            return {
+                itemID: item._id,
+                itemName: item.name,
+                quantity: quantity,  // The quantity of this item
+                itemPrice: item.price
+            };
+        });
+
+        // Send the breakdown data as JSON
+        res.json(breakdownData);
+    } catch (error) {
+        console.error('Error in getBreakdown:', error);
+        res.status(500).send('An error occurred while fetching the breakdown data');
+    }
+}
 
 module.exports = {
-    getDashboard
+    getDashboard,
+    getBreakdown
 }; // Export the functions so it can be used in routes/customerRoutes.js

@@ -1,81 +1,117 @@
-<div class="sidebar">
-    <h2>Main Menu</h2>
-    <ul>
-        <li><a href="/my-requests">My Requests</a></li>
-        <li><a href="/my-orders">My Orders</a></li>
-        <li><a href="/chats">Chats</a></li>
-        <li><a href="/cancel-order">Cancel Orders</a></li>
-        <li><a href="/account">Account</a></li>
-    </ul>
-</div>
-
-<div class="main-content">
-    <div class="requests-list">
-        <h1>My Requests</h1>
-        <div class="search-bar">
-            <input type="text" placeholder="Search...">
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <h2>Main Menu</h2>
+            <ul>
+                <li><a href="/my-requests" class="active">My Requests</a></li>
+                <li><a href="/my-orders">My Orders</a></li>
+                <li><a href="/chats">Chats</a></li>
+                <li><a href="/cancel-order">Cancel Orders</a></li>
+                <li><a href="/account">Account</a></li>
+            </ul>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Request ID</th>
-                    <th>Status</th>
-                    <th>Date/s</th>
-                    <th>Items</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
+
+        <div class="main-content">
+            <h1>Track Your Requests</h1>
+            <div class="requests-list">
                 {{#each requests}}
-                <tr class="request-row" 
-                    data-deliveriesCount="{{this.deliveriesCount}}" 
-                    data-deliveryDates='{{json this.deliveryDates}}'
-                    data-totalItemsBreakdown='{{json this.totalItemsBreakdown}}'>
-                    <td>{{this.requestID}}</td>
-                    <td>{{this.status}}</td>
-                    <td>{{formatDates this.deliveryDates}}</td>
-                    <td>{{this.itemNames}}</td>
-                    <td>View Details</td>
-                </tr>
+                <div class="request-row" data-request-id="{{this.requestID}}">
+                    <div class="request-summary">
+                        <span class="request-id">Request ID: {{this.requestID}}</span>
+                        <span class="request-status">Status: {{this.status}}</span>
+                        <span class="request-date">Request Date: {{formatDate this.requestDate}}</span>
+                        <span class="request-items">Items: {{this.itemNames}}</span>
+                        <span class="toggle-details">▼</span>
+                    </div>
+                    <div class="request-details hidden">
+                        <h3>Request Details</h3>
+                        <p><strong>Sales Representative:</strong> {{this.pointPersonName}}</p>
+                        <p><strong>Number of Deliveries:</strong> {{this.deliveriesCount}}</p>
+                        <p><strong>Delivery Dates:</strong> {{formatDates this.deliveryDates}}</p>
+                        
+                        <div class="stage-tracker">
+                            <div class="stage">
+                                <div class="stage-dot {{#if (eq this.status 'Received')}}active{{/if}}"></div>
+                                <div class="stage-label">Received</div>
+                            </div>
+                            <div class="stage">
+                                <div class="stage-dot {{#if (eq this.status 'Negotiation')}}active{{/if}}"></div>
+                                <div class="stage-label">Negotiation</div>
+                            </div>
+                            <div class="stage">
+                                <div class="stage-dot {{#if (eq this.status 'Approved')}}active{{/if}}"></div>
+                                <div class="stage-label">Approved</div>
+                            </div>
+                        </div>
+
+                        <div class="request-actions">
+                            <button class="contact-sales">Contact Sales</button>
+                            <button class="cancel-request">Cancel Request</button>
+                            <button class="give-feedback">Give Feedback</button>
+                        </div>
+                    </div>
+                </div>
                 {{/each}}
-            </tbody>
-        </table>
-        <button class="place-request-btn">Place a Request</button>
+            </div>
+
+            <div class="total-breakdown">
+                <h2>Total Item Breakdown</h2>
+                <p>This is how much the request will cost you in total, after all deliveries are made.</p>
+                <div id="breakdown-content">
+                    <!-- This will be populated dynamically when a request is selected -->
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="request-details">
-        <h2>Request Details</h2>    
-        <p><strong>Number of Deliveries:</strong> <span id="deliveriesCount"></span></p>
-        <p><strong>Delivery Dates:</strong> <span id="deliveryDates"></span></p>
-        <p><strong>Total Items Breakdown:</strong> <span id="totalItemsBreakdown"></span></p>
-        <button class="give-feedback-btn">Give Feedback</button>
-    </div>
-</div>
 
 <script>
-    document.querySelectorAll('.request-row').forEach(row => {
-        row.addEventListener('click', function() {
-            const deliveriesCount = this.dataset.deliveriescount;
-            const deliveryDates = JSON.parse(this.dataset.deliverydates); // Parse delivery dates
-            const totalItemsBreakdown = JSON.parse(this.dataset.totalitemsbreakdown); // Parse items breakdown
+    document.addEventListener('DOMContentLoaded', function() {
+        const requestsData = {{{json requests}}};  // Embeds the requests array as JSON
 
-            // Log to debug (optional)
-            console.log("Clicked request details: ", {
-                deliveriesCount,
-                deliveryDates,
-                totalItemsBreakdown
+        const requestRows = document.querySelectorAll('.request-row');
+        const breakdownContent = document.getElementById('breakdown-content');
+
+        requestRows.forEach(row => {
+            const summary = row.querySelector('.request-summary');
+            const details = row.querySelector('.request-details');
+            const toggleIcon = row.querySelector('.toggle-details');
+
+            summary.addEventListener('click', function() {
+                details.classList.toggle('hidden');
+                toggleIcon.textContent = details.classList.contains('hidden') ? '▼' : '▲';
+
+                // Update the Total Item Breakdown
+                const requestId = row.dataset.requestId;
+                updateTotalBreakdown(requestId);
             });
-
-            // Update the request details section
-            document.getElementById('deliveriesCount').textContent = deliveriesCount;
-            document.getElementById('deliveryDates').textContent =  deliveryDates.join('| ');
-            document.getElementById('totalItemsBreakdown').textContent = totalItemsBreakdown
-                .map(item => `Item ID: ${item.itemID}, Quantity: ${item.quantity}`)
-                .join(', ');
-
-            // Optionally highlight the selected row
-            document.querySelectorAll('.request-row').forEach(r => r.classList.remove('selected'));
-            this.classList.add('selected');
         });
+
+        function updateTotalBreakdown(requestId) {
+            // Find the request in the requestsData array using the requestId
+            const request = requestsData.find(req => req.requestID == requestId);
+
+            if (request) {
+                let breakdownHTML = '<ul class="items-list">';
+                let total = 0;
+
+                // Loop through the totalItemsBreakdown array to show item details
+                request.totalItemsBreakdown.forEach(item => {
+                    const itemTotal = item.quantity * item.itemPrice;
+                    total += itemTotal;
+                    breakdownHTML += `<li>${item.itemName}: ${item.quantity} x $${item.itemPrice.toFixed(2)} = $${itemTotal.toFixed(2)}</li>`;
+                });
+
+                breakdownHTML += `</ul><p><strong>Total: $${total.toFixed(2)}</strong></p>`;
+
+                // Display the delivery dates
+                request.deliveryDates.forEach(date => {
+                    breakdownHTML += `<p class="delivery-date">Delivery on: ${new Date(date).toLocaleDateString()}</p>`;
+                });
+
+                breakdownContent.innerHTML = breakdownHTML;
+            } else {
+                breakdownContent.innerHTML = '<p>No breakdown data available for this request.</p>';
+            }
+        }
     });
 </script>
