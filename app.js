@@ -141,9 +141,6 @@ app.use((req, res, next) => {
 // Routes
 app.use('/customer', customerRoutes);
 
-
-
-
 // app.get('/', (req, res) => {
 //     res.render('index', {
 //         title: "Home",
@@ -154,15 +151,12 @@ app.use('/customer', customerRoutes);
 
 // megan test 
 app.get('/', async (req, res) => {
-
-
     res.render('marketplace_catalog', {
         title: "Home",
         css: ["index.css"],
         layout: "marketplace"
     });
 });
-
 
 
 // ishi test
@@ -173,7 +167,6 @@ app.get('/', async (req, res) => {
 //         layout: "main"
 //     });
 // });
-
 
 app.post('/login', 
     passport.authenticate('local', {
@@ -189,7 +182,6 @@ app.post('/login',
         res.redirect('/'); 
     }
 );
-
 
 app.get('/login', (req, res) => {
     if(req.user){

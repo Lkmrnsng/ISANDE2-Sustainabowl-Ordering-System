@@ -1,5 +1,59 @@
 <main>
-    <div>
+    {{!-- Add back button to undo action? --}}
+
+    <div id="address-div">
+        <div id="input-address-div">
+            {{!-- <h2>Enter your delivery address</h2>
+            <input type="text" id="input-address" placeholder="Enter your address">
+            <button onclick="validateAddress()">Submit</button> --}}
+        </div>
+
+        <div id="saved-address-div">
+            <h2>Saved addresses</h2>
+            <ul id="saved-addresses-list"></ul>
+        </div>
+
+        <div id="proceed-to-schedule-div">
+            <button onclick="displaySchedule()">Proceed to Schedule</button>
+        </div>
+    </div>
+
+    <div id="schedule-div">
+        {{!-- content here --}}
+
+        <div id="proceed-to-payment-div">
+            <button onclick="displayPayment()">Proceed to Payment</button>
+        </div>
+    </div>
+
+    <div id="payment-div">
+        <div id="input-payment-div">
+            {{!-- <h2>Payment</h2>
+            <input type="text" id="payment-card-number" placeholder="Enter your payment card number">
+            <input type="text" id="payment-expiry-date" placeholder="Enter your expiry date (MM/YY)"> --}}
+        </div>
         
+        <div id="saved-payment-div">
+            {{!-- <h2>Saved payment methods</h2>
+            <ul id="saved-payment-methods-list"></ul> --}}
+        </div>
+
+        <div id="finish-payment-div">
+            <button onclick="finishPayment()">Finalize Request Details</button>
+        </div>
+    </div>
+
+    <div id="finish-request-div">
+        <p id="finish-request-message">By clicking the button below, I understand that I am placing a request for produce, which is not guaranteed yet to be approved. I will await the Sales team to inform me of what can be fulfilled!</p>
+        <div id="submit-request-div">
+            <button onclick="submitRequest()">Submit Request</button>
+        </div>
+    </div>
+
+    <div id="cart-div">
+        {{!-- <div id="cart-summary-div">
+            <h2>Cart Summary</h2>
+            <!-- display cart items and total -->
+        </div> --}}
     </div>
 </main>
