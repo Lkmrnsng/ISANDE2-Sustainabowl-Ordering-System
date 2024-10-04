@@ -1,59 +1,176 @@
 <main>
-    {{!-- Add back button to undo action? --}}
+    {{!-- Add back button to undo action? I don't know how :") --}}
 
+    {{!-- Selector and double forms for address input --}}
     <div id="address-div">
+        <h2>Deliver To</h2>
+
+        <div id="select-address-div">
+            <button id="input-address-button" onclick="inputAddress()">Input Address</button>
+            <button id="saved-address-button" onclick="savedAddress()">Saved Address</button>"
+        </div>
+
         <div id="input-address-div">
-            {{!-- <h2>Enter your delivery address</h2>
-            <input type="text" id="input-address" placeholder="Enter your address">
-            <button onclick="validateAddress()">Submit</button> --}}
+            <form action="displaySchedule()" method="post">
+                <label for="name">Name of Recipient</label>
+                <input type="text" id="name" name="name" placeholder="Name" required>
+
+                <label for="block">House/Block/Lot No.</label>
+                <input type="text" id="block" name="block" placeholder="Block" required>
+                
+                <label for="street">Street</label>
+                <input type="text" id="street" name="street" placeholder="Street" required>
+
+                <label for="postal">Postal Code</label>
+                <input type="text" id="postal" name="postal" placeholder="XXXX" required>
+
+                <label for="region">Region/Province</label>
+                <input type="text" id="region" name="region" placeholder="Region" required>
+
+                <label for="number">Contact No.</label>
+                <input type="text" id="number" name="number" placeholder="XXX-XXX-XXXX" required>
+
+                <label for="saveAddress">Save Address?</label>
+                <input type="checkbox" id="saveAddress" name="saveAddress">
+
+                <input type="submit" value="Continue to Schedule">
+            </form>
         </div>
 
         <div id="saved-address-div">
-            <h2>Saved addresses</h2>
-            <ul id="saved-addresses-list"></ul>
+            <form action="displaySchedule()" method="post">
+                {{#each address}}
+                    <input type="radio" class="selectAddress">
+                    <p>{{this.address}}</p>
+                    <p>{{this.name}}</p>
+                    <p>{{this.number}}</p>
+                {{/each}}
+
+                <input type="submit" value="Continue to Schedule">
+            </form>
         </div>
 
-        <div id="proceed-to-schedule-div">
-            <button onclick="displaySchedule()">Proceed to Schedule</button>
+        {{!-- This part only appears when displaySchedule() is clicked --}}
+        <button onclick="editAddress()">Edit Address</button>
+        <div id="final-address-div">
+            <p>{{finalAddress}}</p>
+            <p>{{finalName}}</p>
+            <p>{{finalNumber}}</p>
         </div>
     </div>
 
     <div id="schedule-div">
-        {{!-- content here --}}
+        <h2>Delivery Schedule</h2>
 
-        <div id="proceed-to-payment-div">
-            <button onclick="displayPayment()">Proceed to Payment</button>
+        <form id="delivery-schedule-div" onclick="displayPayment()" method="post">
+            <label for="date">Delivery Date/s</label>
+            <input type="date" id="date" name="date" placeholder="MM/DD/YYYY" required>
+
+            <label for="time">Delivery Time</label>
+            <input type="time" id="time" name="time" placeholder="00:00" required>
+
+            <label for="customization">Any Customization Requests?</label>
+            <input type="text" id="customization" name="customization" placeholder="e.g. Thinly slice the tomatoes">
+
+            <p>Note: This will generate {{num}} requests.</p>
+
+            <input type="submit" value="Continue to Payment">
+        </form>
+
+        {{!-- This part only appears when displayPayment() is clicked --}}
+        <button onclick="editSchedule()">Edit Schedule</button>
+        <div id="final-schedule-div">
+            <p>{{schedule}}, {{time}}, on {{date}}</p>
+            <p>{{remarks}}</p>
         </div>
     </div>
 
     <div id="payment-div">
-        <div id="input-payment-div">
-            {{!-- <h2>Payment</h2>
-            <input type="text" id="payment-card-number" placeholder="Enter your payment card number">
-            <input type="text" id="payment-expiry-date" placeholder="Enter your expiry date (MM/YY)"> --}}
-        </div>
-        
-        <div id="saved-payment-div">
-            {{!-- <h2>Saved payment methods</h2>
-            <ul id="saved-payment-methods-list"></ul> --}}
+        <h2>Payment Details</h2>
+        <p>Note that the payment will not be collected until the delivery is made.</p>
+
+        <div id="select-payment-div">
+            <button id="input-payment-button" onclick="inputPayment()">Input Payment Method</button>
+            <button id="saved-payment-button" onclick="savedPayment()">Saved Payment Methods</button>
         </div>
 
-        <div id="finish-payment-div">
-            <button onclick="finishPayment()">Finalize Request Details</button>
+        <div id="input-payment-div">
+            <form action="displayCheckout()" method="post">
+                <label for="method">Payment Method</label>
+                <select id="method">
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Gcash">PayPal</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <label for="card">Card No.</label>
+                <input type="text" id="card" name="card" placeholder="XXXX XXXX XXXX XXXX" required>
+                
+                <label for="validity">Valid Thru (MM/YY)</label>
+                <input type="text" id="validity" name="validity" placeholder="XX/XX" required>
+
+                <label for="cvv">CVV</label>
+                <input type="text" id="cvv" name="cvv" placeholder="XXX" required>
+
+                <label for="savePayment">Save Payment Method?</label>
+                <input type="checkbox" id="savePayment" name="savePayment">
+
+                <input type="submit" value="Finalize Request Details">
+            </form>
+        </div>
+
+        <div id="saved-payments-div">
+            <form action="displayCheckout()" method="post">
+                {{#each method}}
+                    <input type="radio" class="selectPayment">
+                    <p>{{this.type}}</p>
+                    <p>{{this.number}}</p>
+                {{/each}}
+
+                <input type="submit" value="Finalize Request Details">
+            </form>
+        </div>
+
+        {{!-- This part only appears when displayCheckout() is clicked --}}
+        <button onclick="editPayment()">Edit Payment Method</button>
+        <div id="final-payment-div">
+            <p>{{finalType}}</p>
+            <p>{{finalNumber}}</p>
+            <p>Note that the payment will not be collected until the delivery is made.</p>
         </div>
     </div>
 
     <div id="finish-request-div">
-        <p id="finish-request-message">By clicking the button below, I understand that I am placing a request for produce, which is not guaranteed yet to be approved. I will await the Sales team to inform me of what can be fulfilled!</p>
-        <div id="submit-request-div">
-            <button onclick="submitRequest()">Submit Request</button>
-        </div>
+        <form action="checkout()" method="post">
+            <p id="finish-request-message">By clicking the button below, I understand that I am placing a request for produce, which is not guaranteed yet to be approved. I will await the Sales team to inform me of what can be fulfilled!</p>
+            <input type="submit" value="Submit Request">
+        </form>
     </div>
 
     <div id="cart-div">
-        {{!-- <div id="cart-summary-div">
-            <h2>Cart Summary</h2>
-            <!-- display cart items and total -->
-        </div> --}}
+        <div id="cart-summary-div">
+        {{#each cartItem}}
+            <img src="/img/{{this.image}}.png" alt="{{this.image}}" width="40px" height="40px">
+            <h3>{{this.name}}</h3>
+            <img src="plus-icon.png" width="40px" height="40px" onclick="addQty()">
+            <p>{{this.quantity}}</p>
+            <img src="minus-icon.png" width="40px" height="40px" onclick="lessQty()">
+            <p>x ₱ {{this.price}} / kg</p>
+            <p>₱ {{subtotal}}</p> 
+        {{/each}}
+
+        <hr>
+        <h3>Request Total:</h3>
+        <h3>₱ {{total}}</h3>
+        </div>
+    </div>
+
+    <div id="confirmation-popup">
+        <img src="check-icon.png" width="40px" height="40px">
+        <h2>Request Received!</h2>
+        <p>Our sales team will contact you soon.</p>
+        <p>Request ID: {{requestID}}</p>
+        <button onclick="closeConfirmation()">Thanks!</button>
     </div>
 </main>
