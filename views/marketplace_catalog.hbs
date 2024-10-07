@@ -20,7 +20,7 @@
             <div class="card-container">
                 <!-- Sample Product 1 -->
                 <div class="card-element">
-                    <img src="/img/tomato.jpg" alt="tomato">
+                    <img src="/img/tomato.jpg" alt="product-image">
                     <div class="produce-details">
                         <div class="details-top">
                             <h3>Tomato</h3>
@@ -36,75 +36,14 @@
 
                         </div>
                     </div>
-                    
+
                 </div>
 
-               <!-- Sample Product 1 -->
-                <div class="card-element">
-                    <img src="/img/tomato.jpg" alt="tomato">
-                    <div class="produce-details">
-                        <div class="details-top">
-                            <h3>Tomato</h3>
-                            <p>₱50 / kg</p>
-                        </div>
-                        <div class="actions">
-                            <div class="quantity-control">
-                                <i class="fa-regular fa-square-plus"></i>
-                                <p>1 kg</p>
-                                <i class="fa-regular fa-square-minus"></i>
-                            </div>
-                            <button onclick="addToCart()">Add to Request</button>
-
-                        </div>
-                    </div>
-                    
-                </div>
-
-                <!-- Sample Product 1 -->
-                <div class="card-element">
-                    <img src="/img/tomato.jpg" alt="tomato">
-                    <div class="produce-details">
-                        <div class="details-top">
-                            <h3>Tomato</h3>
-                            <p>₱50 / kg</p>
-                        </div>
-                        <div class="actions">
-                            <div class="quantity-control">
-                                <i class="fa-regular fa-square-plus"></i>
-                                <p>1 kg</p>
-                                <i class="fa-regular fa-square-minus"></i>
-                            </div>
-                            <button onclick="addToCart()">Add to Request</button>
-
-                        </div>
-                    </div>
-                    
-                </div>
-                <!-- Sample Product 1 -->
-                <div class="card-element">
-                    <img src="/img/tomato.jpg" alt="tomato">
-                    <div class="produce-details">
-                        <div class="details-top">
-                            <h3>Tomato</h3>
-                            <p>₱50 / kg</p>
-                        </div>
-                        <div class="actions">
-                            <div class="quantity-control">
-                                <i class="fa-regular fa-square-plus"></i>
-                                <p>1 kg</p>
-                                <i class="fa-regular fa-square-minus"></i>
-                            </div>
-                            <button onclick="addToCart()">Add to Request</button>
-
-                        </div>
-                    </div>
-                    
-                </div>
             </div>
         </div>
 
         <!-- Produce Description Overlay -->
-        <div class="description-overlay" id="description-overlay">
+        {{!-- <div class="description-overlay" id="description-overlay">
             <div class="overlay-content">
                 <img src="x-icon.png" width="40px" height="40px" onclick="closeOverlay()">
                 <h2>More About: Tomato</h2>
@@ -113,6 +52,26 @@
                 <button onclick="addToCartOverlay()">Add to Request</button>
                 <h3>Product Description:</h3>
                 <p>Fresh and ripe tomatoes sourced locally from sustainable farms.</p>
+            </div>
+        </div> --}}
+
+        <!-- Overlay for Product Description -->
+        <div id="description-overlay" >
+            <div class="overlay-content">
+                <i class="fa-solid fa-xmark" alt="Close" onclick="closeOverlay()"></i>
+
+                <h2>More About: <span id="overlay-name"></span></h2>
+                <div class="details-desc-container">
+                    <img id="overlay-image" src="" alt="Product Image" >
+                    <div class="details-desc">
+                        <p id="overlay-price"></p>
+                        <button onclick="addToCart()">Add to Request</button>
+                        <h3>Product Description:</h3>
+                        <p id="overlay-description"></p>
+
+                    </div>
+
+                </div>
             </div>
         </div>
 
@@ -139,7 +98,7 @@
         </div>
 
 
-{{!-- 
+{{!--
 
 
         <div class="catalog-div"></div>
@@ -160,7 +119,7 @@
             </div>
         </div>
 
-        
+
         <div class="description-overlay">
             <img src="x-icon.png" width="40px" height="40px" onclick="closeOverlay()">
             <h2>More About: {{item}}</h2>
@@ -171,7 +130,7 @@
             <p>{{description}}</p>
         </div>
 
-        
+
         <div class="cart-overlay">
             {{#each cartItem}}
                 <img src="/img/{{this.image}}.png" alt="{{this.image}}" width="40px" height="40px">
@@ -180,7 +139,7 @@
                 <p>{{this.quantity}}</p>
                 <img src="minus-icon.png" width="40px" height="40px" onclick="lessQty()">
                 <p>x ₱ {{this.price}} / kg</p>
-                <p>₱ {{subtotal}}</p> 
+                <p>₱ {{subtotal}}</p>
             {{/each}}
 
             <hr>
@@ -194,3 +153,5 @@
 
     </div>
 </main>
+
+<script src="/js/marketplace_catalog.js"></script>

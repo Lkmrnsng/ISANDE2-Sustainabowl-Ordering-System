@@ -14,4 +14,14 @@
 .header-right {
     display: flex;
     align-items: center;
+    justify-content: space-around;
+}
+
+.header-right p{
+    margin-right: 20px;
+}
+
+.header-right i{
+    cursor: pointer;
+    margin-right: 20px;
 }
