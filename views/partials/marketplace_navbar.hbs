@@ -1,6 +1,12 @@
 <header>
-    <div id="header-left">
-        <img src="/img/Sustainabowl.svg" alt="sustainabowl-logo" width="160px" height="90px">
+    <div class="header-left">
+        <a href="/"><img    
+            src="/img/Sustainabowl.svg" 
+            alt="Sustainabowl Logo" 
+            class="logo"
+        >
+        <p>Sustainabowl</p>
+        </a>
     </div>
 
     {{#if homepage}}
@@ -14,11 +20,11 @@
         </div>
     {{/if}}
 
-    <div id="header-right">
+    <div class="header-right">
         <p>Customer</p>
-        <img src="account-icon.png" width="150px" height="150px" onclick="openAccount()">
+        <img src="account-icon.png" onclick="openAccount()">
         {{#if homepage}}
-            <img src="cart-icon.png" width="150px" height="150px" onclick="openCart()">
+            <img src="cart-icon.png" onclick="openCart()">
         {{/if}}
     </div>
 </header>

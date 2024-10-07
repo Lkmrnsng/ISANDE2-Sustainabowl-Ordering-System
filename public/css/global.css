@@ -147,9 +147,9 @@ footer {
     width: 100%;
     min-height: 100px;
     background-color: var(--grey);
-    margin-top: auto;
+    margin-top: 50px;
     padding: 0 50px;
-    position: absolute;
+    position: relative;
     bottom: 0;
   }
 

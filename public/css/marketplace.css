@@ -1,0 +1,17 @@
+.container {
+    margin-top: 100px;
+}
+
+.header-left a{
+    display: flex;
+    align-items: center;
+}
+
+.header-left a img {
+    margin-right: 10px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}

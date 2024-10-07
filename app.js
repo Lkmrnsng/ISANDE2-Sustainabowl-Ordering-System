@@ -151,9 +151,9 @@ app.use('/customer', customerRoutes);
 
 // megan test 
 app.get('/', async (req, res) => {
-    res.render('marketplace_checkout', {
+    res.render('marketplace_catalog', {
         title: "Home",
-        css: ["index.css"],
+        css: ["marketplace_catalog.css", "marketplace.css"],
         layout: "marketplace"
     });
 });

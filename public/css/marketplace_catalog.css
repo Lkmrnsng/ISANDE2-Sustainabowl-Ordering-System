@@ -1,1 +1,219 @@
-/* need help :") */
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Banner Section */
+.banner-div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #e0e0e0;
+    padding: 20px;
+    margin-bottom: 30px;
+    width: 1;
+}
+
+.left-banner-div {
+    width: 60%;
+}
+
+.left-banner-div h1 {
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+.left-banner-div p {
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+.right-banner-div img {
+    width: 400px;
+    height: auto;
+}
+
+/* Featured Products Section */
+.catalog-div {
+    margin-bottom: 30px;
+}
+
+.catalog-div h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+.card-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Adjust the number of columns based on your need */
+    gap: 20px;
+}
+
+.card-element {
+    
+    text-align: center;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.card-element:hover {
+    transform: translateY(-5px);s
+}
+
+.card-element img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border-radius: 20px;
+}
+
+.card-element h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.card-element p {
+    font-size: 16px;
+}
+
+.card-element button {
+    background-color: --green;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 10px;
+}
+
+.card-element button:hover {
+    background-color: --yellow;
+}
+
+/* Quantity Controls */
+.card-element img {
+    cursor: pointer;
+}
+
+.card-element .quantity-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    
+}
+
+.card-element .quantity-control img {
+    margin: 0 5px;
+}
+
+.details-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 5px;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Cart Overlay */
+.cart-overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: none; /* Initially hidden */
+}
+
+.cart-overlay h3 {
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+.cart-overlay img {
+    width: 50px;
+    height: 50px;
+}
+
+.cart-overlay .cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.cart-overlay button {
+    background-color: #f44336;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.cart-overlay button:hover {
+    background-color: #e53935;
+}
+
+/* Description Overlay */
+.description-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none; /* Initially hidden */
+    justify-content: center;
+    align-items: center;
+}
+
+.description-overlay .overlay-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 600px;
+    text-align: center;
+}
+
+.description-overlay img {
+    width: 150px;
+    height: 150px;
+    margin-bottom: 20px;
+}
+
+.description-overlay h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.description-overlay p {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.description-overlay button {
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.description-overlay button:hover {
+    background-color: #45a049;
+}
