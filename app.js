@@ -161,9 +161,9 @@ app.get('/', async (req, res) => {
 
 // ishi test
 // app.get('/', (req, res) => {
-//     res.render('logistics_partners', {
+//     res.render('logistics_sendalert', {
 //         title: "Home",
-//         css: ["logistics_partners.css"],
+//         css: ["logistics_sendalert.css"],
 //         layout: "main"
 //     });
 // });
