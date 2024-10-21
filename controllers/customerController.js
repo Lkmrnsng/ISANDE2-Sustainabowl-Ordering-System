@@ -119,7 +119,69 @@ async function getBreakdown(req, res) {
     }
 }
 
+// GetOrders page
+async function getOrders(req, res) {
+    try {
+        const customerId = 10001; // Test ID
+        
+        // Find requests for this customer
+        let requests = await Request.find({ customerID: customerId }).sort({ requestID: -1 });
+        requests = requests.filter(request => request.status === 'Approved');
+        
+        // Find orders for these requests
+        let orders = await Order.find({ 
+            requestID: { $in: requests.map(request => request.requestID) }
+        }).sort({ OrderID: -1 });
+
+        // Filter out waiting approval orders
+        orders = orders.filter(order => order.status !== 'Waiting Approval');
+
+        // Process the orders
+        orders = await Promise.all(orders.map(async (order) => {
+            const request = requests.find(request => request.requestID === order.requestID);
+            
+            // Process items with details
+            const processedItems = await Promise.all(order.items.map(async (item) => {
+                const itemDetails = await Item.findOne({ itemID: item.itemID });
+                return {
+                    ...item,
+                    name: itemDetails.itemName,
+                    quantity: item.quantity,
+                    price: itemDetails.itemPrice,
+                    totalPrice: itemDetails.itemPrice * item.quantity
+                };
+            }));
+
+            // Calculate total order amount
+            const totalAmount = processedItems.reduce((sum, item) => sum + item.totalPrice, 0);
+
+            // Get the sales rep name
+            const pointPerson = await User.findOne({ userID: request.pointPersonID });
+
+            return {
+                ...order.toObject(),
+                items: processedItems,
+                totalAmount,
+                pointPersonName: pointPerson.name,
+                requestDate: request.requestDate
+            };
+        }));
+
+        res.render('customer_orders', {
+            title: 'My Orders',
+            css: [ 'customer_orders.css', 'customer_dashboard.css'],
+            layout: 'main',
+            orders
+        });
+    } catch (error) {
+        console.error('Error in getOrders:', error);
+        res.status(500).send('An error occurred while fetching the orders');
+    }
+}
+
+
 module.exports = {
     getDashboard,
-    getBreakdown
+    getBreakdown,
+    getOrders
 }; // Export the functions so it can be used in routes/customerRoutes.js

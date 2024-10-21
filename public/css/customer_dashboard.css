@@ -65,28 +65,46 @@ body, html {
     display: none;
 }
 
+/* Status tracker improvements */
 .stage-tracker {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-}
-
-.stage {
-    width: 20%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+    position: relative;
+  }
+  
+  .stage-tracker::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50px;
+    right: 50px;
+    height: 2px;
+    background: #ddd;
+    z-index: 0;
+  }
+  
+  .stage {
     text-align: center;
-}
-
-.stage-dot {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .stage-dot {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background-color: #ddd;
-    margin: 0 auto 10px;
-}
-
-.stage-dot.active {
-    background-color: #4CAF50;
-}
+    background: #ddd;
+    margin: 0 auto 0.5rem;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px #ddd;
+  }
+  
+  .stage-dot.active {
+    background: #4CAF50;
+    box-shadow: 0 0 0 2px #4CAF50;
+  }
 
 .stage-label {
     font-size: 12px;
@@ -141,4 +159,65 @@ body, html {
     border: none;
     cursor: pointer;
     border-radius: 4px;
+}
+
+.header-section {
+    margin-bottom: 2rem;
+}
+
+.subtitle {
+    color: #666;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.info-icon {
+    color: #3498db;
+    font-style: normal;
+}
+
+.breakdown-details {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.request-identifier {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.delivery-dates {
+    background: #edf2f7;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.items-breakdown {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.total-amount {
+    background: #e6ffe6;
+    padding: 1rem;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-align: right;
+}
+
+.contact-note {
+    margin-top: 1rem;
+    color: #666;
+    font-style: italic;
+    font-size: 0.9rem;
 }

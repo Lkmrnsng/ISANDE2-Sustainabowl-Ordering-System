@@ -72,6 +72,18 @@ const hbs = exphbs.create({
         eq: function (a, b) {
             return a === b;
         },
+        //checkempty returns true if array is empty
+        checkempty: function (array) {
+            if (array.length > 0) {
+                return false;
+            } else {
+                return true;
+            }
+        },
+        //length helper
+        length: function (array) {
+            return array.length;
+        },
         //Format Date
         formatDate: function (date) {
             return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -79,7 +91,12 @@ const hbs = exphbs.create({
         //Format An Array of Dates, separated by | 
         formatDates: function (dates) {
             return dates.map(date => date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })).join(' | ');
+        },
+        //formatAmount
+        formatAmount: function (amount) {
+            return amount.toLocaleString('en-US', { style: 'currency', currency: 'PHP' });
         }
+
 
 
     },

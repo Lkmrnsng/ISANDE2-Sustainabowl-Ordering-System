@@ -1,0 +1,212 @@
+<div class="dashboard-container">
+    <div class="sidebar">
+        <h2>Main Menu</h2>
+        <ul>
+            <li><a href="dashboard">My Requests</a></li>
+            <li><a href="orders" class="active">My Orders</a></li>
+            <li><a href="/chats">Chats</a></li>
+            <li><a href="/cancel-order">Cancel Orders</a></li>
+            <li><a href="/account">Account</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="orders-list">
+            <div class="header-section">
+                <h1>My Orders</h1>
+                <p class="subtitle"><i class="info-icon">ℹ</i> Track your order status and delivery details here.</p>
+            </div>
+
+            {{#if (eq (length orders) 0)}}
+                <p>You have no orders at the moment</p>
+            {{else}}
+                {{#each orders}}
+                <div class="order-row" data-order-id="{{this.OrderID}}">
+                    <div class="order-summary">
+                        <span class="order-id">Order #{{this.OrderID}}</span>
+                        <span class="order-status">{{this.status}}</span>
+                        <span class="date">{{formatDate this.deliveryDate}}</span>
+                        <span class="order-amount">{{formatAmount this.totalAmount}}</span>
+                        <span class="toggle-details">▼</span>
+                    </div>
+                    <div class="order-details hidden">
+                        <div class="details-grid">
+                            <div class="details-section">
+                                <h3>Delivery Information</h3>
+                                <p><strong>Address:</strong> {{this.deliveryAddress}}</p>
+                                <p><strong>Time:</strong> {{this.deliveryTimeRange}}</p>
+                                <p><strong>Payment:</strong> {{this.paymentMethod}}</p>
+                            </div>
+                        </div>
+
+                        <div class="stage-tracker">
+                            <div class="stage">
+                                <div class="stage-dot {{#if (eq this.status 'Preparing')}}active{{/if}}"></div>
+                                <div class="stage-label">Preparing</div>
+                            </div>
+                            <div class="stage">
+                                <div class="stage-dot {{#if (eq this.status 'Dispatched')}}active{{/if}}"></div>
+                                <div class="stage-label">Dispatched</div>
+                            </div>
+                            <div class="stage">
+                                <div class="stage-dot {{#if (eq this.status 'Delivered')}}active{{/if}}"></div>
+                                <div class="stage-label">Delivered</div>
+                            </div>
+                        </div>
+
+                        {{#if this.customizations}}
+                        <div class="customizations-section">
+                            <h3>Special Instructions</h3>
+                            <p>{{this.customizations}}</p>
+                        </div>
+                        {{/if}}
+
+                        <div class="request-actions">
+                            <button class="track-delivery">Track Delivery</button>
+                            <button class="contact-support">Contact Support</button>
+                            {{#if (eq this.status 'Preparing')}}
+                            <button class="cancel-order">Cancel Order</button>
+                            {{/if}}
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+            {{/if}}
+        </div>
+
+<div class="order-breakdown">
+    <h2>Order Details</h2>
+    <div id="breakdown-content" class="breakdown-details">
+        <div class="order-identifier">
+            <h3>Order #<span class="order-id"></span></h3>
+            <p class="request-date">Requested: <span></span></p>
+        </div>
+        
+        <div class="delivery-info">
+            <h4>Delivery Details</h4>
+            <div class="delivery-details">
+                <p><strong>Date:</strong> <span class="delivery-date"></span></p>
+                <p><strong>Time:</strong> <span class="delivery-time"></span></p>
+                <p><strong>Address:</strong> <span class="delivery-address"></span></p>
+            </div>
+        </div>
+
+        <div class="order-items-breakdown">
+            <h4>Items</h4>
+            <div class="items-table">
+                <div class="item-row header">
+                    <span>Item</span>
+                    <span>Quantity</span>
+                    <span>Price</span>
+                    <span>Total</span>
+                </div>
+                <div class="items-list">
+                    <!-- Items will be inserted here via JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <div class="total-amount">
+            <strong>Total Amount: <span></span></strong>
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ordersData = {{{json orders}}};
+        const orderRows = document.querySelectorAll('.order-row');
+        const breakdownContent = document.getElementById('breakdown-content');
+        let activeOrderId = null;
+
+        orderRows.forEach(row => {
+            const summary = row.querySelector('.order-summary');
+            const details = row.querySelector('.order-details');
+            const toggleIcon = row.querySelector('.toggle-details');
+
+            summary.addEventListener('click', function() {
+                const orderId = row.dataset.orderId;
+                
+                // If clicking the same order, toggle it
+                if (activeOrderId === orderId) {
+                    details.classList.toggle('hidden');
+                    toggleIcon.textContent = details.classList.contains('hidden') ? '▼' : '▲';
+                    if (details.classList.contains('hidden')) {
+                        activeOrderId = null;
+                    }
+                } else {
+                    // Close previously open order
+                    if (activeOrderId) {
+                        const activeRow = document.querySelector(`[data-order-id="${activeOrderId}"]`);
+                        if (activeRow) {
+                            activeRow.querySelector('.order-details').classList.add('hidden');
+                            activeRow.querySelector('.toggle-details').textContent = '▼';
+                        }
+                    }
+                    // Open new order
+                    details.classList.remove('hidden');
+                    toggleIcon.textContent = '▲';
+                    activeOrderId = orderId;
+                }
+                
+                updateOrderBreakdown(orderId);
+            });
+        });
+
+        function updateOrderBreakdown(orderId) {
+            const order = ordersData.find(ord => ord.OrderID == orderId);
+
+            if (order) {
+                const orderIdentifier = document.querySelector('.order-identifier');
+                orderIdentifier.innerHTML = `
+                    <h3>Order #${order.OrderID}</h3>
+                    <p class="text-muted">Requested: ${new Date(order.requestDate).toLocaleDateString()}</p>
+                `;
+
+                const deliveryInfo = document.querySelector('.delivery-info');
+                deliveryInfo.innerHTML = `
+                    <h4>Delivery Details</h4>
+                    <p><strong>Date:</strong> ${new Date(order.deliveryDate).toLocaleDateString()}</p>
+                    <p><strong>Time:</strong> ${order.deliveryTimeRange}</p>
+                    <p><strong>Address:</strong> ${order.deliveryAddress}</p>
+                `;
+
+                const itemsBreakdown = document.querySelector('.order-items-breakdown');
+                let breakdownHTML = '<h4>Items</h4>';
+                
+                breakdownHTML += `
+                    <div class="item-row header">
+                        <span>Item</span>
+                        <span>Quantity</span>
+                        <span>Price</span>
+                        <span>Total</span>
+                    </div>
+                `;
+
+                order.items.forEach(item => {
+                    breakdownHTML += `
+                        <div class="item-row">
+                            <span class="item-name">${item.name}</span>
+                            <span>${item.quantity}</span>
+                            <span>${new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(item.price)}</span>
+                            <span class="item-total">${new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(item.totalPrice)}</span>
+                        </div>
+                    `;
+                });
+
+                itemsBreakdown.innerHTML = breakdownHTML;
+
+                const totalAmount = document.querySelector('.total-amount');
+                totalAmount.innerHTML = `
+                    <strong>Total Amount: ${new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(order.totalAmount)}</strong>
+                `;
+
+                breakdownContent.style.display = 'block';
+            } else {
+                breakdownContent.style.display = 'none';
+            }
+        }
+    });
+</script>
