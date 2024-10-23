@@ -32,3 +32,24 @@ function closeOverlay() {
     document.getElementById('description-overlay').style.display = 'none';
 }
 
+// Toggle Cart Popup on click
+document.getElementById("cart-icon").addEventListener("click", function() {
+    var cartDropdown = document.getElementById("cart-dropdown");
+    if (cartDropdown.style.display === "none" || cartDropdown.style.display === "") {
+        cartDropdown.style.display = "block";
+    } else {
+        cartDropdown.style.display = "none";
+    }
+});
+
+// Hide cart when clicking outside
+document.addEventListener("click", function(event) {
+    var cartDropdown = document.getElementById("cart-dropdown");
+    var cartIcon = document.getElementById("cart-icon");
+
+    if (!cartIcon.contains(event.target) && !cartDropdown.contains(event.target)) {
+        cartDropdown.style.display = "none";
+    }
+});
+
+
