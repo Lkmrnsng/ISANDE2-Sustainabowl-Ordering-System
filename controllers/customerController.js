@@ -163,7 +163,8 @@ async function getOrders(req, res) {
                 items: processedItems,
                 totalAmount,
                 pointPersonName: pointPerson.name,
-                requestDate: request.requestDate
+                requestDate: request.requestDate,
+                requestID: request.requestID
             };
         }));
 

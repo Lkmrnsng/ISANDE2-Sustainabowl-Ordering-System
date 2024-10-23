@@ -126,8 +126,8 @@
                     const itemTotal = item.quantity * item.itemPrice;
                     total += itemTotal;
                     breakdownHTML += `
-                        <div>${item.itemName}: ${item.quantity} × $${item.itemPrice.toFixed(2)}</div>
-                        <div>$${itemTotal.toFixed(2)}</div>
+                        <div>${item.itemName}: ${item.quantity} × ₱${item.itemPrice.toFixed(2)}</div>
+                        <div>₱${itemTotal.toFixed(2)}</div>
                     `;
                 });
 
@@ -135,7 +135,7 @@
 
                 // Update total amount
                 const totalAmount = document.querySelector('.total-amount');
-                totalAmount.innerHTML = `<strong>Total: $${total.toFixed(2)}</strong>`;
+                totalAmount.innerHTML = `<strong>Total: ₱${total.toFixed(2)}</strong>`;
 
                 // Show the breakdown
                 breakdownContent.style.display = 'block';

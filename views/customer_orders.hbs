@@ -36,6 +36,7 @@
                                 <p><strong>Address:</strong> {{this.deliveryAddress}}</p>
                                 <p><strong>Time:</strong> {{this.deliveryTimeRange}}</p>
                                 <p><strong>Payment:</strong> {{this.paymentMethod}}</p>
+                                <p><strong>Linked to Request #</strong> {{this.requestID}}</p>
                             </div>
                         </div>
 
@@ -62,7 +63,7 @@
                         {{/if}}
 
                         <div class="request-actions">
-                            <button class="track-delivery">Track Delivery</button>
+                            <button class="give-feedback">Give Feedback</button>
                             <button class="contact-support">Contact Support</button>
                             {{#if (eq this.status 'Preparing')}}
                             <button class="cancel-order">Cancel Order</button>
