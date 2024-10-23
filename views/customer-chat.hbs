@@ -1,0 +1,94 @@
+
+<div class="chat-container">
+    <div class="sidebar">
+        <h2>My Requests</h2>
+        <div class="request-list">
+            {{#each requests}}
+            <div class="request-item {{#if isActive}}active{{/if}}" data-request-id="{{requestID}}">
+                <div class="request-header">
+                    <span>Request #{{requestID}}</span>
+                    <span class="status">{{status}}</span>
+                </div>
+                <div class="request-details">
+                    <span>Date: {{formatDate2 requestDate}}</span>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+
+    <div class="chat-main">
+        <div class="chat-header">
+            {{#if activeRequest}}
+            <h3>Chat with Sales Representative</h3>
+            <div class="request-info">
+                <span>Request #{{activeRequest.requestID}}</span>
+                <span>Status: {{activeRequest.status}}</span>
+            </div>
+            {{/if}}
+        </div>
+
+        <div class="chat-content">
+            <div class="chat-messages" id="chatMessages">
+                {{#each messages}}
+                <div class="message {{#if (eq ../userId senderID)}}customer{{else}}sales{{/if}}">
+                    <div class="message-content">
+                        {{message}}
+                    </div>
+                    <div class="message-time">{{formatDate2 date}}</div>
+                </div>
+                {{/each}}
+            </div>
+
+            <div class="order-details read-only">
+                <h4>Order Details</h4>
+                <select id="orderDateSelect" class="view-only">
+                    {{#each activeRequest.orders}}
+                    <option value="{{OrderID}}">{{formatDate2 deliveryDate}}</option>
+                    {{/each}}
+                </select>
+
+                <div class="order-info">
+                    <div class="info-group">
+                        <label>Delivery Date</label>
+                        <div class="info-value">{{formatDate2 selectedOrder.deliveryDate}}</div>
+                    </div>
+                    <div class="info-group">
+                        <label>Time Range</label>
+                        <div class="info-value">{{selectedOrder.deliveryTimeRange}}</div>
+                    </div>
+                    <div class="info-group">
+                        <label>Status</label>
+                        <div class="info-value status-badge">{{selectedOrder.status}}</div>
+                    </div>
+                    <div class="info-group">
+                        <label>Delivery Address</label>
+                        <div class="info-value">{{selectedOrder.deliveryAddress}}</div>
+                    </div>
+                    <div class="info-group">
+                        <label>Customizations</label>
+                        <div class="info-value">{{selectedOrder.customizations}}</div>
+                    </div>
+                    <div class="info-group">
+                        <label>Items</label>
+                        <div class="items-list">
+                            {{#each selectedOrder.items}}
+                            <div class="item">
+                                <span class="item-name">{{itemName}}</span>
+                                <span class="item-quantity">x{{quantity}}</span>
+                            </div>
+                            {{/each}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <textarea id="messageInput" placeholder="Type your message..."></textarea>
+            <button id="sendMessage">Send</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/chat.js"></script>

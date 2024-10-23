@@ -1,28 +1,224 @@
-/* public/css/chat.css */
-#chat-messages {
-  height: 400px;
-  overflow-y: scroll;
-  border: 1px solid #ccc;
-  padding: 10px;
+/* Chat Container Layout */
+.chat-container {
+  display: flex;
+  height: calc(100vh - 100px);
+  margin: 20px;
+  gap: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Sidebar Styles */
+.sidebar {
+  flex: 0 0 300px;
+  border-right: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.sidebar h2 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.request-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.request-item {
+  padding: 15px;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid #e0e0e0;
+  transition: all 0.2s ease;
+}
+
+.request-item:hover {
+  background: #f0f4f8;
+  transform: translateY(-1px);
+}
+
+.request-item.active {
+  background: #e3f2fd;
+  border-color: #2196f3;
+}
+
+.request-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.request-details {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Main Chat Area */
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.chat-header {
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.chat-content {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Message Styles */
+.message {
+  max-width: 70%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  position: relative;
+}
+
+.message.customer {
+  align-self: flex-end;
+  background: #e3f2fd;
+  margin-left: auto;
+}
+
+.message.sales {
+  align-self: flex-start;
+  background: #f5f5f5;
+  margin-right: auto;
+}
+
+.message-content {
+  margin-bottom: 4px;
+}
+
+.message-time {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Order Details Panel */
+.order-details {
+  flex: 0 0 300px;
+  padding: 20px;
+  border-left: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  overflow-y: auto;
+}
+
+.order-details h4 {
   margin-bottom: 20px;
 }
 
-.message {
-  margin-bottom: 10px;
-  padding: 5px;
-  border-radius: 5px;
+.form-group, .info-group {
+  margin-bottom: 15px;
 }
 
-.sent {
-  background-color: #fffae6;
-  text-align: right;
+.form-group label, .info-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #666;
 }
 
-.received {
-  background-color: #f0f0f0;
+/* Input Styles */
+.chat-input {
+  padding: 20px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  gap: 10px;
 }
 
-.chat-container {
-  margin-top: 100px;
+.chat-input textarea {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  resize: none;
+  height: 60px;
 }
 
+.chat-input button {
+  padding: 0 24px;
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.chat-input button:hover {
+  background: #1976d2;
+}
+
+/* Form Controls */
+select, input[type="date"], textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: white;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.button-group button {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #2196f3;
+  color: white;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Items List */
+.items-list {
+  background: white;
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.item:last-child {
+  border-bottom: none;
+}

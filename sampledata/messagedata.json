@@ -1,0 +1,93 @@
+[
+  {
+    "senderID": 10001,
+    "receiverID": 10002,
+    "message": "Hi, I'd like to place a bulk order for vegetables for my restaurant.",
+    "date": "2024-09-24T09:00:00Z",
+    "requestID": 30001
+  },
+  {
+    "senderID": 10002,
+    "receiverID": 10001,
+    "message": "Hello John! I'd be happy to help with your bulk order. I see you're interested in tomatoes, carrots, and spinach. Would you like them prepared in any specific way?",
+    "date": "2024-09-24T09:15:00Z",
+    "requestID": 30001
+  },
+  {
+    "senderID": 10001,
+    "receiverID": 10002,
+    "message": "Yes, could we have the tomatoes sliced, carrots peeled, and spinach whole?",
+    "date": "2024-09-24T09:30:00Z",
+    "requestID": 30001
+  },
+  {
+    "senderID": 10004,
+    "receiverID": 10002,
+    "message": "Looking to discuss pricing for a regular vegetable supply for Brown's Bistro.",
+    "date": "2024-09-24T11:00:00Z",
+    "requestID": 30002
+  },
+  {
+    "senderID": 10002,
+    "receiverID": 10004,
+    "message": "Hi Alice, I can offer a 10% discount for regular bulk orders. Would you like to discuss the details?",
+    "date": "2024-09-24T11:15:00Z",
+    "requestID": 30002
+  },
+  {
+    "senderID": 10001,
+    "receiverID": 10002,
+    "message": "Could we modify the delivery time for order 40001 to the afternoon?",
+    "date": "2024-09-24T13:00:00Z",
+    "requestID": 30001
+  },
+  {
+    "senderID": 10002,
+    "receiverID": 10001,
+    "message": "Yes, I've updated the delivery time to afternoon for order 40001.",
+    "date": "2024-09-24T13:15:00Z",
+    "requestID": 30001
+  },
+  {
+    "senderID": 10004,
+    "receiverID": 10002,
+    "message": "I need to cancel order 40004 due to unexpected kitchen renovation.",
+    "date": "2024-09-24T14:15:00Z",
+    "requestID": 30004
+  },
+  {
+    "senderID": 10002,
+    "receiverID": 10004,
+    "message": "I've processed the cancellation for order 40004. No charges will be applied.",
+    "date": "2024-09-24T14:30:00Z",
+    "requestID": 30004
+  },
+  {
+    "senderID": 10001,
+    "receiverID": 10002,
+    "message": "Can we place another order similar to 40001 but with different quantities?",
+    "date": "2024-09-25T09:15:00Z",
+    "requestID": 30001
+  },
+  {
+    "senderID": 10002,
+    "receiverID": 10001,
+    "message": "Of course! I've created order 40006 with your requested modifications.",
+    "date": "2024-09-25T09:45:00Z",
+    "requestID": 30001
+  },
+  {
+    "senderID": 10001,
+    "receiverID": 10002,
+    "message": "Thanks! Could we also add a separate order for carrots?",
+    "date": "2024-09-25T13:00:00Z",
+    "requestID": 30001
+  },
+  {
+    "senderID": 10002,
+    "receiverID": 10001,
+    "message": "I've created order 40007 for the carrots. Would you like them julienned as usual?",
+    "date": "2024-09-25T13:10:00Z",
+    "requestID": 30001
+  }
+]

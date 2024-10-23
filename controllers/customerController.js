@@ -11,7 +11,7 @@ const Item = require('../models/Item');
  */
 async function getDashboard(req, res) {
     try {
-        const customerId = 10001; // Test ID
+        const customerId = req.session.userId;
 
         // Fetch requests for this customer
         let requests = await Request.find({ customerID: customerId }).sort({ requestID: -1 });
@@ -122,7 +122,7 @@ async function getBreakdown(req, res) {
 // GetOrders page
 async function getOrders(req, res) {
     try {
-        const customerId = 10001; // Test ID
+        const customerId = req.session.userId;
         
         // Find requests for this customer
         let requests = await Request.find({ customerID: customerId }).sort({ requestID: -1 });

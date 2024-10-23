@@ -3,30 +3,36 @@ const express = require('express');
 const router = express.Router();
 const chatController = require('../controllers/chatController');
 
-// Function to check if user is a verified driver
-function isAuthenticatedDriver(req, res, next) {
-  if (req.user && req.user.isVerifiedDriver) {
-    return next();
-  } else {
-    res.redirect('/login');
-    req.flash('error', 'You must be a verified driver to access that page, please login first');
-  }
+// View Routes
+router.get('/customer', chatController.getCustomerChatView);
+router.get('/sales', chatController.getSalesChatView);
+
+// API Routes
+router.get('/api/chat/:requestId', chatController.getChatMessages);
+router.post('/api/message', chatController.sendMessage);
+router.get('/api/order/:orderId', chatController.getOrderDetails);
+router.put('/api/order/:orderId', chatController.updateOrder);
+router.get('/api/requests/customer/:customerId', chatController.getCustomerRequests);
+router.get('/api/requests/sales/:salesId', chatController.getSalesRequests);
+
+// Middleware to check user type
+function checkUserType(req, res, next) {
+    if (!req.session.userType) {
+        return res.redirect('/login');
+    }
+    next();
 }
 
-// Function to check if user is a verified passenger 
-function isAuthenticatedPassenger(req, res, next) {
-  if (req.user && req.user.isVerifiedPassenger) {
-    return next();
-  } else {
-    res.redirect('/login');
-    req.flash('error', 'You must be a verified user to access that page, please login first');
-  }
+// Middleware to ensure only sales can access sales routes
+function salesOnly(req, res, next) {
+    if (req.session.userType !== 'sales') {
+        return res.redirect('/chat/customer');
+    }
+    next();
 }
 
-// Get chat history between two users
-router.get('/:userId', isAuthenticatedPassenger, chatController.getChatHistory);
-
-// Send a new message
-router.post('/send', isAuthenticatedPassenger, chatController.sendMessage);
+// Apply middleware to routes
+router.use('/sales', checkUserType, salesOnly);
+router.use('/customer', checkUserType);
 
 module.exports = router;
