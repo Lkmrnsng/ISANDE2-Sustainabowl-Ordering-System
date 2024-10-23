@@ -1,176 +1,190 @@
-<main>
-    {{!-- Add back button to undo action? I don't know how :") --}}
+<div class="container">
+  
+  <div class="main-content">
+    <!-- Checkout Steps -->
+    <div class="checkout-steps">
+      <button class="back-button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+        Back
+      </button>
 
-    {{!-- Selector and double forms for address input --}}
-    <div id="address-div">
-        <h2>Deliver To</h2>
+      <div class="progress-container">
+        <div class="progress-line"></div>
 
-        <div id="select-address-div">
-            <button id="input-address-button" onclick="inputAddress()">Input Address</button>
-            <button id="saved-address-button" onclick="savedAddress()">Saved Address</button>"
-        </div>
+        <!-- Deliver To Section -->
+        <div class="section active" id="deliver-section">
+          <div class="section-marker"></div>
+          <div class="section-content">
+            <div class="section-header" onclick="toggleSection('deliver-section')">
+              <h2>Deliver To</h2>
+            </div>
+            <div class="section-body">
+              <div class="tab-buttons">
+                <button class="tab-button active" onclick="showTab('input-address')">Input Address</button>
+                <button class="tab-button" onclick="showTab('saved-address')">Saved Addresses</button>
+              </div>
 
-        <div id="input-address-div">
-            <form action="displaySchedule()" method="post">
-                <label for="name">Name of Recipient</label>
-                <input type="text" id="name" name="name" placeholder="Name" required>
+              <div id="input-address" class="tab-content active">
+                <form>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Name of Recipient</label>
+                      <input type="text" class="form-input" placeholder="Name">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">House/Block/Lot No.</label>
+                      <input type="text" class="form-input" placeholder="Block">
+                    </div>
+                  </div>
 
-                <label for="block">House/Block/Lot No.</label>
-                <input type="text" id="block" name="block" placeholder="Block" required>
-                
-                <label for="street">Street</label>
-                <input type="text" id="street" name="street" placeholder="Street" required>
+                  <div class="form-group">
+                    <label class="form-label">Street</label>
+                    <input type="text" class="form-input" placeholder="Street">
+                  </div>
 
-                <label for="postal">Postal Code</label>
-                <input type="text" id="postal" name="postal" placeholder="XXXX" required>
+                  <div class="form-row form-row-3">
+                    <div class="form-group">
+                      <label class="form-label">Postal Code</label>
+                      <input type="text" class="form-input" placeholder="XXXX">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Region/Province</label>
+                      <input type="text" class="form-input" placeholder="Region">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Contact No.</label>
+                      <input type="text" class="form-input" placeholder="XXX-XXX-XXXX">
+                    </div>
+                  </div>
 
-                <label for="region">Region/Province</label>
-                <input type="text" id="region" name="region" placeholder="Region" required>
+                  <div class="checkbox-group">
+                    <input type="checkbox" id="saveAddress">
+                    <label for="saveAddress">Save Address?</label>
+                  </div>
 
-                <label for="number">Contact No.</label>
-                <input type="text" id="number" name="number" placeholder="XXX-XXX-XXXX" required>
+                  <button type="button" class="continue-button">Continue to Schedule</button>
+                </form>
+              </div>
 
-                <label for="saveAddress">Save Address?</label>
-                <input type="checkbox" id="saveAddress" name="saveAddress">
-
-                <input type="submit" value="Continue to Schedule">
-            </form>
-        </div>
-
-        <div id="saved-address-div">
-            <form action="displaySchedule()" method="post">
+              <div id="saved-address" class="tab-content" style="display: none;">
                 {{#each address}}
-                    <input type="radio" class="selectAddress">
-                    <p>{{this.address}}</p>
-                    <p>{{this.name}}</p>
-                    <p>{{this.number}}</p>
+                <div class="saved-address">
+                  <div class="saved-address-radio">
+                    <input type="radio" name="address">
+                    <div>
+                      <p>{{this.address}}</p>
+                      <p>{{this.name}}</p>
+                      <p>{{this.number}}</p>
+                    </div>
+                  </div>
+                </div>
                 {{/each}}
-
-                <input type="submit" value="Continue to Schedule">
-            </form>
+                <button type="button" class="continue-button">Continue to Schedule</button>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {{!-- This part only appears when displaySchedule() is clicked --}}
-        <button onclick="editAddress()">Edit Address</button>
-        <div id="final-address-div">
-            <p>{{finalAddress}}</p>
-            <p>{{finalName}}</p>
-            <p>{{finalNumber}}</p>
+        <!-- Delivery Schedule Section -->
+        <div class="section" id="schedule-section">
+          <div class="section-marker"></div>
+          <div class="section-content">
+            <div class="section-header" onclick="toggleSection('schedule-section')">
+              <h2>Delivery Schedule</h2>
+            </div>
+            <div class="section-body">
+              <form>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Delivery Date/s</label>
+                    <input type="date" class="form-input">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Delivery Time</label>
+                    <select class="form-select">
+                      <option>8 am - 11 am</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Any Customization Requests?</label>
+                  <textarea class="form-textarea" rows="4" placeholder="e.g. Thinly slice the tomatoes"></textarea>
+                </div>
+
+                <button type="button" class="continue-button">Continue to Payment</button>
+              </form>
+            </div>
+          </div>
         </div>
+
+        <!-- Payment Details Section -->
+        <div class="section" id="payment-section">
+          <div class="section-marker"></div>
+          <div class="section-content">
+            <div class="section-header" onclick="toggleSection('payment-section')">
+              <h2>Payment Details</h2>
+            </div>
+            <div class="section-body">
+              <!-- Payment form content here -->
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div id="schedule-div">
-        <h2>Delivery Schedule</h2>
-
-        <form id="delivery-schedule-div" onclick="displayPayment()" method="post">
-            <label for="date">Delivery Date/s</label>
-            <input type="date" id="date" name="date" placeholder="MM/DD/YYYY" required>
-
-            <label for="time">Delivery Time</label>
-            <input type="time" id="time" name="time" placeholder="00:00" required>
-
-            <label for="customization">Any Customization Requests?</label>
-            <input type="text" id="customization" name="customization" placeholder="e.g. Thinly slice the tomatoes">
-
-            <p>Note: This will generate {{num}} requests.</p>
-
-            <input type="submit" value="Continue to Payment">
-        </form>
-
-        {{!-- This part only appears when displayPayment() is clicked --}}
-        <button onclick="editSchedule()">Edit Schedule</button>
-        <div id="final-schedule-div">
-            <p>{{schedule}}, {{time}}, on {{date}}</p>
-            <p>{{remarks}}</p>
-        </div>
-    </div>
-
-    <div id="payment-div">
-        <h2>Payment Details</h2>
-        <p>Note that the payment will not be collected until the delivery is made.</p>
-
-        <div id="select-payment-div">
-            <button id="input-payment-button" onclick="inputPayment()">Input Payment Method</button>
-            <button id="saved-payment-button" onclick="savedPayment()">Saved Payment Methods</button>
-        </div>
-
-        <div id="input-payment-div">
-            <form action="displayCheckout()" method="post">
-                <label for="method">Payment Method</label>
-                <select id="method">
-                    <option value="Credit Card">Credit Card</option>
-                    <option value="Gcash">PayPal</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
-                    <option value="Other">Other</option>
-                </select>
-
-                <label for="card">Card No.</label>
-                <input type="text" id="card" name="card" placeholder="XXXX XXXX XXXX XXXX" required>
+    <!-- Cart Summary -->
+    <div class="cart-summary">
+      <div class="cart-item">
+            <img src="/img/tomato.jpg" alt="product-image">
+            <div class="item-container">
+                <div class="item-details">
+                    <p class="item-name">Tomato</p>
+                    <p class="item-weight">1 kg</p>
+                </div>
                 
-                <label for="validity">Valid Thru (MM/YY)</label>
-                <input type="text" id="validity" name="validity" placeholder="XX/XX" required>
+                <div class="item-price">
+                    <div class="quantity-control">
+                        <i class="fa-regular fa-square-plus"></i>
+                        <p>1 kg</p>
+                        <i class="fa-regular fa-square-minus"></i>
+                    </div>
+                    <p class="item-price-per-kg">x ₱50 / kg</p>
+                    <p class="item-total-price">₱250</p>
+                </div>
 
-                <label for="cvv">CVV</label>
-                <input type="text" id="cvv" name="cvv" placeholder="XXX" required>
-
-                <label for="savePayment">Save Payment Method?</label>
-                <input type="checkbox" id="savePayment" name="savePayment">
-
-                <input type="submit" value="Finalize Request Details">
-            </form>
+            </div>
         </div>
+        <div class="cart-item">
+            <img src="/img/tomato.jpg" alt="product-image">
+            <div class="item-container">
+                <div class="item-details">
+                    <p class="item-name">Tomato</p>
+                    <p class="item-weight">1 kg</p>
+                </div>
+                
+                <div class="item-price">
+                    <div class="quantity-control">
+                        <i class="fa-regular fa-square-plus"></i>
+                        <p>1 kg</p>
+                        <i class="fa-regular fa-square-minus"></i>
+                    </div>
+                    <p class="item-price-per-kg">x ₱50 / kg</p>
+                    <p class="item-total-price">₱250</p>
+                </div>
 
-        <div id="saved-payments-div">
-            <form action="displayCheckout()" method="post">
-                {{#each method}}
-                    <input type="radio" class="selectPayment">
-                    <p>{{this.type}}</p>
-                    <p>{{this.number}}</p>
-                {{/each}}
-
-                <input type="submit" value="Finalize Request Details">
-            </form>
+            </div>
         </div>
-
-        {{!-- This part only appears when displayCheckout() is clicked --}}
-        <button onclick="editPayment()">Edit Payment Method</button>
-        <div id="final-payment-div">
-            <p>{{finalType}}</p>
-            <p>{{finalNumber}}</p>
-            <p>Note that the payment will not be collected until the delivery is made.</p>
-        </div>
-    </div>
-
-    <div id="finish-request-div">
-        <form action="checkout()" method="post">
-            <p id="finish-request-message">By clicking the button below, I understand that I am placing a request for produce, which is not guaranteed yet to be approved. I will await the Sales team to inform me of what can be fulfilled!</p>
-            <input type="submit" value="Submit Request">
-        </form>
-    </div>
-
-    <div id="cart-div">
-        <div id="cart-summary-div">
-        {{#each cartItem}}
-            <img src="/img/{{this.image}}.png" alt="{{this.image}}" width="40px" height="40px">
-            <h3>{{this.name}}</h3>
-            <img src="plus-icon.png" width="40px" height="40px" onclick="addQty()">
-            <p>{{this.quantity}}</p>
-            <img src="minus-icon.png" width="40px" height="40px" onclick="lessQty()">
-            <p>x ₱ {{this.price}} / kg</p>
-            <p>₱ {{subtotal}}</p> 
-        {{/each}}
 
         <hr>
-        <h3>Request Total:</h3>
-        <h3>₱ {{total}}</h3>
+        <div class="cart-total">
+            <p>Request Total:</p>
+            <p class="total-price">₱500</p>
         </div>
     </div>
+  </div>
+</div>
 
-    <div id="confirmation-popup">
-        <img src="check-icon.png" width="40px" height="40px">
-        <h2>Request Received!</h2>
-        <p>Our sales team will contact you soon.</p>
-        <p>Request ID: {{requestID}}</p>
-        <button onclick="closeConfirmation()">Thanks!</button>
-    </div>
-</main>
+<script src="/js/marketplace_checkout.js"></script>

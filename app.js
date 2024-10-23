@@ -42,6 +42,7 @@ initializePassport(passport);
 
 /* Imported Routes */
 const customerRoutes = require('./routes/customerRoutes');
+const marketplaceRoutes = require('./routes/marketplaceRoutes');
 
 // Import Models
 const User = require('./models/User');
@@ -157,6 +158,7 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/customer', customerRoutes);
+app.use('/marketplace', marketplaceRoutes);
 
 // app.get('/', (req, res) => {
 //     res.render('index', {
