@@ -98,41 +98,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Validate input
                 if (isNaN(newQuantity) || newQuantity < 0) {
-                    input.value = input.dataset.previousValue;
+                    input.value = input.dataset.previousValue || 1;
                     return;
                 }
-            
-                // Get price and update subtotal
+                
+                // Get price from the price element
                 const priceElement = itemRow.querySelector('.item-price-detail');
-                const subtotalElement = itemRow.querySelector('.item-subtotal');
-                const price = parseFloat(priceElement.dataset.price);
+                const price = parseFloat(priceElement.textContent.replace('₱', ''));
+                
+                // Calculate and update subtotal
                 const subtotal = price * newQuantity;
-            
-                // Update subtotal display
+                const subtotalElement = itemRow.querySelector('.item-subtotal');
                 subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
-            
+                
+                // Store current value as previous
+                input.dataset.previousValue = newQuantity;
+                
                 // Update total
                 updateTotalAmount();
-            
+                
                 // Mark changes as unsaved
                 state.hasUnsavedChanges = true;
             }
-
+            
             function updateTotalAmount() {
-                const items = document.querySelectorAll('.item');
+                const itemRows = document.querySelectorAll('.item');
                 let total = 0;
-            
-                items.forEach(item => {
-                    const quantity = parseInt(item.querySelector('.quantity-input').value);
-                    const price = parseFloat(item.querySelector('.item-price-detail').dataset.price);
-                    total += quantity * price;
+                
+                itemRows.forEach(row => {
+                    const subtotalText = row.querySelector('.item-subtotal').textContent;
+                    const subtotal = parseFloat(subtotalText.replace('₱', ''));
+                    if (!isNaN(subtotal)) {
+                        total += subtotal;
+                    }
                 });
-            
+                
                 const totalElement = document.querySelector('.total-amount');
                 if (totalElement) {
                     totalElement.textContent = `₱${total.toFixed(2)}`;
                 }
             }
+            
             
             function showConfirmationModal(message, onConfirm) {
                 const modal = document.createElement('div');
@@ -418,35 +424,44 @@ document.addEventListener('DOMContentLoaded', function() {
             itemsList.innerHTML = itemsHTML;
         }
 
-              // Update items list with editable quantities
-              if (itemsList && Array.isArray(order.items)) {
-                let itemsHTML = order.items.map(item => `
-                    <div class="item" data-item-id="${item.itemID}">
-                        <div class="item-name">${item.itemName || 'Unknown Item'}</div>
-                        <div class="item-details">
-                            <div class="quantity-control">
-                                <input type="number" 
-                                       class="quantity-input" 
-                                       value="${item.quantity}" 
-                                       min="1" 
-                                       data-previous-value="${item.quantity}"
-                                       onchange="handleItemQuantityChange(event, ${item.itemID})">
-                            </div>
-                            <span class="item-price-detail" data-price="${item.itemPrice}">₱${item.itemPrice.toFixed(2)}</span>
-                            <span class="item-subtotal">₱${(item.totalPrice || 0).toFixed(2)}</span>
+        // Update items list with editable quantities
+
+        if (itemsList && Array.isArray(order.items)) {
+            let itemsHTML = order.items.map(item => `
+                <div class="item" data-item-id="${item.itemID}">
+                    <div class="item-name">${item.itemName || 'Unknown Item'}</div>
+                    <div class="item-details">
+                        <div class="quantity-control">
+                            <input type="number" 
+                                class="quantity-input" 
+                                value="${item.quantity}" 
+                                min="1" 
+                                data-previous-value="${item.quantity}"
+                                onchange="handleItemQuantityChange(event)">
                         </div>
+                        <span class="item-price-detail">₱${item.itemPrice.toFixed(2)}</span>
                     </div>
-                `).join('');
-    
-                itemsHTML += `
-                    <div class="total-line">
-                        <span>Total Amount:</span>
-                        <span class="total-amount">₱${(order.totalAmount || 0).toFixed(2)}</span>
-                    </div>
-                `;
-    
-                itemsList.innerHTML = itemsHTML;
-            }
+                    <div class="item-subtotal">₱${(item.totalPrice || 0).toFixed(2)}</div>
+                </div>
+            `).join('');
+
+            itemsHTML += `
+                <div class="total-line">
+                    <span>Total Amount:</span>
+                    <span class="total-amount">₱${(order.totalAmount || 0).toFixed(2)}</span>
+                </div>
+            `;
+
+            itemsList.innerHTML = itemsHTML;
+            
+            // Add event listeners to quantity inputs
+            itemsList.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', handleItemQuantityChange);
+                input.addEventListener('input', handleItemQuantityChange);
+                input.dataset.previousValue = input.value;
+            });
+        }
+        
     }
     
     
