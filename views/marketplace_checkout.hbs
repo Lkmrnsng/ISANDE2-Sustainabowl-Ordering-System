@@ -18,9 +18,18 @@
         <div class="section active" id="deliver-section">
           <div class="section-marker"></div>
           <div class="section-content">
-            <div class="section-header" onclick="toggleSection('deliver-section')">
+            <div class="section-header" onclick="toggleSection('deliver-section'); toggleSection(summary-section)">
               <h2>Deliver To</h2>
+              <p  onclick="toggleSection('deliver-section')">Edit Delivery</p>
+              
             </div>
+            <div class="section-summary active" id="summary-section">
+              <div class="delivery-summary" >
+                <p class="head">118 J.P. Bautista Ave, 1004, Caloocan, Metro Manila</p>
+                <p class="sub">Christopher Chua • 0428-736-2394</p>
+              </div>
+            </div>
+
             <div class="section-body">
               <div class="tab-buttons">
                 <button class="tab-button active" onclick="showTab('input-address')">Input Address</button>
@@ -65,11 +74,22 @@
                     <label for="saveAddress">Save Address?</label>
                   </div>
 
-                  <button type="button" class="continue-button">Continue to Schedule</button>
+                  <button type="button" class="continue-button" onclick="toggleSection('schedule-section')" >Continue to Schedule</button>
                 </form>
               </div>
 
               <div id="saved-address" class="tab-content" style="display: none;">
+                <div class="saved-info">
+                  <div class="saved-info-radio">
+                    <input type="radio" name="address">
+                    <div>
+                      <p>118 J.P. Bautista Ave, 1004, Caloocan, Metro Manila</p>
+                      <p>Christopher Chua • 0428-736-2394</p>
+                    </div>
+                  </div>
+                </div>
+                
+                
                 {{#each address}}
                 <div class="saved-address">
                   <div class="saved-address-radio">
@@ -82,7 +102,7 @@
                   </div>
                 </div>
                 {{/each}}
-                <button type="button" class="continue-button">Continue to Schedule</button>
+                <button type="button" class="continue-button" onclick="toggleSection('schedule-section')">Continue to Schedule</button>
               </div>
             </div>
           </div>
@@ -92,8 +112,16 @@
         <div class="section" id="schedule-section">
           <div class="section-marker"></div>
           <div class="section-content">
-            <div class="section-header" onclick="toggleSection('schedule-section')">
+            <div class="section-header" >
               <h2>Delivery Schedule</h2>
+              <p onclick="toggleSection('schedule-section')">Edit Schedule</p>
+            </div>
+
+            <div class="section-summary active" id="summary-section">
+              <div class="delivery-summary" >
+                <p class="head">Every Wednesday, 5 am - 8 am, on July 24, 27, 31</p>
+                <p class="sub">No Remarks</p>
+              </div>
             </div>
             <div class="section-body">
               <form>
@@ -115,7 +143,7 @@
                   <textarea class="form-textarea" rows="4" placeholder="e.g. Thinly slice the tomatoes"></textarea>
                 </div>
 
-                <button type="button" class="continue-button">Continue to Payment</button>
+                <button type="button" class="continue-button" onclick="toggleSection('payment-section')" >Continue to Payment</button>
               </form>
             </div>
           </div>
@@ -125,67 +153,139 @@
         <div class="section" id="payment-section">
           <div class="section-marker"></div>
           <div class="section-content">
-            <div class="section-header" onclick="toggleSection('payment-section')">
+            <div class="section-header" >
               <h2>Payment Details</h2>
+              <p onclick="toggleSection('payment-section')">Edit Payment Method</p>
             </div>
+
+            <div class="section-summary active" id="summary-section">
+              <div class="delivery-summary" >
+                <p class="head">Metrobank Visa</p>
+                <p class="sub">**** **** **** 5249</p>
+              </div>
+            </div>
+
             <div class="section-body">
               <!-- Payment form content here -->
+              <div class="tab-buttons">
+                <button class="tab-button active" onclick="showTab('input-payment')">Input Payment Method</button>
+                <button class="tab-button" onclick="showTab('saved-payment')">Saved Payment Methods</button>
+              </div>
+
+              <div id="input-payment" class="tab-content active">
+                <div class="payment-form">
+                  <div class="form-group">
+                    <label class="form-label">Payment Method</label>
+                    <select class="form-select">
+                      <option>Credit Card</option>
+                    </select>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Card Number</label>
+                      <input type="text" class="form-input" placeholder="XXXX XXXX XXXX XXXX">
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Valid Thru (MM/YY)</label>
+                      <input type="text" class="form-input" placeholder="XX/XX">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">CVV</label>
+                      <input type="text" class="form-input" placeholder="XXX">
+                    </div>
+                  </div>
+
+                  <div class="checkbox-group">
+                    <input type="checkbox" id="savePayment">
+                    <label for="savePayment">Save Payment Method?</label>
+                  </div>
+
+                  <p class="payment-note">Note that payment will not be collected until the delivery has been made.</p>
+
+                  <button class="finalize-button">Finalize Request Details</button>
+                </div>
+              </div>
+
+              <div id="saved-payment" class="tab-content" style="display: none;">
+                <div class="saved-info">
+                  <div class="saved-info-radio">
+                    <input type="radio" name="payment">
+                    <div>
+                      <p>Metrobank Visa</p>
+                      <p>**** **** **** 5249</p>
+                    </div>
+                  </div>
+              </div>
+
+                <p class="payment-note">Note that payment will not be collected until the delivery has been made.</p>
+
+                <button class="finalize-button">Finalize Request Details</button>
+
             </div>
           </div>
         </div>
       </div>
     </div>
 
+
+    </div>
+
     <!-- Cart Summary -->
     <div class="cart-summary">
       <div class="cart-item">
-            <img src="/img/tomato.jpg" alt="product-image">
-            <div class="item-container">
-                <div class="item-details">
-                    <p class="item-name">Tomato</p>
-                    <p class="item-weight">1 kg</p>
-                </div>
-                
-                <div class="item-price">
-                    <div class="quantity-control">
-                        <i class="fa-regular fa-square-plus"></i>
-                        <p>1 kg</p>
-                        <i class="fa-regular fa-square-minus"></i>
-                    </div>
-                    <p class="item-price-per-kg">x ₱50 / kg</p>
-                    <p class="item-total-price">₱250</p>
-                </div>
+          <img src="/img/tomato.jpg" alt="product-image">
+          <div class="item-container">
+              <div class="item-details">
+                  <p class="item-name">Tomato</p>
+                  <p class="item-weight">1 kg</p>
+              </div>
+              
+              <div class="item-price">
+                  <div class="quantity-control">
+                      <i class="fa-regular fa-square-plus"></i>
+                      <p>1 kg</p>
+                      <i class="fa-regular fa-square-minus"></i>
+                  </div>
+                  <p class="item-price-per-kg">x ₱50 / kg</p>
+                  <p class="item-total-price">₱250</p>
+              </div>
 
-            </div>
-        </div>
-        <div class="cart-item">
-            <img src="/img/tomato.jpg" alt="product-image">
-            <div class="item-container">
-                <div class="item-details">
-                    <p class="item-name">Tomato</p>
-                    <p class="item-weight">1 kg</p>
-                </div>
-                
-                <div class="item-price">
-                    <div class="quantity-control">
-                        <i class="fa-regular fa-square-plus"></i>
-                        <p>1 kg</p>
-                        <i class="fa-regular fa-square-minus"></i>
-                    </div>
-                    <p class="item-price-per-kg">x ₱50 / kg</p>
-                    <p class="item-total-price">₱250</p>
-                </div>
+          </div>
+      </div>
+      <div class="cart-item">
+          <img src="/img/tomato.jpg" alt="product-image">
+          <div class="item-container">
+              <div class="item-details">
+                  <p class="item-name">Tomato</p>
+                  <p class="item-weight">1 kg</p>
+              </div>
+              
+              <div class="item-price">
+                  <div class="quantity-control">
+                      <i class="fa-regular fa-square-plus"></i>
+                      <p>1 kg</p>
+                      <i class="fa-regular fa-square-minus"></i>
+                  </div>
+                  <p class="item-price-per-kg">x ₱50 / kg</p>
+                  <p class="item-total-price">₱250</p>
+              </div>
 
-            </div>
-        </div>
+          </div>
+      </div>
 
         <hr>
-        <div class="cart-total">
-            <p>Request Total:</p>
-            <p class="total-price">₱500</p>
-        </div>
-    </div>
+          <div class="cart-total">
+              <p>Request Total:</p>
+              <p class="total-price">₱500</p>
+          </div>
+      </div>
+    
   </div>
 </div>
+
 
 <script src="/js/marketplace_checkout.js"></script>

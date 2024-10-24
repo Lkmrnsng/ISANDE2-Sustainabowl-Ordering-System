@@ -44,7 +44,7 @@
   
   .progress-line {
     position: absolute;
-    left: 1rem;
+    left: 0.5rem;
     top: 2rem;
     bottom: 0;
     width: 2px;
@@ -58,7 +58,8 @@
   
   .section-marker {
     position: absolute;
-    left: -2rem;
+    top: 1.5rem;
+    left: -2.5rem;
     width: 32px;
     height: 32px;
     border: 2px solid #000;
@@ -103,6 +104,15 @@
   }
   
   .section.active .section-body {
+    display: block;
+  }
+
+  .section-summary {
+    padding: 0 1.5rem 1.5rem;
+    display: none;
+  }
+
+  .section-summary.active {
     display: block;
   }
   
@@ -162,20 +172,29 @@
   .continue-button {
     width: 100%;
     padding: 0.75rem;
-    background: #e5e7eb;
+    background: var(--green);
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+  }
+
+  .finalize-button {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--magenta);
     border: none;
     border-radius: 0.25rem;
     cursor: pointer;
   }
   
-  .saved-address {
+  .saved-info {
     padding: 1rem;
     border: 1px solid #e2e8f0;
     border-radius: 0.25rem;
     margin-bottom: 1rem;
   }
   
-  .saved-address-radio {
+  .saved-info-radio {
     display: flex;
     gap: 1rem;
   }
@@ -224,3 +243,24 @@
       position: static;
     }
   }
+
+.delivery-summary {
+  background: #f3ffe8;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.delivery-summary p {
+  margin: 0;
+}
+
+.delivery-summary .sub {
+  font-weight: lighter;
+}
+
+.payment-note {
+  font-size: 0.875rem;
+  color: #666;
+  font-style: italic;
+  margin-bottom: 0.5rem;
+}
