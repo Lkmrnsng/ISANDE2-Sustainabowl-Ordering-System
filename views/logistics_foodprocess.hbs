@@ -12,96 +12,156 @@
             <li><a href="/logistics_account">Account</a></li>
         </ul>
     </div>
-<main class="dashboard-container">
-    <div class="food-processing">
-        <div class="processing-list">
-            <h2>Food Processing</h2>
-            <table class="processing-table">
-                <thead>
-                    <tr>
-                        <th>Request ID</th>
-                        <th>Name</th>
-                        <th>To Process</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{#each processingRequests as |request|}}
-                    <tr>
-                        <td><button class="request-id-btn" data-request-id="{{request.id}}">{{request.id}}</button></td>
-                        <td>{{request.name}}</td>
-                        <td>{{request.toProcess}}</td>
-                        <td>{{request.status}} 
-                            {{#if request.alertIcon}}
-                            <i class="alert-icon">!</i>
-                            {{/if}}
-                        </td>
-                    </tr>
-                    {{/each}}
-                </tbody>
-            </table>
-            <div class="pagination">
-                <button class="prev-page-btn">&lt;</button>
-                <span>Page {{currentPage}} of {{totalPages}}</span>
-                <button class="next-page-btn">&gt;</button>
+
+    <main class="dashboard-container">
+        <div class="food-processing">
+            <div class="processing-list">
+                <h2>Food Processing</h2>
+                <table class="processing-table">
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Name</th>
+                            <th>To Process</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each processingRequests as |request|}}
+                        <tr>
+                            <td><button class="request-id-btn" data-request-id="{{request.id}}">{{request.id}}</button></td>
+                            <td>{{request.name}}</td>
+                            <td>{{request.toProcess}}</td>
+                            <td>{{request.status}} 
+                                {{#if request.alertIcon}}
+                                <i class="alert-icon">!</i>
+                                {{/if}}
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <button class="prev-page-btn">&lt;</button>
+                    <span>Page {{currentPage}} of {{totalPages}}</span>
+                    <button class="next-page-btn">&gt;</button>
+                </div>
+            </div>
+
+            <div class="processing-details" id="processing-details">
+                <h2>{{selectedRequest.name}}</h2>
+                <div class="details-header">
+                    <span>ID: {{selectedRequest.id}}</span>
+                </div>
+                <table class="produce-table">
+                    <thead>
+                        <tr>
+                            <th>Produce</th>
+                            <th>Process</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each selectedRequest.produce as |item|}}
+                        <tr>
+                            <td>{{item.name}}</td>
+                            <td>{{item.process}}</td>
+                            <td>
+                                <button class="details-btn" data-produce-id="{{item.id}}">→</button>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <button class="prev-page-btn">&lt;</button>
+                    <span>Page {{produceCurrentPage}} of {{produceTotalPages}}</span>
+                    <button class="next-page-btn">&gt;</button>
+                </div>
+                <div class="actions">
+                    <button class="cancel-btn">Cancel</button>
+                    <button class="complete-btn">Complete</button>
+                </div>
             </div>
         </div>
+    </main>
 
-        <div class="processing-details">
-            <h2>{{selectedRequest.name}}</h2>
-            <div class="details-header">
-                <span>ID: {{selectedRequest.id}}</span>
+    <!-- Popup for Process Details -->
+    <div class="modal hidden" id="process-details-modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Processing Details</h2>
+            <div class="details-grid">
+                <p>Request ID: {{modalData.requestId}}</p>
+                <p>Produce: {{modalData.produce}}</p>
+                <p>Process: {{modalData.process}}</p>
+                <p>Deliver By: {{modalData.deliverBy}}</p>
+                <p>Quantity: {{modalData.quantity}}</p>
+                <p>Status: {{modalData.status}}</p>
             </div>
-            <table class="produce-table">
-                <thead>
-                    <tr>
-                        <th>Produce</th>
-                        <th>Process</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{#each selectedRequest.produce as |item|}}
-                    <tr>
-                        <td>{{item.name}}</td>
-                        <td>{{item.process}}</td>
-                        <td>
-                            <button class="details-btn" data-produce-id="{{item.id}}">→</button>
-                        </td>
-                    </tr>
-                    {{/each}}
-                </tbody>
-            </table>
-            <div class="pagination">
-                <button class="prev-page-btn">&lt;</button>
-                <span>Page {{produceCurrentPage}} of {{produceTotalPages}}</span>
-                <button class="next-page-btn">&gt;</button>
-            </div>
-            <div class="actions">
-                <button class="cancel-btn">Cancel</button>
-                <button class="complete-btn">Complete</button>
+            <div class="modal-actions">
+                <button class="cancel-processing-btn">Cancel Processing</button>
+                <button class="mark-complete-btn">Mark Complete</button>
             </div>
         </div>
     </div>
-</main>
+</div>
 
-<!-- Popup for Process Details -->
-<div class="modal hidden" id="process-details-modal">
-    <div class="modal-content">
-        <span class="close-btn">&times;</span>
-        <h2>Processing Details</h2>
-        <div class="details-grid">
-            <p>Request ID: {{modalData.requestId}}</p>
-            <p>Produce: {{modalData.produce}}</p>
-            <p>Process: {{modalData.process}}</p>
-            <p>Deliver By: {{modalData.deliverBy}}</p>
-            <p>Quantity: {{modalData.quantity}}</p>
-            <p>Status: {{modalData.status}}</p>
-        </div>
-        <div class="modal-actions">
-            <button class="cancel-processing-btn">Cancel Processing</button>
-            <button class="mark-complete-btn">Mark Complete</button>
-        </div>
-    </div>
-</div>
-</div>
+<script src="/js/logistics_foodprocess.js"></script>
+
+{{!-- <script>
+    // Sample Data
+    const sampleData = {
+        processingRequests: [
+            {
+                id: 'REQ001',
+                name: 'Farm A',
+                toProcess: 'Tomatoes',
+                status: 'Pending',
+                alertIcon: true,
+                produce: [
+                    { id: 'P001', name: 'Tomatoes', process: 'Washing', deliverBy: '2024-10-25', quantity: 100, status: 'In Progress' },
+                    { id: 'P002', name: 'Peppers', process: 'Slicing', deliverBy: '2024-10-26', quantity: 200, status: 'Pending' }
+                ]
+            },
+            {
+                id: 'REQ002',
+                name: 'Farm B',
+                toProcess: 'Potatoes',
+                status: 'In Progress',
+                alertIcon: false,
+                produce: [
+                    { id: 'P003', name: 'Potatoes', process: 'Peeling', deliverBy: '2024-10-24', quantity: 300, status: 'In Progress' }
+                ]
+            }
+        ],
+        selectedRequest: {
+            id: 'REQ001',
+            name: 'Farm A',
+            produce: [
+                { id: 'P001', name: 'Tomatoes', process: 'Washing' },
+                { id: 'P002', name: 'Peppers', process: 'Slicing' }
+            ]
+        },
+        currentPage: 1,
+        totalPages: 2,
+        produceCurrentPage: 1,
+        produceTotalPages: 1,
+        modalData: {
+            requestId: 'REQ001',
+            produce: 'Tomatoes',
+            process: 'Washing',
+            deliverBy: '2024-10-25',
+            quantity: 100,
+            status: 'In Progress'
+        }
+    };
+
+    // Function to render data into the page (mockup for Handlebars)
+    function renderData() {
+        // Assuming you have a way to set Handlebars context in your environment
+        // e.g. window.HandlebarsData = sampleData;
+    }
+
+    renderData();
+</script> --}}

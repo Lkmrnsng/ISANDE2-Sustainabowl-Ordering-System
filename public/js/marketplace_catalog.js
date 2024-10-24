@@ -32,3 +32,5 @@ function closeOverlay() {
     document.getElementById('description-overlay').style.display = 'none';
 }
 
+
+

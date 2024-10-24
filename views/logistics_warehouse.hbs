@@ -1,36 +1,3 @@
-
-        {{!-- <table class="inventory-table">
-            <thead>
-                <tr>
-                    <th>Particular</th>
-                    <th>Available (kg)</th>
-                    <th>Reserved (kg)</th>
-                    <th>Total (kg)</th>
-                    <th>Incoming (kg)</th>
-                    <th>Incoming Date</th>
-                    <th>Edit</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each inventoryItems as |item|}}
-                <tr>
-                    <td>{{item.particular}}</td>
-                    <td>
-                        {{item.available}}
-                        {{#if item.userIcon}}
-                        <img src="{{item.userIcon}}" class="user-icon" />
-                        {{/if}}
-                    </td>
-                    <td>{{item.reserved}}</td>
-                    <td>{{item.total}}</td>
-                    <td>{{item.incoming}}</td>
-                    <td>{{item.incomingDate}}</td>
-                    <td><i class="edit-icon">✏️</i></td>
-                </tr>
-                {{/each}}
-            </tbody>
-        </table> --}}
-        
 <div class="main-layout">
     <div class="sidebar">
         <ul>
@@ -52,65 +19,181 @@
             <button class="import-button">Import <i class="plus-icon">+</i></button>
         </div>
 
-        <table class="inventory-table">
-            <thead>
-                <tr>
-                    <th>Particular</th>
-                    <th>Available (kg)</th>
-                    <th>Reserved (kg)</th>
-                    <th>Total (kg)</th>
-                    <th>Incoming (kg)</th>
-                    <th>Incoming Date</th>
-                    <th>Edit</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Rice</td>
-                    <td>500 </td>
-                    <td>50</td>
-                    <td>550</td>
-                    <td>100</td>
-                    <td>2024-10-05</td>
-                    <td><i class="edit-icon">✏️</i></td>
-                </tr>
-                <tr>
-                    <td>Wheat Flour</td>
-                    <td>300 </td>
-                    <td>30</td>
-                    <td>330</td>
-                    <td>120</td>
-                    <td>2024-10-10</td>
-                    <td><i class="edit-icon">✏️</i></td>
-                </tr>
-                <tr>
-                    <td>Sugar</td>
-                    <td>200 </td>
-                    <td>20</td>
-                    <td>220</td>
-                    <td>80</td>
-                    <td>2024-10-07</td>
-                    <td><i class="edit-icon">✏️</i></td>
-                </tr>
-                <tr>
-                    <td>Salt</td>
-                    <td>150</td>
-                    <td>15</td>
-                    <td>165</td>
-                    <td>50</td>
-                    <td>2024-10-12</td>
-                    <td><i class="edit-icon">✏️</i></td>
-                </tr>
-                <tr>
-                    <td>Cooking Oil</td>
-                    <td>80 </td>
-                    <td>10</td>
-                    <td>90</td>
-                    <td>60</td>
-                    <td>2024-10-08</td>
-                    <td><i class="edit-icon">✏️</i></td>
-                </tr>
-            </tbody>
-        </table>
+        <!-- Sample Categories and Data -->
+        <div class="inventory-category">
+            <h3>Leafy & Salad Vegetables</h3>
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Particular</th>
+                        <th>Available (kg)</th>
+                        <th>Reserved (kg)</th>
+                        <th>Total (kg)</th>
+                        <th>Incoming (kg)</th>
+                        <th>Incoming Date</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Lettuce</td>
+                        <td>50</td>
+                        <td>10</td>
+                        <td>60</td>
+                        <td>20</td>
+                        <td>2024-10-20</td>
+                        <td><i class="edit-icon">✏️</i></td>
+                    </tr>
+                    <tr>
+                        <td>Spinach</td>
+                        <td>30</td>
+                        <td>5</td>
+                        <td>35</td>
+                        <td>15</td>
+                        <td>2024-10-15</td>
+                        <td><i class="edit-icon">✏️</i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="inventory-category">
+            <h3>Root Vegetables</h3>
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Particular</th>
+                        <th>Available (kg)</th>
+                        <th>Reserved (kg)</th>
+                        <th>Total (kg)</th>
+                        <th>Incoming (kg)</th>
+                        <th>Incoming Date</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Carrot</td>
+                        <td>40</td>
+                        <td>8</td>
+                        <td>48</td>
+                        <td>25</td>
+                        <td>2024-10-18</td>
+                        <td><i class="edit-icon">✏️</i></td>
+                    </tr>
+                    <tr>
+                        <td>Beetroot</td>
+                        <td>20</td>
+                        <td>5</td>
+                        <td>25</td>
+                        <td>10</td>
+                        <td>2024-10-12</td>
+                        <td><i class="edit-icon">✏️</i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="inventory-category">
+            <h3>Bulb Vegetables</h3>
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Particular</th>
+                        <th>Available (kg)</th>
+                        <th>Reserved (kg)</th>
+                        <th>Total (kg)</th>
+                        <th>Incoming (kg)</th>
+                        <th>Incoming Date</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Garlic</td>
+                        <td>60</td>
+                        <td>12</td>
+                        <td>72</td>
+                        <td>30</td>
+                        <td>2024-10-17</td>
+                        <td><i class="edit-icon">✏️</i></td>
+                    </tr>
+                    <tr>
+                        <td>Onion</td>
+                        <td>100</td>
+                        <td>20</td>
+                        <td>120</td>
+                        <td>50</td>
+                        <td>2024-10-16</td>
+                        <td><i class="edit-icon">✏️</i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="inventory-category">
+            <h3>Stem Vegetables</h3>
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Particular</th>
+                        <th>Available (kg)</th>
+                        <th>Reserved (kg)</th>
+                        <th>Total (kg)</th>
+                        <th>Incoming (kg)</th>
+                        <th>Incoming Date</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Celery</td>
+                        <td>25</td>
+                        <td>5</td>
+                        <td>30</td>
+                        <td>10</td>
+                        <td>2024-10-14</td>
+                        <td><i class="edit-icon">✏️</i></td>
+                    </tr>
+                    <tr>
+                        <td>Asparagus</td>
+                        <td>10</td>
+                        <td>2</td>
+                        <td>12</td>
+                        <td>5</td>
+                        <td>2024-10-13</td>
+                        <td><i class="edit-icon">✏️</i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </main>
 </div>
+
+<!-- Import JSON Pop-up Modal -->
+<div id="import-modal" class="modal">
+    <div class="modal-content">
+        <h3>Import Inventory</h3>
+        <p>Upload a JSON file to either overwrite or add to the existing inventory.</p>
+        <input type="file" accept=".json">
+        <div class="modal-actions">
+            <button class="cancel-btn">Cancel</button>
+            <button class="confirm-btn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Quantity Pop-up Modal -->
+<div id="edit-modal" class="modal">
+    <div class="modal-content">
+        <h3>Edit Quantity</h3>
+        <label for="new-quantity">New Quantity (kg):</label>
+        <input type="number" id="new-quantity" min="0">
+        <div class="modal-actions">
+            <button class="cancel-btn">Cancel</button>
+            <button class="confirm-btn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+ <script src="/js/logistics_warehouse.js"></script>

@@ -42,7 +42,11 @@ initializePassport(passport);
 
 /* Imported Routes */
 const customerRoutes = require('./routes/customerRoutes');
+
 const chatRoutes = require('./routes/chatRoutes');
+
+const marketplaceRoutes = require('./routes/marketplaceRoutes');
+
 
 // Import Models
 const User = require('./models/User');
@@ -183,7 +187,11 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/customer', customerRoutes);
+
 app.use('/chat', chatRoutes);
+
+app.use('/marketplace', marketplaceRoutes);
+
 
 // app.get('/', (req, res) => {
 //     res.render('index', {
@@ -214,9 +222,9 @@ app.get('/', async (req, res) => {
 
 // ishi test
 // app.get('/', (req, res) => {
-//     res.render('logistics_sendalert', {
+//     res.render('logistics_foodprocess', {
 //         title: "Home",
-//         css: ["logistics_sendalert.css"],
+//         css: ["logistics_foodprocess.css"],
 //         layout: "main"
 //     });
 // });
