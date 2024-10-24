@@ -19,69 +19,78 @@
 
     <div class="chat-main">
         <div class="chat-header">
-            {{#if activeRequest}}
             <h3>Chat with Sales Representative</h3>
+            {{#if activeRequest}}
             <div class="request-info">
                 <span>Request #{{activeRequest.requestID}}</span>
                 <span>Status: {{activeRequest.status}}</span>
+            </div>
+            {{else}}
+            <div class="request-info">
+                <span>Select a request to start chatting</span>
             </div>
             {{/if}}
         </div>
 
         <div class="chat-content">
             <div class="chat-messages" id="chatMessages">
-                {{#each messages}}
-                <div class="message {{#if (eq ../userId senderID)}}customer{{else}}sales{{/if}}">
-                    <div class="message-content">
-                        {{message}}
-                    </div>
-                    <div class="message-time">{{formatDate2 date}}</div>
-                </div>
+    {{#each messages}}
+    <div class="message-wrapper {{#if (eq senderID ../userId)}}current-user{{else}}other-user{{/if}}">
+        <div class="message {{#if (eq senderID ../userId)}}customer{{else}}sales{{/if}}">
+            <div class="message-content">{{message}}</div>
+            <div class="message-time">{{formatDate2 date}}</div>
+        </div>
+    </div>
+    {{/each}}
+</div>
+
+        {{!-- customer-chat.hbs order details section --}}
+        <div class="order-details read-only">
+            <h4>Order Details</h4>
+            <select id="orderDateSelect" class="view-only">
+                {{#each activeRequest.orders}}
+                <option value="{{OrderID}}">Delivery: {{formatDate2 deliveryDate}}</option>
                 {{/each}}
-            </div>
+            </select>
 
-            <div class="order-details read-only">
-                <h4>Order Details</h4>
-                <select id="orderDateSelect" class="view-only">
-                    {{#each activeRequest.orders}}
-                    <option value="{{OrderID}}">{{formatDate2 deliveryDate}}</option>
-                    {{/each}}
-                </select>
-
-                <div class="order-info">
-                    <div class="info-group">
-                        <label>Delivery Date</label>
-                        <div class="info-value">{{formatDate2 selectedOrder.deliveryDate}}</div>
+            <div class="order-info">
+                <div class="info-group" data-field="deliveryDate">
+                    <label>Delivery Date</label>
+                    <div class="info-value">{{formatDate2 selectedOrder.deliveryDate}}</div>
+                </div>
+                <div class="info-group" data-field="timeRange">
+                    <label>Time Range</label>
+                    <div class="info-value">{{selectedOrder.deliveryTimeRange}}</div>
+                </div>
+                <div class="info-group" data-field="status">
+                    <label>Status</label>
+                    <div class="info-value status-badge" data-status="{{selectedOrder.status}}">
+                        {{selectedOrder.status}}
                     </div>
-                    <div class="info-group">
-                        <label>Time Range</label>
-                        <div class="info-value">{{selectedOrder.deliveryTimeRange}}</div>
-                    </div>
-                    <div class="info-group">
-                        <label>Status</label>
-                        <div class="info-value status-badge">{{selectedOrder.status}}</div>
-                    </div>
-                    <div class="info-group">
-                        <label>Delivery Address</label>
-                        <div class="info-value">{{selectedOrder.deliveryAddress}}</div>
-                    </div>
-                    <div class="info-group">
-                        <label>Customizations</label>
-                        <div class="info-value">{{selectedOrder.customizations}}</div>
-                    </div>
-                    <div class="info-group">
-                        <label>Items</label>
-                        <div class="items-list">
-                            {{#each selectedOrder.items}}
-                            <div class="item">
-                                <span class="item-name">{{itemName}}</span>
-                                <span class="item-quantity">x{{quantity}}</span>
-                            </div>
-                            {{/each}}
+                </div>
+                <div class="info-group" data-field="address">
+                    <label>Delivery Address</label>
+                    <div class="info-value">{{selectedOrder.deliveryAddress}}</div>
+                </div>
+                <div class="info-group" data-field="customizations">
+                    <label>Customizations</label>
+                    <div class="info-value">{{selectedOrder.customizations}}</div>
+                </div>
+                <div class="info-group">
+                    <label>Items</label>
+                    <div class="items-list">
+                        {{#each selectedOrder.items}}
+                        <div class="item">
+                            <span class="item-name">{{itemName}}</span>
+                            <span class="item-quantity">x{{quantity}}</span>
                         </div>
+                        {{/each}}
                     </div>
                 </div>
             </div>
+        </div>
+
+
         </div>
 
         <div class="chat-input">
@@ -91,4 +100,19 @@
     </div>
 </div>
 
-<script src="/js/chat.js"></script>
+
+<script>
+    // Initialize data for each request
+    {{#each requests}}
+    window.request_{{requestID}} = {
+        requestID: "{{requestID}}",
+        status: "{{status}}",
+        requestDate: "{{requestDate}}",
+        customerID: "{{customerID}}",
+        pointPersonID: "{{pointPersonID}}",
+        customerName: "{{customerName}}",
+        messages: {{{json messages}}},
+        orders: {{{json orders}}}
+    };
+    {{/each}}
+</script>

@@ -7,6 +7,7 @@
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 70px;
 }
 
 /* Sidebar Styles */
@@ -65,7 +66,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0;
+  min-width: 500px;
 }
 
 .chat-header {
@@ -221,4 +222,77 @@ select, input[type="date"], textarea {
 
 .item:last-child {
   border-bottom: none;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.status-badge[data-status="Waiting Approval"] {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge[data-status="Preparing"] {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.status-badge[data-status="Dispatched"] {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge[data-status="Delivered"] {
+  background-color: #c3e6cb;
+  color: #155724;
+}
+
+.status-badge[data-status="Cancelled"] {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.message-wrapper {
+  display: flex;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.message-wrapper.current-user {
+  justify-content: flex-end;
+}
+
+.message-wrapper.other-user {
+  justify-content: flex-start;
+}
+
+.message {
+  max-width: 70%;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+}
+
+.message.customer {
+  background-color: #1a73e8;
+  color: white;
+  border-bottom-right-radius: 0;
+}
+
+.message.sales {
+  background-color: #f1f3f4;
+  color: #202124;
+  border-bottom-left-radius: 0;
+}
+
+.message-time {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  opacity: 0.7;
+}
+
+.current-user .message-time {
+  text-align: right;
 }

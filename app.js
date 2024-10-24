@@ -99,6 +99,11 @@ const hbs = exphbs.create({
         formatDate2: function (date) {
             return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
         },
+        //formatDate3 helper
+        formatDate3: function (date) {
+            if (!date) return '';
+            return new Date(date).toISOString().split('T')[0];
+        },
         //formatAmount
         formatAmount: function (amount) {
             return amount.toLocaleString('en-US', { style: 'currency', currency: 'PHP' });
@@ -162,7 +167,8 @@ app.use((req, res, next) => {
 /* Middleware to Simulate User Login (For Testing) */
 app.use((req, res, next) => {
     if (!req.session.userId) {
-        req.session.userId = 10001; // Replace with your test user ID
+        req.session.userId = 10002; // Replace with your test user ID
+        req.session.userType = 'Sales';
         console.log(`Simulated login with userId: ${req.session.userId}`);
     }
     next();

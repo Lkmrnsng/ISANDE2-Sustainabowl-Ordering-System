@@ -2,21 +2,59 @@
 const Message = require('../models/Message');
 const Request = require('../models/Request');
 const Order = require('../models/Order');
+const Item = require('../models/Item');
 
 const chatController = {
     // View Controllers
     async getCustomerChatView(req, res) {
         try {
             const customerId = req.session.userId;
-            const requests = await Request.find({ customerID: customerId })
+            let requests = await Request.find({ customerID: customerId })
                 .sort({ requestDate: -1 });
 
-            //Get First Request and set as activeRequest
-            const activeRequest = requests[0];
+            if (!requests.length) {
+                return res.render('customer-chat', {
+                    requests: [],
+                    userType: 'Customer',
+                    userId: customerId,
+                    layout: 'main',
+                    title: 'Customer Chat',
+                    css: ['chat.css'],
+                    js: ['chat.js'],
+                });
+            }
 
-            //Get messages for the active request
-            const messages = await Message.find({ requestID: activeRequest.requestID })
-                .sort({ date: 1 });
+            // Enhance each request with its messages and orders
+            requests = await Promise.all(requests.map(async (request) => {
+                const messages = await Message.find({ requestID: request.requestID })
+                    .sort({ date: 1 });
+                
+                const orders = await Order.find({ requestID: request.requestID })
+                    .sort({ deliveryDate: 1 });
+
+                // Enhance each order with item details
+                const ordersWithItems = await Promise.all(orders.map(async (order) => {
+                    const itemDetails = await Promise.all(
+                        order.items.map(async (item) => {
+                            const itemData = await Item.findOne({ itemID: item.itemID });
+                            return {
+                                itemName: itemData ? itemData.itemName : 'Unknown Item',
+                                quantity: item.quantity
+                            };
+                        })
+                    );
+                    return {
+                        ...order.toObject(),
+                        items: itemDetails
+                    };
+                }));
+
+                return {
+                    ...request.toObject(),
+                    messages,
+                    orders: ordersWithItems
+                };
+            }));
 
             res.render('customer-chat', {
                 requests,
@@ -25,8 +63,7 @@ const chatController = {
                 layout: 'main',
                 title: 'Customer Chat',
                 css: ['chat.css'],
-                activeRequest,
-                messages,
+                js: ['chat.js'],
             });
         } catch (error) {
             console.error('Error loading customer chat view:', error);
@@ -37,15 +74,52 @@ const chatController = {
     async getSalesChatView(req, res) {
         try {
             const salesId = req.session.userId || 10002;
-            const requests = await Request.find({ pointPersonID: salesId })
+            let requests = await Request.find({ pointPersonID: salesId })
                 .sort({ requestDate: -1 });
 
-            //Get First Request and set as activeRequest
-            const activeRequest = requests[0];
+            if (!requests.length) {
+                return res.render('sales-chat', {
+                    requests: [],
+                    userType: 'Sales',
+                    userId: salesId,
+                    layout: 'main',
+                    title: 'Sales Chat',
+                    css: ['chat.css'],
+                    js: ['chat.js'],
+                });
+            }
 
-            //Get messages for the active request
-            const messages = await Message.find({ requestID: activeRequest.requestID })
-                .sort({ date: 1 });
+            // Enhance each request with its messages and orders
+            requests = await Promise.all(requests.map(async (request) => {
+                const messages = await Message.find({ requestID: request.requestID })
+                    .sort({ date: 1 });
+                
+                const orders = await Order.find({ requestID: request.requestID })
+                    .sort({ deliveryDate: 1 });
+
+                // Enhance each order with item details
+                const ordersWithItems = await Promise.all(orders.map(async (order) => {
+                    const itemDetails = await Promise.all(
+                        order.items.map(async (item) => {
+                            const itemData = await Item.findOne({ itemID: item.itemID });
+                            return {
+                                itemName: itemData ? itemData.itemName : 'Unknown Item',
+                                quantity: item.quantity
+                            };
+                        })
+                    );
+                    return {
+                        ...order.toObject(),
+                        items: itemDetails
+                    };
+                }));
+
+                return {
+                    ...request.toObject(),
+                    messages,
+                    orders: ordersWithItems
+                };
+            }));
 
             res.render('sales-chat', {
                 requests,
@@ -54,8 +128,7 @@ const chatController = {
                 layout: 'main',
                 title: 'Sales Chat',
                 css: ['chat.css'],
-                activeRequest,
-                messages,
+                js: ['chat.js'],
             });
         } catch (error) {
             console.error('Error loading sales chat view:', error);
@@ -65,30 +138,37 @@ const chatController = {
 
     // API Controllers
     async getChatMessages(req, res) {
-        try {
-            const { requestId } = req.params;
-            
-            // Get messages
-            const messages = await Message.find({ requestID: requestId })
-                .sort({ date: 1 });
+    try {
+        const { requestId } = req.params;
+        console.log('Fetching chat messages for request:', requestId);
+        
+        // Get messages
+        const messages = await Message.find({ requestID: requestId });
+        console.log('Found messages:', messages.length);
 
-            // Get orders associated with the request
-            const orders = await Order.find({ requestID: requestId })
-                .sort({ deliveryDate: 1 });
+        // Get orders associated with the request
+        const orders = await Order.find({ requestID: requestId });
+        console.log('Found orders:', orders.length);
 
-            // Get request details
-            const request = await Request.findOne({ requestID });
+        // Get request details
+        const request = await Request.findOne({ requestID: requestId });
+        console.log('Found request:', request);
 
-            res.json({
-                messages,
-                orders,
-                request
-            });
-        } catch (error) {
-            console.error('Error fetching chat data:', error);
-            res.status(500).send('Error fetching chat data');
+        if (!request) {
+            console.log('Request not found:', requestId);
+            return res.status(404).json({ error: 'Request not found' });
         }
-    },
+
+        res.json({
+            messages,
+            orders,
+            request
+        });
+    } catch (error) {
+        console.error('Error fetching chat data:', error);
+        res.status(500).json({ error: 'Error fetching chat data' });
+    }
+},
 
     async sendMessage(req, res) {
         try {
@@ -131,7 +211,23 @@ const chatController = {
                 return res.status(404).send('Order not found');
             }
 
-            res.json(order);
+            // Fetch item details for the order
+            const itemDetails = await Promise.all(
+                order.items.map(async (item) => {
+                    const itemData = await Item.findOne({ itemID: item.itemID });
+                    return {
+                        itemName: itemData ? itemData.itemName : 'Unknown Item',
+                        quantity: item.quantity
+                    };
+                })
+            );
+
+            const orderWithItems = {
+                ...order.toObject(),
+                items: itemDetails
+            };
+
+            res.json(orderWithItems);
         } catch (error) {
             console.error('Error fetching order details:', error);
             res.status(500).send('Error fetching order details');
