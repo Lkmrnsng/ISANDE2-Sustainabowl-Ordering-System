@@ -1,5 +1,5 @@
 
-<div class="chat-container">
+<div class="chat-container sales-view">
     <div class="sidebar">
         <h2>Active Requests</h2>
         <div class="request-list">
@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <div class="chat-main">
+    <div class="chat-main sales-view">
         <div class="chat-header">
             {{#if activeRequest}}
             <div class="customer-info">
@@ -34,16 +34,18 @@
         </div>
 
         <div class="chat-content">
-            <div class="chat-messages" id="chatMessages">
-                {{#each messages}}
-                <div class="message {{#if (eq ../userId senderID)}}sales{{else}}customer{{/if}}">
-                    <div class="message-content">
-                        {{message}}
-                    </div>
-                    <div class="message-time">{{formatDate2 date}}</div>
-                </div>
-                {{/each}}
+<div class="chat-messages" id="chatMessages">
+    {{log "Current userId:" ../userId}}
+    {{#each messages}}
+        {{log "Message senderID:" senderID "Current userId:" ../userId "IsEqual:" (eq senderID ../userId)}}
+        <div class="message-wrapper {{#if (eq (toString senderID) (toString ../userId))}}current-user{{else}}other-user{{/if}}">
+            <div class="message {{#if (eq (toString senderID) (toString ../userId))}}current-user{{else}}other-user{{/if}}">
+                <div class="message-content">{{message}}</div>
+                <div class="message-time">{{formatDate2 date}}</div>
             </div>
+        </div>
+    {{/each}}
+</div>
 
 
         {{!-- sales-chat.hbs order details section --}}
@@ -129,4 +131,9 @@
         orders: {{{json orders}}}
     };
     {{/each}}
+</script>
+
+<script>
+    window.userId = "{{userId}}";  // This will be set from the server
+    console.log('Current user ID:', window.userId); // For debugging
 </script>

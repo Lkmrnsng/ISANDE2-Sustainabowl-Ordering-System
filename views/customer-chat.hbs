@@ -1,5 +1,5 @@
 
-<div class="chat-container">
+<div class="chat-container customer-view">
     <div class="sidebar">
         <h2>My Requests</h2>
         <div class="request-list">
@@ -17,7 +17,7 @@
         </div>
     </div>
 
-    <div class="chat-main">
+    <div class="chat-main customer-view">
         <div class="chat-header">
             <h3>Chat with Sales Representative</h3>
             {{#if activeRequest}}
@@ -33,16 +33,18 @@
         </div>
 
         <div class="chat-content">
-            <div class="chat-messages" id="chatMessages">
-    {{#each messages}}
-    <div class="message-wrapper {{#if (eq senderID ../userId)}}current-user{{else}}other-user{{/if}}">
-        <div class="message {{#if (eq senderID ../userId)}}customer{{else}}sales{{/if}}">
-            <div class="message-content">{{message}}</div>
-            <div class="message-time">{{formatDate2 date}}</div>
+        <div class="chat-messages" id="chatMessages">
+            {{log "Current userId:" userId}}
+            {{#each messages}}
+                {{log "Message senderID:" senderID "Current userId:" ../userId "IsEqual:" (eq senderID ../userId)}}
+                <div class="message-wrapper {{#if (eq (toString senderID) (toString ../userId))}}current-user{{else}}other-user{{/if}}">
+                    <div class="message {{#if (eq (toString senderID) (toString ../userId))}}current-user{{else}}other-user{{/if}}">
+                        <div class="message-content">{{message}}</div>
+                        <div class="message-time">{{formatDate2 date}}</div>
+                    </div>
+                </div>
+            {{/each}}
         </div>
-    </div>
-    {{/each}}
-</div>
 
         {{!-- customer-chat.hbs order details section --}}
         <div class="order-details read-only">
@@ -115,4 +117,9 @@
         orders: {{{json orders}}}
     };
     {{/each}}
+</script>
+
+<script>
+    window.userId = "{{userId}}";  // This will be set from the server
+    console.log('Current user ID:', window.userId); // For debugging
 </script>

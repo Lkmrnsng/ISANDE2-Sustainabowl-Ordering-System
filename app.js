@@ -108,6 +108,13 @@ const hbs = exphbs.create({
         formatAmount: function (amount) {
             return amount.toLocaleString('en-US', { style: 'currency', currency: 'PHP' });
         },
+        toString: function (value) {
+            return value ? value.toString() : '';
+        },
+        log: function (){
+            console.log.apply(console, arguments);
+            return null;
+        }
     },
     runtimeOptions: {
         allowProtoPropertiesByDefault: true,
@@ -167,8 +174,8 @@ app.use((req, res, next) => {
 /* Middleware to Simulate User Login (For Testing) */
 app.use((req, res, next) => {
     if (!req.session.userId) {
-        req.session.userId = 10001; // Replace with your test user ID
-        req.session.userType = 'Customer';
+        req.session.userId = 10002; // Replace with your test user ID
+        req.session.userType = 'Sales';
         console.log(`Simulated login with userId: ${req.session.userId}`);
     }
     next();

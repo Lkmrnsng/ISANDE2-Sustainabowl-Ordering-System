@@ -102,12 +102,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateOrderSelect(orders) {
         if (!elements.orderSelect) return;
-
-        elements.orderSelect.innerHTML = orders.map(order => `
-            <option value="${order.OrderID}">
-                Delivery: ${new Date(order.deliveryDate).toLocaleDateString()}
-            </option>
-        `).join('');
+    
+        elements.orderSelect.innerHTML = orders.map(order => {
+            const deliveryDate = new Date(order.deliveryDate).toLocaleDateString();
+            return `
+                <option value="${order.OrderID}">
+                    Order #${order.OrderID} - Delivery: ${deliveryDate}
+                </option>
+            `;
+        }).join('');
     }
 
     function updateOrderDisplay(order) {
@@ -299,12 +302,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function createMessageHTML(message) {
-        const isCurrentUser = message.senderID === window.userId;
+        // Convert IDs to strings for reliable comparison
+        const isCurrentUser = String(message.senderID) === String(window.userId);
         const date = new Date(message.date).toLocaleString();
+        const isSalesView = document.querySelector('.sales-view') !== null;
+        
+        // Determine wrapper class (controls alignment)
+        const messageWrapperClass = isCurrentUser ? 'current-user' : 'other-user';
+        
+        // Determine message type class (controls styling)
+        const messageTypeClass = isSalesView 
+            ? (isCurrentUser ? 'sales-message' : 'customer-message')
+            : (isCurrentUser ? 'customer-message' : 'sales-message');
         
         return `
-            <div class="message-wrapper ${isCurrentUser ? 'current-user' : 'other-user'}">
-                <div class="message ${isCurrentUser ? 'customer' : 'sales'}">
+            <div class="message-wrapper ${messageWrapperClass}">
+                <div class="message ${messageTypeClass}">
                     <div class="message-content">${escapeHtml(message.message)}</div>
                     <div class="message-time">${date}</div>
                 </div>
