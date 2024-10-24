@@ -81,18 +81,24 @@ router.get('/api/order/:orderId', async (req, res) => {
             });
         }
 
-        // Fetch item details for the order
-        const enhancedOrder = await Promise.all(order.items.map(async (item) => {
+        // Fetch item details with prices for the order
+        const enhancedItems = await Promise.all(order.items.map(async (item) => {
             const itemData = await Item.findOne({ itemID: item.itemID });
             return {
                 ...item.toObject(),
-                itemName: itemData ? itemData.itemName : 'Unknown Item'
+                itemName: itemData ? itemData.itemName : 'Unknown Item',
+                itemPrice: itemData ? itemData.itemPrice : 0,
+                totalPrice: (itemData ? itemData.itemPrice : 0) * item.quantity
             };
         }));
 
+        // Calculate total amount
+        const totalAmount = enhancedItems.reduce((sum, item) => sum + item.totalPrice, 0);
+
         const orderResponse = {
             ...order.toObject(),
-            items: enhancedOrder
+            items: enhancedItems,
+            totalAmount
         };
 
         res.json(orderResponse);

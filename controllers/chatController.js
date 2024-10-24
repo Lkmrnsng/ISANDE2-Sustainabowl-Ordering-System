@@ -20,12 +20,12 @@ const chatController = {
             if (!req.session.userId) {
                 throw new ChatError('Unauthorized access', 401);
             }
-
+    
             const customerId = req.session.userId;
             let requests = await Request.find({ customerID: customerId })
                 .sort({ requestDate: -1 })
                 .lean();
-
+    
             if (!requests.length) {
                 return res.render('customer-chat', {
                     requests: [],
@@ -37,7 +37,7 @@ const chatController = {
                     js: ['chat.js'],
                 });
             }
-
+    
             // Efficiently fetch all related data in parallel
             const [messages, orders, items] = await Promise.all([
                 Message.find({ 
@@ -48,29 +48,43 @@ const chatController = {
                 }).sort({ deliveryDate: 1 }).lean(),
                 Item.find({}).lean()
             ]);
-
+    
             // Create items lookup map for efficiency
             const itemsMap = new Map(items.map(item => [item.itemID, item]));
-
+    
             // Process requests with their associated data
             requests = requests.map(request => {
                 const requestMessages = messages.filter(m => m.requestID === request.requestID);
                 const requestOrders = orders.filter(o => o.requestID === request.requestID)
-                    .map(order => ({
-                        ...order,
-                        items: order.items.map(item => ({
-                            itemName: itemsMap.get(item.itemID)?.itemName || 'Unknown Item',
-                            quantity: item.quantity
-                        }))
-                    }));
-
+                    .map(order => {
+                        // Process items with prices for each order
+                        const processedItems = order.items.map(item => {
+                            const itemDetails = itemsMap.get(item.itemID) || {};
+                            return {
+                                ...item,
+                                itemName: itemDetails.itemName || 'Unknown Item',
+                                itemPrice: itemDetails.itemPrice || 0,
+                                totalPrice: (itemDetails.itemPrice || 0) * item.quantity
+                            };
+                        });
+    
+                        // Calculate total order amount
+                        const totalAmount = processedItems.reduce((sum, item) => sum + item.totalPrice, 0);
+    
+                        return {
+                            ...order,
+                            items: processedItems,
+                            totalAmount
+                        };
+                    });
+    
                 return {
                     ...request,
                     messages: requestMessages,
                     orders: requestOrders
                 };
             });
-
+    
             res.render('customer-chat', {
                 requests,
                 userType: 'Customer',
@@ -84,7 +98,7 @@ const chatController = {
             next(error instanceof ChatError ? error : new ChatError('Server error'));
         }
     },
-
+    
     async getSalesChatView(req, res, next) {
         try {
             if (!req.session.userId) {
@@ -109,40 +123,57 @@ const chatController = {
             }
     
             // Efficiently fetch all related data in parallel
-            const [messages, orders, items] = await Promise.all([
+            const [messages, orders, items, customers] = await Promise.all([
                 Message.find({ 
                     requestID: { $in: requests.map(r => r.requestID) }
                 }).sort({ date: 1 }).lean(),
                 Order.find({ 
                     requestID: { $in: requests.map(r => r.requestID) }
                 }).sort({ deliveryDate: 1 }).lean(),
-                Item.find({}).lean()
+                Item.find({}).lean(),
+                User.find({ 
+                    userID: { $in: requests.map(r => r.customerID) }
+                }).lean()
             ]);
     
-            // Create items lookup map for efficiency
+            // Create lookup maps for efficiency
             const itemsMap = new Map(items.map(item => [item.itemID, item]));
+            const customersMap = new Map(customers.map(customer => [customer.userID, customer]));
     
             // Process requests with their associated data
-            requests = await Promise.all(requests.map(async request => {
-                // Get customer name for each request
-                const customer = await User.findOne({ userID: request.customerID }).lean();
+            requests = requests.map(request => {
+                const customer = customersMap.get(request.customerID) || {};
                 const requestMessages = messages.filter(m => m.requestID === request.requestID);
                 const requestOrders = orders.filter(o => o.requestID === request.requestID)
-                    .map(order => ({
-                        ...order,
-                        items: order.items.map(item => ({
-                            itemName: itemsMap.get(item.itemID)?.itemName || 'Unknown Item',
-                            quantity: item.quantity
-                        }))
-                    }));
+                    .map(order => {
+                        // Process items with prices for each order
+                        const processedItems = order.items.map(item => {
+                            const itemDetails = itemsMap.get(item.itemID) || {};
+                            return {
+                                ...item,
+                                itemName: itemDetails.itemName || 'Unknown Item',
+                                itemPrice: itemDetails.itemPrice || 0,
+                                totalPrice: (itemDetails.itemPrice || 0) * item.quantity
+                            };
+                        });
+    
+                        // Calculate total order amount
+                        const totalAmount = processedItems.reduce((sum, item) => sum + item.totalPrice, 0);
+    
+                        return {
+                            ...order,
+                            items: processedItems,
+                            totalAmount
+                        };
+                    });
     
                 return {
                     ...request,
-                    customerName: customer?.name || 'Unknown Customer',
+                    customerName: customer.name || 'Unknown Customer',
                     messages: requestMessages,
                     orders: requestOrders
                 };
-            }));
+            });
     
             res.render('sales-chat', {
                 requests,
@@ -204,18 +235,41 @@ const chatController = {
             if (!requestId) {
                 throw new ChatError('Request ID is required', 400);
             }
-
+    
+            // Fetch request, messages, and orders
             const [messages, orders, request] = await Promise.all([
                 Message.find({ requestID: requestId }).sort({ date: 1 }).lean(),
                 Order.find({ requestID: requestId }).lean(),
                 Request.findOne({ requestID: requestId }).lean()
             ]);
-
+    
             if (!request) {
                 throw new ChatError('Request not found', 404);
             }
-
-            res.json({ messages, orders, request });
+    
+            // Enhance orders with item details including prices
+            const enhancedOrders = await Promise.all(orders.map(async (order) => {
+                const itemsWithDetails = await Promise.all(order.items.map(async (item) => {
+                    const itemDetails = await Item.findOne({ itemID: item.itemID });
+                    return {
+                        ...item,
+                        itemName: itemDetails?.itemName || 'Unknown Item',
+                        itemPrice: itemDetails?.itemPrice || 0,
+                        totalPrice: (itemDetails?.itemPrice || 0) * item.quantity
+                    };
+                }));
+    
+                // Calculate total order amount
+                const totalAmount = itemsWithDetails.reduce((sum, item) => sum + item.totalPrice, 0);
+    
+                return {
+                    ...order,
+                    items: itemsWithDetails,
+                    totalAmount
+                };
+            }));
+    
+            res.json({ messages, orders: enhancedOrders, request });
         } catch (error) {
             next(error instanceof ChatError ? error : new ChatError('Server error'));
         }

@@ -176,12 +176,26 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update items list for both views
         const itemsList = document.querySelector('.items-list');
         if (itemsList && Array.isArray(order.items)) {
-            itemsList.innerHTML = order.items.map(item => `
+            let itemsHTML = order.items.map(item => `
                 <div class="item">
                     <span class="item-name">${item.itemName || 'Unknown Item'}</span>
-                    <span class="item-quantity">x${item.quantity || 0}</span>
+                    <span class="item-details">
+                        <span class="item-quantity">x${item.quantity || 0}</span>
+                        <span class="item-price">₱${(item.itemPrice || 0).toFixed(2)}</span>
+                        <span class="item-total">₱${(item.totalPrice || 0).toFixed(2)}</span>
+                    </span>
                 </div>
             `).join('');
+    
+            // Add total amount
+            itemsHTML += `
+                <div class="total-line">
+                    <span>Total Amount:</span>
+                    <span class="total-amount">₱${(order.totalAmount || 0).toFixed(2)}</span>
+                </div>
+            `;
+    
+            itemsList.innerHTML = itemsHTML;
         }
     }
     
@@ -274,7 +288,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!orderId) return;
         
         try {
-            // Show loading state if needed
             const response = await fetch(`/chat/api/order/${orderId}`);
             
             if (!response.ok) {
@@ -289,12 +302,24 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             state.activeOrderId = orderId;
-            updateOrderDisplay(orderData);
+    
+            // Process items with prices before updating display
+            const processedOrder = {
+                ...orderData,
+                items: orderData.items.map(item => ({
+                    ...item,
+                    totalPrice: (item.itemPrice || 0) * (item.quantity || 0)
+                })),
+                // Calculate total amount
+                totalAmount: orderData.items.reduce((sum, item) => 
+                    sum + ((item.itemPrice || 0) * (item.quantity || 0)), 0)
+            };
+    
+            updateOrderDisplay(processedOrder);
         } catch (error) {
             console.error('Error fetching order details:', error);
             showError(error.message || 'Failed to load order details');
             
-            // Reset select to previous value if needed
             if (state.activeOrderId && elements.orderSelect) {
                 elements.orderSelect.value = state.activeOrderId;
             }

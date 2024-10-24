@@ -35,9 +35,9 @@
 
         <div class="chat-content">
 <div class="chat-messages" id="chatMessages">
-    {{log "Current userId:" ../userId}}
+    {{log "Current userId:" userId}}
     {{#each messages}}
-        {{log "Message senderID:" senderID "Current userId:" ../userId "IsEqual:" (eq senderID ../userId)}}
+        
         <div class="message-wrapper {{#if (eq (toString senderID) (toString ../userId))}}current-user{{else}}other-user{{/if}}">
             <div class="message {{#if (eq (toString senderID) (toString ../userId))}}current-user{{else}}other-user{{/if}}">
                 <div class="message-content">{{message}}</div>
@@ -90,17 +90,25 @@
                     <label>Customizations</label>
                     <textarea id="customizations">{{selectedOrder.customizations}}</textarea>
                 </div>
-                <div class="form-group">
-                    <label>Items</label>
-                    <div class="items-list read-only">
-                        {{#each selectedOrder.items}}
-                        <div class="item">
-                            <span class="item-name">{{itemName}}</span>
-                            <span class="item-quantity">x{{quantity}}</span>
-                        </div>
-                        {{/each}}
-                    </div>
-                </div>
+<div class="form-group">
+    <label>Items</label>
+<div class="items-list">
+    {{#each selectedOrder.items}}
+    <div class="item">
+        <div class="item-name">{{itemName}}</div>
+        <div class="item-details">
+            <span class="item-quantity">x{{quantity}}</span>
+            <span class="item-price-detail">₱{{itemPrice}}</span>
+        </div>
+        <div class="item-subtotal">₱{{totalPrice}}</div>
+    </div>
+    {{/each}}
+    <div class="total-line">
+        <span>Total Amount:</span>
+        <span class="total-amount">₱{{selectedOrder.totalAmount}}</span>
+    </div>
+</div>
+</div>
                 <div class="button-group">
                     <button id="saveCurrentOrder">Save for this order</button>
                     <button id="saveAllOrders">Save for all orders</button>

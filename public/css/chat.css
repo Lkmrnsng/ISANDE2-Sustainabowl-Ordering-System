@@ -262,20 +262,82 @@ select, input[type="date"], textarea {
   color: #721c24;
 }
 
-/* Items List */
+/* Updated items list styles in chat.css */
 .items-list {
   background: white;
   border-radius: 4px;
-  padding: 10px;
+  padding: 15px;
+  margin-top: 8px;
 }
 
 .item {
   display: flex;
-  justify-content: space-between;
-  padding: 5px 0;
-  border-bottom: 1px solid #f0f0f0;
+  flex-direction: column;
+  padding: 12px 0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-.item:last-child {
+.item:last-of-type {
   border-bottom: none;
+}
+
+.item-name {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.item-details {
+  display: flex;
+  gap: 8px;
+  color: #666;
+  font-size: 0.9em;
+}
+
+.item-price-detail {
+  margin-left: auto;
+  text-align: right;
+}
+
+.item-subtotal {
+  color: #333;
+  text-align: right;
+  margin-top: 2px;
+}
+
+.total-line {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 12px;
+  margin-top: 8px;
+  border-top: 2px solid #e0e0e0;
+  font-weight: 600;
+}
+
+.total-amount {
+  color: #2196f3;
+}
+
+/* Update the button styles */
+.button-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.button-group button {
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #2196f3;
+  color: white;
+  font-weight: 500;
+  font-size: 0.9em;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.button-group button:hover {
+  background: #1976d2;
 }
