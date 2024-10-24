@@ -112,6 +112,76 @@ router.get('/api/order/:orderId', async (req, res) => {
     }
 });
 
+// Update request status
+// Add this route in chatRoutes.js
+router.put('/api/request/:requestId/status', 
+    authMiddleware.validateSession,
+    authMiddleware.validateRequest,
+    chatController.updateRequestStatus
+);
 
+// Update single order
+router.put('/api/order/:orderId',
+    authMiddleware.validateSession,
+    async (req, res) => {
+        try {
+            const order = await Order.findOne({ OrderID: parseInt(req.params.orderId) });
+            if (!order) {
+                return res.status(404).json({ error: 'Order not found' });
+            }
+
+            // Validate and update order data
+            const updates = {
+                deliveryDate: new Date(req.body.deliveryDate),
+                deliveryTimeRange: req.body.deliveryTimeRange,
+                status: req.body.status,
+                deliveryAddress: req.body.deliveryAddress,
+                customizations: req.body.customizations,
+                items: req.body.items
+            };
+
+            await Order.findOneAndUpdate(
+                { OrderID: parseInt(req.params.orderId) },
+                updates
+            );
+
+            res.json({ success: true, message: 'Order updated successfully' });
+        } catch (error) {
+            console.error('Error updating order:', error);
+            res.status(500).json({ error: 'Failed to update order' });
+        }
+    }
+);
+
+// Update all orders for a request
+router.put('/api/request/:requestId/orders',
+    authMiddleware.validateSession,
+    authMiddleware.validateRequest,
+    async (req, res) => {
+        try {
+            const orders = await Order.find({ requestID: parseInt(req.params.requestId) });
+            
+            const updates = {
+                deliveryTimeRange: req.body.deliveryTimeRange,
+                status: req.body.status,
+                deliveryAddress: req.body.deliveryAddress,
+                customizations: req.body.customizations,
+                items: req.body.items
+            };
+
+            await Promise.all(orders.map(order => 
+                Order.findOneAndUpdate(
+                    { OrderID: order.OrderID },
+                    updates
+                )
+            ));
+
+            res.json({ success: true, message: 'All orders updated successfully' });
+        } catch (error) {
+            console.error('Error updating orders:', error);
+            res.status(500).json({ error: 'Failed to update orders' });
+        }
+    }
+);
 
 module.exports = router;

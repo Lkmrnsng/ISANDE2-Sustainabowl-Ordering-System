@@ -265,52 +265,68 @@ select, input[type="date"], textarea {
 /* Updated items list styles in chat.css */
 .items-list {
   background: white;
-  border-radius: 4px;
-  padding: 15px;
-  margin-top: 8px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  margin-top: 10px;
 }
 
 .item {
-  display: flex;
-  flex-direction: column;
-  padding: 12px 0;
+  padding: 12px 15px;
   border-bottom: 1px solid #e0e0e0;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  align-items: center;
+  gap: 10px;
 }
 
-.item:last-of-type {
+.item:last-child {
   border-bottom: none;
 }
 
 .item-name {
   font-weight: 500;
-  margin-bottom: 4px;
+  color: #333;
 }
 
 .item-details {
   display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
   gap: 8px;
-  color: #666;
-  font-size: 0.9em;
+}
+
+.quantity-input {
+  width: 70px;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: right;
 }
 
 .item-price-detail {
+  color: #666;
   margin-left: auto;
-  text-align: right;
 }
 
 .item-subtotal {
-  color: #333;
   text-align: right;
-  margin-top: 2px;
+  font-weight: 500;
+  color: #2196f3;
 }
 
 .total-line {
   display: flex;
   justify-content: space-between;
-  padding-top: 12px;
-  margin-top: 8px;
+  padding: 15px;
+  background: #f8f9fa;
   border-top: 2px solid #e0e0e0;
   font-weight: 600;
+  font-size: 1.1em;
 }
 
 .total-amount {
@@ -319,25 +335,133 @@ select, input[type="date"], textarea {
 
 /* Update the button styles */
 .button-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  display: flex;
+  gap: 10px;
   margin-top: 20px;
 }
 
 .button-group button {
+  flex: 1;
   padding: 10px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+#saveCurrentOrder {
   background: #2196f3;
   color: white;
-  font-weight: 500;
-  font-size: 0.9em;
-  transition: background-color 0.2s;
-  white-space: nowrap;
+}
+
+#saveAllOrders {
+  background: #4CAF50;
+  color: white;
 }
 
 .button-group button:hover {
-  background: #1976d2;
+  opacity: 0.9;
+}
+
+.request-info {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.status-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.request-status-select {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background-color: white;
+  cursor: pointer;
+}
+
+/* Status-specific colors */
+.request-status-select option[value="Received"] {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.request-status-select option[value="Negotiation"] {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.request-status-select option[value="Approved"] {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.request-status-select option[value="Cancelled"] {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Modal styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  font-size: 1.2em;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.modal-body {
+  margin-bottom: 24px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.modal-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.modal-button-cancel {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.modal-button-confirm {
+  background: #4CAF50;
+  color: white;
 }

@@ -5,7 +5,12 @@ document.addEventListener('DOMContentLoaded', function() {
         messageInput: document.getElementById('messageInput'),
         sendButton: document.getElementById('sendMessage'),
         requestItems: document.querySelectorAll('.request-item'),
-        orderSelect: document.getElementById('orderDateSelect')
+        orderSelect: document.getElementById('orderDateSelect'),
+        requestStatus: document.getElementById('requestStatus'),
+        saveCurrentOrder: document.getElementById('saveCurrentOrder'),
+        saveAllOrders: document.getElementById('saveAllOrders'),
+        itemsList: document.querySelector('.items-list'),
+        requestStatus: document.getElementById('requestStatus')
     };
 
     // State management
@@ -15,7 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
         isRefreshing: false,
         refreshTimeout: null,
         messageQueue: [],
-        requestsData: new Map() // Store request data
+        requestsData: new Map(), // Store request data
+        originalOrderData: null,
+        hasUnsavedChanges: false
     };
 
     // Initialize requestsData from server-rendered data
@@ -33,6 +40,219 @@ document.addEventListener('DOMContentLoaded', function() {
         state.activeRequestId = firstRequest.dataset.requestId;
         firstRequest.classList.add('active');
         loadRequestData(state.activeRequestId);
+    }
+
+        // Add new function to handle request status changes
+        async function handleRequestStatusChange(e) {
+            if (!state.activeRequestId) return;
+    
+            const newStatus = e.target.value;
+            const oldStatus = e.target.dataset.previousValue;
+    
+            try {
+                const response = await fetch(`/chat/api/request/${state.activeRequestId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Failed to update status');
+                }
+    
+                const data = await response.json();
+                
+                // Update the status in the UI
+                document.querySelectorAll('.request-item').forEach(item => {
+                    if (item.dataset.requestId === state.activeRequestId) {
+                        item.querySelector('.request-details span:last-child').textContent = `Status: ${newStatus}`;
+                    }
+                });
+    
+                // Store the new value as previous
+                e.target.dataset.previousValue = newStatus;
+    
+                // Show success message
+                showSuccess('Request status updated successfully');
+    
+                // If status changed to Approved, refresh the orders list
+                if (newStatus === 'Approved') {
+                    loadRequestData(state.activeRequestId);
+                }
+    
+            } catch (error) {
+                console.error('Error updating request status:', error);
+                // Revert to previous value
+                e.target.value = oldStatus;
+                showError('Failed to update request status');
+            }
+        }
+
+            // Add function to handle item quantity changes
+            function handleItemQuantityChange(e) {
+                const input = e.target;
+                const newQuantity = parseInt(input.value);
+                const itemRow = input.closest('.item');
+                
+                // Validate input
+                if (isNaN(newQuantity) || newQuantity < 0) {
+                    input.value = input.dataset.previousValue;
+                    return;
+                }
+            
+                // Get price and update subtotal
+                const priceElement = itemRow.querySelector('.item-price-detail');
+                const subtotalElement = itemRow.querySelector('.item-subtotal');
+                const price = parseFloat(priceElement.dataset.price);
+                const subtotal = price * newQuantity;
+            
+                // Update subtotal display
+                subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
+            
+                // Update total
+                updateTotalAmount();
+            
+                // Mark changes as unsaved
+                state.hasUnsavedChanges = true;
+            }
+
+            function updateTotalAmount() {
+                const items = document.querySelectorAll('.item');
+                let total = 0;
+            
+                items.forEach(item => {
+                    const quantity = parseInt(item.querySelector('.quantity-input').value);
+                    const price = parseFloat(item.querySelector('.item-price-detail').dataset.price);
+                    total += quantity * price;
+                });
+            
+                const totalElement = document.querySelector('.total-amount');
+                if (totalElement) {
+                    totalElement.textContent = `₱${total.toFixed(2)}`;
+                }
+            }
+            
+            function showConfirmationModal(message, onConfirm) {
+                const modal = document.createElement('div');
+                modal.className = 'modal-overlay';
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        <div class="modal-header">Confirm Action</div>
+                        <div class="modal-body">${message}</div>
+                        <div class="modal-actions">
+                            <button class="modal-button modal-button-cancel">Cancel</button>
+                            <button class="modal-button modal-button-confirm">Confirm</button>
+                        </div>
+                    </div>
+                `;
+            
+                document.body.appendChild(modal);
+            
+                const confirmBtn = modal.querySelector('.modal-button-confirm');
+                const cancelBtn = modal.querySelector('.modal-button-cancel');
+            
+                confirmBtn.addEventListener('click', () => {
+                    onConfirm();
+                    modal.remove();
+                });
+            
+                cancelBtn.addEventListener('click', () => {
+                    modal.remove();
+                });
+            }
+
+    // Add function to update order total
+    function updateOrderTotal() {
+        const items = document.querySelectorAll('.item');
+        let total = 0;
+
+        items.forEach(item => {
+            const subtotal = parseFloat(item.querySelector('.item-subtotal').textContent.replace('₱', ''));
+            total += subtotal;
+        });
+
+        document.querySelector('.total-amount').textContent = `₱${total.toFixed(2)}`;
+    }
+
+    // Add function to save current order
+    async function saveCurrentOrder() {
+        if (!state.activeRequestId || !state.activeOrderId) {
+            showError('No active order selected');
+            return;
+        }
+    
+        const orderData = collectOrderData();
+        try {
+            const response = await fetch(`/chat/api/order/${state.activeOrderId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orderData)
+            });
+    
+            if (!response.ok) throw new Error('Failed to update order');
+    
+            state.hasUnsavedChanges = false;
+            showSuccess('Order updated successfully');
+        } catch (error) {
+            console.error('Error saving order:', error);
+            showError('Failed to save order changes');
+        }
+    }
+    
+    async function saveAllOrders() {
+        if (!state.activeRequestId) {
+            showError('No active request selected');
+            return;
+        }
+    
+        showConfirmationModal(
+            'This will apply the current changes to all orders in this request. Are you sure you want to continue?',
+            async () => {
+                const orderData = collectOrderData();
+                try {
+                    const response = await fetch(`/chat/api/request/${state.activeRequestId}/orders`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(orderData)
+                    });
+    
+                    if (!response.ok) throw new Error('Failed to update orders');
+    
+                    state.hasUnsavedChanges = false;
+                    showSuccess('All orders updated successfully');
+                } catch (error) {
+                    console.error('Error saving orders:', error);
+                    showError('Failed to save changes to all orders');
+                }
+            }
+        );
+    }
+
+    // Helper function to collect order data
+    function collectOrderData() {
+        const items = [];
+        document.querySelectorAll('.item').forEach(item => {
+            items.push({
+                itemID: parseInt(item.dataset.itemId),
+                quantity: parseInt(item.querySelector('.quantity-input').value),
+                itemPrice: parseFloat(item.querySelector('.item-price-detail').dataset.price)
+            });
+        });
+
+        return {
+            deliveryDate: document.getElementById('deliveryDate').value,
+            deliveryTimeRange: document.getElementById('timeRange').value,
+            status: document.getElementById('orderStatus').value,
+            deliveryAddress: document.getElementById('deliveryAddress').value,
+            customizations: document.getElementById('customizations').value,
+            items: items
+        };
     }
 
     async function loadRequestData(requestId) {
@@ -197,6 +417,36 @@ document.addEventListener('DOMContentLoaded', function() {
     
             itemsList.innerHTML = itemsHTML;
         }
+
+              // Update items list with editable quantities
+              if (itemsList && Array.isArray(order.items)) {
+                let itemsHTML = order.items.map(item => `
+                    <div class="item" data-item-id="${item.itemID}">
+                        <div class="item-name">${item.itemName || 'Unknown Item'}</div>
+                        <div class="item-details">
+                            <div class="quantity-control">
+                                <input type="number" 
+                                       class="quantity-input" 
+                                       value="${item.quantity}" 
+                                       min="1" 
+                                       data-previous-value="${item.quantity}"
+                                       onchange="handleItemQuantityChange(event, ${item.itemID})">
+                            </div>
+                            <span class="item-price-detail" data-price="${item.itemPrice}">₱${item.itemPrice.toFixed(2)}</span>
+                            <span class="item-subtotal">₱${(item.totalPrice || 0).toFixed(2)}</span>
+                        </div>
+                    </div>
+                `).join('');
+    
+                itemsHTML += `
+                    <div class="total-line">
+                        <span>Total Amount:</span>
+                        <span class="total-amount">₱${(order.totalAmount || 0).toFixed(2)}</span>
+                    </div>
+                `;
+    
+                itemsList.innerHTML = itemsHTML;
+            }
     }
     
     
@@ -209,8 +459,42 @@ document.addEventListener('DOMContentLoaded', function() {
         elements.requestItems.forEach(req => req.classList.remove('active'));
         this.classList.add('active');
         
-        // Update state and load data
+        // Update state
         state.activeRequestId = requestId;
+    
+        // Get request data
+        const requestData = state.requestsData.get(requestId);
+        
+        // Update the header with the new active request
+        const chatHeader = document.querySelector('.chat-header');
+        if (requestData) {
+            chatHeader.innerHTML = `
+                <div class="customer-info">
+                    <h3>Chat with ${requestData.customerName}</h3>
+                    <div class="request-info">
+                        <span>Request #${requestData.requestID}</span>
+                        <div class="status-control">
+                            <label for="requestStatus">Request Status:</label>
+                            <select id="requestStatus" class="request-status-select">
+                                <option value="Received" ${requestData.status === 'Received' ? 'selected' : ''}>Received</option>
+                                <option value="Negotiation" ${requestData.status === 'Negotiation' ? 'selected' : ''}>Negotiation</option>
+                                <option value="Approved" ${requestData.status === 'Approved' ? 'selected' : ''}>Approved</option>
+                                <option value="Cancelled" ${requestData.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+    
+            // Reattach event listener for the new status select
+            const newStatusSelect = document.getElementById('requestStatus');
+            if (newStatusSelect) {
+                newStatusSelect.addEventListener('change', handleRequestStatusChange);
+                newStatusSelect.dataset.previousValue = newStatusSelect.value;
+            }
+        }
+        
+        // Load request data
         loadRequestData(requestId);
     }
 
@@ -277,6 +561,30 @@ document.addEventListener('DOMContentLoaded', function() {
         if (elements.orderSelect) {
             elements.orderSelect.addEventListener('change', handleOrderSelect);
         }
+
+        if (elements.requestStatus) {
+            elements.requestStatus.addEventListener('change', handleRequestStatusChange);
+            // Store initial value
+            elements.requestStatus.dataset.previousValue = elements.requestStatus.value;
+        }
+        // Add quantity change listeners
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', handleItemQuantityChange);
+            input.addEventListener('input', handleItemQuantityChange); // For real-time updates
+            input.dataset.previousValue = input.value;
+        });
+
+        // Update save buttons
+        if (elements.saveCurrentOrder) {
+            elements.saveCurrentOrder.addEventListener('click', saveCurrentOrder);
+        }
+
+        if (elements.saveAllOrders) {
+            elements.saveAllOrders.addEventListener('click', saveAllOrders);
+        }
+
+
+
 
         // Cleanup on page unload
         window.addEventListener('beforeunload', cleanup);
@@ -374,6 +682,36 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => errorDiv.remove(), 3000);
     }
 
+    function showSuccess(message) {
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-message';
+        successDiv.textContent = message;
+        document.querySelector('.chat-container').appendChild(successDiv);
+        setTimeout(() => successDiv.remove(), 3000);
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #d4edda;
+            color: #155724;
+            padding: 12px 24px;
+            border-radius: 4px;
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-20px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+    `;
+    document.head.appendChild(style);
 
 
     function cleanup() {
@@ -391,7 +729,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 10000);
     }
 
+    function setupEditEventListeners() {
+        if (elements.requestStatus) {
+            elements.requestStatus.addEventListener('change', handleRequestStatusChange);
+        }
+
+        if (elements.saveCurrentOrder) {
+            elements.saveCurrentOrder.addEventListener('click', saveCurrentOrder);
+        }
+
+        if (elements.saveAllOrders) {
+            elements.saveAllOrders.addEventListener('click', saveAllOrders);
+        }
+
+        // Add warning when leaving with unsaved changes
+        window.addEventListener('beforeunload', (e) => {
+            if (state.hasUnsavedChanges) {
+                e.preventDefault();
+                return e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+            }
+        });
+    }
+
     // Start the application
     setupEventListeners();
     setupAutoRefresh();
+    setupEditEventListeners();
 });

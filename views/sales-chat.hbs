@@ -19,19 +19,30 @@
     </div>
 
     <div class="chat-main sales-view">
-        <div class="chat-header">
-            {{#if activeRequest}}
-            <div class="customer-info">
-                <h3>Chat with {{activeRequest.customerName}}</h3>
-                <span>Request #{{activeRequest.requestID}}</span>
+<div class="chat-header">
+    {{#if activeRequest}}
+    <div class="customer-info">
+        <h3>Chat with {{activeRequest.customerName}}</h3>
+        <div class="request-info">
+            <span>Request #{{activeRequest.requestID}}</span>
+            <div class="status-control">
+                <label for="requestStatus">Request Status:</label>
+                <select id="requestStatus" class="request-status-select">
+                    <option value="Received" {{#if (eq activeRequest.status "Received")}}selected{{/if}}>Received</option>
+                    <option value="Negotiation" {{#if (eq activeRequest.status "Negotiation")}}selected{{/if}}>Negotiation</option>
+                    <option value="Approved" {{#if (eq activeRequest.status "Approved")}}selected{{/if}}>Approved</option>
+                    <option value="Cancelled" {{#if (eq activeRequest.status "Cancelled")}}selected{{/if}}>Cancelled</option>
+                </select>
             </div>
-            {{else}}
-            <div class="customer-info">
-                <h3>Customer Support Chat</h3>
-                <span>Select a request to start chatting</span>
-            </div>
-            {{/if}}
         </div>
+    </div>
+    {{else}}
+    <div class="customer-info">
+        <h3>Customer Support Chat</h3>
+        <span>Select a request to start chatting</span>
+    </div>
+    {{/if}}
+</div>
 
         <div class="chat-content">
 <div class="chat-messages" id="chatMessages">
@@ -97,7 +108,7 @@
     <div class="item">
         <div class="item-name">{{itemName}}</div>
         <div class="item-details">
-            <span class="item-quantity">x{{quantity}}</span>
+            <span class="item-quantity quantity-input">x{{quantity}}</span>
             <span class="item-price-detail">₱{{itemPrice}}</span>
         </div>
         <div class="item-subtotal">₱{{totalPrice}}</div>

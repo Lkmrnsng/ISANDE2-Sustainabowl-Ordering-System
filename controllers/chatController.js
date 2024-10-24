@@ -93,6 +93,7 @@ const chatController = {
                 title: 'Customer Chat',
                 css: ['chat.css'],
                 js: ['chat.js'],
+                activeRequest: requests.length > 0 ? requests[0] : null
             });
         } catch (error) {
             next(error instanceof ChatError ? error : new ChatError('Server error'));
@@ -174,6 +175,7 @@ const chatController = {
                     orders: requestOrders
                 };
             });
+
     
             res.render('sales-chat', {
                 requests,
@@ -183,6 +185,7 @@ const chatController = {
                 title: 'Sales Chat',
                 css: ['chat.css'],
                 js: ['chat.js'],
+                activeRequest: requests.length > 0 ? requests[0] : null
             });
         } catch (error) {
             next(error instanceof ChatError ? error : new ChatError('Server error'));
@@ -272,6 +275,36 @@ const chatController = {
             res.json({ messages, orders: enhancedOrders, request });
         } catch (error) {
             next(error instanceof ChatError ? error : new ChatError('Server error'));
+        }
+    },
+
+    async updateRequestStatus(req, res) {
+        try {
+            const { requestId } = req.params;
+            const { status } = req.body;
+    
+            const validStatuses = ['Received', 'Negotiation', 'Approved', 'Cancelled'];
+            if (!validStatuses.includes(status)) {
+                return res.status(400).json({ error: 'Invalid status' });
+            }
+    
+            const request = await Request.findOneAndUpdate(
+                { requestID: requestId },
+                { status },
+                { new: true }
+            );
+    
+            if (!request) {
+                return res.status(404).json({ error: 'Request not found' });
+            }
+    
+            res.json({ 
+                success: true, 
+                status: request.status 
+            });
+        } catch (error) {
+            console.error('Error updating request status:', error);
+            res.status(500).json({ error: 'Failed to update request status' });
         }
     }
 };
