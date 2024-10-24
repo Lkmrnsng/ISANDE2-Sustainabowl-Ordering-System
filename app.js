@@ -169,23 +169,23 @@ app.use('/marketplace', marketplaceRoutes);
 // });
 
 // megan test 
-app.get('/', async (req, res) => {
-    res.render('marketplace_catalog', {
-        title: "Home",
-        css: ["marketplace_catalog.css", "marketplace.css"],
-        layout: "marketplace"
-    });
-});
+// app.get('/', async (req, res) => {
+//     res.render('marketplace_catalog', {
+//         title: "Home",
+//         css: ["marketplace_catalog.css", "marketplace.css"],
+//         layout: "marketplace"
+//     });
+// });
 
 
 // ishi test
-// app.get('/', (req, res) => {
-//     res.render('logistics_sendalert', {
-//         title: "Home",
-//         css: ["logistics_sendalert.css"],
-//         layout: "main"
-//     });
-// });
+app.get('/', (req, res) => {
+    res.render('logistics_warehouse', {
+        title: "Home",
+        css: ["logistics_warehouse.css"],
+        layout: "main"
+    });
+});
 
 app.post('/login', 
     passport.authenticate('local', {
