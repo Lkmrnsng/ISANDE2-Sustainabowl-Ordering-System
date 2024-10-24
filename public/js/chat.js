@@ -1,233 +1,305 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Content Loaded');
-    
-    // Initialize variables
-    let activeRequestId = null;
-    let activeOrderId = null;
-    const chatMessages = document.getElementById('chatMessages');
-    const messageInput = document.getElementById('messageInput');
-    const requestsData = new Map(); // Store all request data
-    
-    // Initialize the first request as active if it exists
-    const firstRequest = document.querySelector('.request-item');
-    if (firstRequest) {
-        activeRequestId = firstRequest.dataset.requestId;
+    // Cache DOM elements
+    const elements = {
+        chatMessages: document.getElementById('chatMessages'),
+        messageInput: document.getElementById('messageInput'),
+        sendButton: document.getElementById('sendMessage'),
+        requestItems: document.querySelectorAll('.request-item'),
+        orderSelect: document.getElementById('orderDateSelect')
+    };
+
+    // State management
+    const state = {
+        activeRequestId: null,
+        activeOrderId: null,
+        isRefreshing: false,
+        refreshTimeout: null,
+        messageQueue: [],
+        requestsData: new Map() // Store request data
+    };
+
+    // Initialize requestsData from server-rendered data
+    elements.requestItems.forEach(requestEl => {
+        const requestId = requestEl.dataset.requestId;
+        const requestData = window[`request_${requestId}`];
+        if (requestData) {
+            state.requestsData.set(requestId, requestData);
+        }
+    });
+
+    // Initialize the first request
+    if (elements.requestItems[0]) {
+        const firstRequest = elements.requestItems[0];
+        state.activeRequestId = firstRequest.dataset.requestId;
         firstRequest.classList.add('active');
-        // Load the first request's data into the view
-        loadRequestData(activeRequestId);
-        
-    }
-
-    // Event Listeners
-    document.querySelectorAll('.request-item').forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const requestId = this.dataset.requestId;
-            activeRequestId = requestId;
-            
-            // Update active state visually
-            document.querySelectorAll('.request-item').forEach(req => {
-                req.classList.remove('active');
-            });
-            this.classList.add('active');
-            
-            // Load this request's data into the view
-            loadRequestData(requestId);
-        });
-    });
-
-// Modify the orderDateSelect event listener
-if (document.getElementById('orderDateSelect')) {
-    document.getElementById('orderDateSelect').addEventListener('change', async function() {
-        const orderId = this.value;
-        if (!orderId) return;
-        
-        try {
-            const response = await fetch(`/chat/api/order/${orderId}`);
-            if (!response.ok) throw new Error('Failed to fetch order details');
-            
-            const orderData = await response.json();
-            updateOrderDisplay(orderData);
-        } catch (error) {
-            console.error('Error fetching order details:', error);
-            showError('Failed to load order details. Please try again.');
-        }
-    });
-}
-
-    // Message input handlers
-    messageInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-
-    document.getElementById('sendMessage').addEventListener('click', sendMessage);
-    
-    if (document.getElementById('saveCurrentOrder')) {
-        document.getElementById('saveCurrentOrder').addEventListener('click', () => saveOrder(false));
-        document.getElementById('saveAllOrders').addEventListener('click', () => saveOrder(true));
-    }
-
-    // Auto-refresh messages periodically
-    setInterval(() => {
-        if (activeRequestId) {
-            refreshMessages(activeRequestId);
-        }
-    }, 10000);
-
-    // Functions
-    async function refreshMessages(requestId) {
-        try {
-            const response = await fetch(`/chat/api/chat/${requestId}`);
-            if (!response.ok) throw new Error(`Failed to refresh messages: ${response.statusText}`);
-            
-            const data = await response.json();
-            updateChatMessages(data.messages);
-        } catch (error) {
-            console.error('Error refreshing messages:', error);
-        }
+        loadRequestData(state.activeRequestId);
     }
 
     async function loadRequestData(requestId) {
         try {
-            // Get request data
-            const request = requestsData.get(requestId);
-            if (!request) return;
+            // Get request data from state
+            const request = state.requestsData.get(requestId);
+            if (!request) {
+                throw new Error('Request data not found');
+            }
 
             // Update messages
             updateChatMessages(request.messages);
             
             // Update order select if it exists
-            if (document.getElementById('orderDateSelect')) {
+            if (elements.orderSelect) {
                 updateOrderSelect(request.orders);
                 if (request.orders && request.orders.length > 0) {
-                    activeOrderId = request.orders[0].OrderID;
+                    state.activeOrderId = request.orders[0].OrderID;
                     updateOrderDisplay(request.orders[0]);
                 }
             }
 
             scrollToBottom();
         } catch (error) {
+            showError('Failed to load request data');
             console.error('Error loading request data:', error);
-            showError('Failed to load request data. Please try again.');
         }
     }
 
+    async function refreshMessages(requestId) {
+        if (!requestId || state.isRefreshing) return;
+
+        try {
+            state.isRefreshing = true;
+            const response = await fetch(`/chat/api/chat/${requestId}`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch messages');
+            }
+            
+            const data = await response.json();
+            if (data.messages) {
+                updateChatMessages(data.messages);
+                scrollToBottom();
+            }
+        } catch (error) {
+            console.error('Error refreshing messages:', error);
+            showError('Failed to refresh messages');
+        } finally {
+            state.isRefreshing = false;
+        }
+    }
+
+    function debouncedRefresh(requestId) {
+        if (state.refreshTimeout) {
+            clearTimeout(state.refreshTimeout);
+        }
+        state.refreshTimeout = setTimeout(() => refreshMessages(requestId), 1000);
+    }
+
     function updateChatMessages(messages) {
-        chatMessages.innerHTML = messages.map(msg => createMessageHTML(msg)).join('');
+        if (!elements.chatMessages) return;
+        
+        elements.chatMessages.innerHTML = messages.map(msg => createMessageHTML(msg)).join('');
+    
     }
 
     function updateOrderSelect(orders) {
-        const orderSelect = document.getElementById('orderDateSelect');
-        if (!orderSelect) return;
+        if (!elements.orderSelect) return;
 
-        orderSelect.innerHTML = orders.map(order => `
+        elements.orderSelect.innerHTML = orders.map(order => `
             <option value="${order.OrderID}">
-                ${new Date(order.deliveryDate).toLocaleDateString()}
+                Delivery: ${new Date(order.deliveryDate).toLocaleDateString()}
             </option>
         `).join('');
     }
 
     function updateOrderDisplay(order) {
+        if (!order) {
+            console.error('No order data provided to updateOrderDisplay');
+            return;
+        }
+    
         const isSalesView = document.querySelector('.order-details:not(.read-only)') !== null;
         
         if (isSalesView) {
             // Update editable form fields
-            document.getElementById('deliveryDate').value = order.deliveryDate.split('T')[0];
-            document.getElementById('timeRange').value = order.deliveryTimeRange;
-            document.getElementById('orderStatus').value = order.status;
-            document.getElementById('deliveryAddress').value = order.deliveryAddress;
-            document.getElementById('customizations').value = order.customizations;
+            const deliveryDateInput = document.getElementById('deliveryDate');
+            const timeRangeSelect = document.getElementById('timeRange');
+            const orderStatusSelect = document.getElementById('orderStatus');
+            const deliveryAddressInput = document.getElementById('deliveryAddress');
+            const customizationsInput = document.getElementById('customizations');
+    
+            if (deliveryDateInput && order.deliveryDate) {
+                deliveryDateInput.value = order.deliveryDate.split('T')[0];
+            }
+            if (timeRangeSelect && order.deliveryTimeRange) {
+                timeRangeSelect.value = order.deliveryTimeRange;
+            }
+            if (orderStatusSelect && order.status) {
+                orderStatusSelect.value = order.status;
+            }
+            if (deliveryAddressInput) {
+                deliveryAddressInput.value = order.deliveryAddress || '';
+            }
+            if (customizationsInput) {
+                customizationsInput.value = order.customizations || '';
+            }
         } else {
             // Update read-only fields
             const orderInfo = document.querySelector('.order-info');
-            orderInfo.querySelector('[data-field="deliveryDate"] .info-value').textContent = 
-                new Date(order.deliveryDate).toLocaleDateString();
-            orderInfo.querySelector('[data-field="timeRange"] .info-value').textContent = 
-                order.deliveryTimeRange;
-            
+            if (!orderInfo) return;
+    
+            const deliveryDateElement = orderInfo.querySelector('[data-field="deliveryDate"] .info-value');
+            const timeRangeElement = orderInfo.querySelector('[data-field="timeRange"] .info-value');
             const statusBadge = orderInfo.querySelector('[data-field="status"] .status-badge');
-            statusBadge.textContent = order.status;
-            statusBadge.dataset.status = order.status;
-            
-            orderInfo.querySelector('[data-field="address"] .info-value').textContent = 
-                order.deliveryAddress;
-            orderInfo.querySelector('[data-field="customizations"] .info-value').textContent = 
-                order.customizations;
+            const addressElement = orderInfo.querySelector('[data-field="address"] .info-value');
+            const customizationsElement = orderInfo.querySelector('[data-field="customizations"] .info-value');
+    
+            if (deliveryDateElement && order.deliveryDate) {
+                deliveryDateElement.textContent = new Date(order.deliveryDate).toLocaleDateString();
+            }
+            if (timeRangeElement) {
+                timeRangeElement.textContent = order.deliveryTimeRange || 'Not specified';
+            }
+            if (statusBadge) {
+                statusBadge.textContent = order.status || 'Unknown';
+                statusBadge.dataset.status = order.status || 'unknown';
+            }
+            if (addressElement) {
+                addressElement.textContent = order.deliveryAddress || 'No address specified';
+            }
+            if (customizationsElement) {
+                customizationsElement.textContent = order.customizations || 'None';
+            }
         }
-
+    
         // Update items list for both views
         const itemsList = document.querySelector('.items-list');
-        itemsList.innerHTML = order.items.map(item => `
-            <div class="item">
-                <span class="item-name">${item.itemName}</span>
-                <span class="item-quantity">x${item.quantity}</span>
-            </div>
-        `).join('');
+        if (itemsList && Array.isArray(order.items)) {
+            itemsList.innerHTML = order.items.map(item => `
+                <div class="item">
+                    <span class="item-name">${item.itemName || 'Unknown Item'}</span>
+                    <span class="item-quantity">x${item.quantity || 0}</span>
+                </div>
+            `).join('');
+        }
+    }
+    
+    
+    
+    function handleRequestClick(e) {
+        e.preventDefault();
+        const requestId = this.dataset.requestId;
+        
+        // Update active state
+        elements.requestItems.forEach(req => req.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Update state and load data
+        state.activeRequestId = requestId;
+        loadRequestData(requestId);
+    }
+
+    // Message event handlers
+    function handleMessageKeypress(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
     }
 
     async function sendMessage() {
-        const message = messageInput.value.trim();
-        if (!message || !activeRequestId) return;
+        if (!state.activeRequestId) {
+            showError('Please select a request first');
+            return;
+        }
+
+        const messageText = elements.messageInput.value.trim();
+        if (!messageText) return;
 
         try {
+            elements.sendButton.disabled = true;
             const response = await fetch('/chat/api/message', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    requestID: activeRequestId,
-                    message: message
+                    requestID: state.activeRequestId,
+                    message: messageText
                 })
             });
 
-            if (response.ok) {
-                messageInput.value = '';
-                await refreshMessages(activeRequestId);
-                scrollToBottom();
+            if (!response.ok) {
+                throw new Error('Failed to send message');
             }
+
+            // Clear input and refresh messages
+            elements.messageInput.value = '';
+            await refreshMessages(state.activeRequestId);
+            scrollToBottom();
         } catch (error) {
             console.error('Error sending message:', error);
             showError('Failed to send message. Please try again.');
+        } finally {
+            elements.sendButton.disabled = false;
         }
     }
 
-    async function saveOrder(applyToAll) {
-        if (!activeRequestId || !activeOrderId) return;
+    // Set up event listeners
+    function setupEventListeners() {
+        elements.requestItems.forEach(item => {
+            item.addEventListener('click', handleRequestClick);
+        });
 
-        const orderData = {
-            deliveryDate: document.getElementById('deliveryDate').value,
-            deliveryTimeRange: document.getElementById('timeRange').value,
-            status: document.getElementById('orderStatus').value,
-            deliveryAddress: document.getElementById('deliveryAddress').value,
-            customizations: document.getElementById('customizations').value,
-            applyToAll: applyToAll
-        };
+        if (elements.messageInput) {
+            elements.messageInput.addEventListener('keypress', handleMessageKeypress);
+        }
 
+        if (elements.sendButton) {
+            elements.sendButton.addEventListener('click', sendMessage);
+        }
+
+        if (elements.orderSelect) {
+            elements.orderSelect.addEventListener('change', handleOrderSelect);
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', cleanup);
+    }
+
+
+    async function handleOrderSelect(e) {
+        const orderId = e.target.value;
+        if (!orderId) return;
+        
         try {
-            const response = await fetch(`/chat/api/order/${activeOrderId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(orderData)
-            });
-
-            if (response.ok) {
-                await refreshMessages(activeRequestId);
-                showSuccess('Order updated successfully');
+            // Show loading state if needed
+            const response = await fetch(`/chat/api/order/${orderId}`);
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to fetch order details');
             }
+            
+            const orderData = await response.json();
+            
+            if (!orderData) {
+                throw new Error('No order data received');
+            }
+            
+            state.activeOrderId = orderId;
+            updateOrderDisplay(orderData);
         } catch (error) {
-            console.error('Error saving order:', error);
-            showError('Failed to save order. Please try again.');
+            console.error('Error fetching order details:', error);
+            showError(error.message || 'Failed to load order details');
+            
+            // Reset select to previous value if needed
+            if (state.activeOrderId && elements.orderSelect) {
+                elements.orderSelect.value = state.activeOrderId;
+            }
         }
     }
 
     function createMessageHTML(message) {
-        const isCurrentUser = message.senderID === window.userID;
+        const isCurrentUser = message.senderID === window.userId;
         const date = new Date(message.date).toLocaleString();
         
         return `
@@ -240,8 +312,20 @@ if (document.getElementById('orderDateSelect')) {
         `;
     }
 
+    function escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
     function scrollToBottom() {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        if (elements.chatMessages) {
+            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+        }
     }
 
     function showError(message) {
@@ -252,30 +336,24 @@ if (document.getElementById('orderDateSelect')) {
         setTimeout(() => errorDiv.remove(), 3000);
     }
 
-    function showSuccess(message) {
-        const successDiv = document.createElement('div');
-        successDiv.className = 'success-message';
-        successDiv.textContent = message;
-        document.querySelector('.chat-container').appendChild(successDiv);
-        setTimeout(() => successDiv.remove(), 3000);
-    }
 
-    function escapeHtml(unsafe) {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
 
-    // Initialize requestsData from the server-rendered data
-    const requestElements = document.querySelectorAll('.request-item');
-    requestElements.forEach(requestEl => {
-        const requestId = requestEl.dataset.requestId;
-        const requestData = window[`request_${requestId}`]; // We'll add this to the templates
-        if (requestData) {
-            requestsData.set(requestId, requestData);
+    function cleanup() {
+        if (state.refreshTimeout) {
+            clearTimeout(state.refreshTimeout);
         }
-    });
+    }
+
+    function setupAutoRefresh() {
+        // Refresh messages every 10 seconds if there's an active request
+        setInterval(() => {
+            if (state.activeRequestId) {
+                refreshMessages(state.activeRequestId);
+            }
+        }, 10000);
+    }
+
+    // Start the application
+    setupEventListeners();
+    setupAutoRefresh();
 });

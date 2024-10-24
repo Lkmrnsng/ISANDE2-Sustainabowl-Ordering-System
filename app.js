@@ -167,8 +167,8 @@ app.use((req, res, next) => {
 /* Middleware to Simulate User Login (For Testing) */
 app.use((req, res, next) => {
     if (!req.session.userId) {
-        req.session.userId = 10002; // Replace with your test user ID
-        req.session.userType = 'Sales';
+        req.session.userId = 10001; // Replace with your test user ID
+        req.session.userType = 'Customer';
         console.log(`Simulated login with userId: ${req.session.userId}`);
     }
     next();

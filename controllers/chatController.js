@@ -1,16 +1,30 @@
-// controllers/chatController.js
+// 1. First, update chatController.js with proper error handling and session management
+
 const Message = require('../models/Message');
 const Request = require('../models/Request');
 const Order = require('../models/Order');
 const Item = require('../models/Item');
+const User = require('../models/User');
+
+// Custom error handler
+class ChatError extends Error {
+    constructor(message, status = 500) {
+        super(message);
+        this.status = status;
+    }
+}
 
 const chatController = {
-    // View Controllers
-    async getCustomerChatView(req, res) {
+    async getCustomerChatView(req, res, next) {
         try {
+            if (!req.session.userId) {
+                throw new ChatError('Unauthorized access', 401);
+            }
+
             const customerId = req.session.userId;
             let requests = await Request.find({ customerID: customerId })
-                .sort({ requestDate: -1 });
+                .sort({ requestDate: -1 })
+                .lean();
 
             if (!requests.length) {
                 return res.render('customer-chat', {
@@ -24,37 +38,38 @@ const chatController = {
                 });
             }
 
-            // Enhance each request with its messages and orders
-            requests = await Promise.all(requests.map(async (request) => {
-                const messages = await Message.find({ requestID: request.requestID })
-                    .sort({ date: 1 });
-                
-                const orders = await Order.find({ requestID: request.requestID })
-                    .sort({ deliveryDate: 1 });
+            // Efficiently fetch all related data in parallel
+            const [messages, orders, items] = await Promise.all([
+                Message.find({ 
+                    requestID: { $in: requests.map(r => r.requestID) }
+                }).sort({ date: 1 }).lean(),
+                Order.find({ 
+                    requestID: { $in: requests.map(r => r.requestID) }
+                }).sort({ deliveryDate: 1 }).lean(),
+                Item.find({}).lean()
+            ]);
 
-                // Enhance each order with item details
-                const ordersWithItems = await Promise.all(orders.map(async (order) => {
-                    const itemDetails = await Promise.all(
-                        order.items.map(async (item) => {
-                            const itemData = await Item.findOne({ itemID: item.itemID });
-                            return {
-                                itemName: itemData ? itemData.itemName : 'Unknown Item',
-                                quantity: item.quantity
-                            };
-                        })
-                    );
-                    return {
-                        ...order.toObject(),
-                        items: itemDetails
-                    };
-                }));
+            // Create items lookup map for efficiency
+            const itemsMap = new Map(items.map(item => [item.itemID, item]));
+
+            // Process requests with their associated data
+            requests = requests.map(request => {
+                const requestMessages = messages.filter(m => m.requestID === request.requestID);
+                const requestOrders = orders.filter(o => o.requestID === request.requestID)
+                    .map(order => ({
+                        ...order,
+                        items: order.items.map(item => ({
+                            itemName: itemsMap.get(item.itemID)?.itemName || 'Unknown Item',
+                            quantity: item.quantity
+                        }))
+                    }));
 
                 return {
-                    ...request.toObject(),
-                    messages,
-                    orders: ordersWithItems
+                    ...request,
+                    messages: requestMessages,
+                    orders: requestOrders
                 };
-            }));
+            });
 
             res.render('customer-chat', {
                 requests,
@@ -66,17 +81,21 @@ const chatController = {
                 js: ['chat.js'],
             });
         } catch (error) {
-            console.error('Error loading customer chat view:', error);
-            res.status(500).send('Error loading chat view');
+            next(error instanceof ChatError ? error : new ChatError('Server error'));
         }
     },
 
-    async getSalesChatView(req, res) {
+    async getSalesChatView(req, res, next) {
         try {
-            const salesId = req.session.userId || 10002;
+            if (!req.session.userId) {
+                throw new ChatError('Unauthorized access', 401);
+            }
+    
+            const salesId = req.session.userId;
             let requests = await Request.find({ pointPersonID: salesId })
-                .sort({ requestDate: -1 });
-
+                .sort({ requestDate: -1 })
+                .lean();
+    
             if (!requests.length) {
                 return res.render('sales-chat', {
                     requests: [],
@@ -88,39 +107,43 @@ const chatController = {
                     js: ['chat.js'],
                 });
             }
-
-            // Enhance each request with its messages and orders
-            requests = await Promise.all(requests.map(async (request) => {
-                const messages = await Message.find({ requestID: request.requestID })
-                    .sort({ date: 1 });
-                
-                const orders = await Order.find({ requestID: request.requestID })
-                    .sort({ deliveryDate: 1 });
-
-                // Enhance each order with item details
-                const ordersWithItems = await Promise.all(orders.map(async (order) => {
-                    const itemDetails = await Promise.all(
-                        order.items.map(async (item) => {
-                            const itemData = await Item.findOne({ itemID: item.itemID });
-                            return {
-                                itemName: itemData ? itemData.itemName : 'Unknown Item',
-                                quantity: item.quantity
-                            };
-                        })
-                    );
-                    return {
-                        ...order.toObject(),
-                        items: itemDetails
-                    };
-                }));
-
+    
+            // Efficiently fetch all related data in parallel
+            const [messages, orders, items] = await Promise.all([
+                Message.find({ 
+                    requestID: { $in: requests.map(r => r.requestID) }
+                }).sort({ date: 1 }).lean(),
+                Order.find({ 
+                    requestID: { $in: requests.map(r => r.requestID) }
+                }).sort({ deliveryDate: 1 }).lean(),
+                Item.find({}).lean()
+            ]);
+    
+            // Create items lookup map for efficiency
+            const itemsMap = new Map(items.map(item => [item.itemID, item]));
+    
+            // Process requests with their associated data
+            requests = await Promise.all(requests.map(async request => {
+                // Get customer name for each request
+                const customer = await User.findOne({ userID: request.customerID }).lean();
+                const requestMessages = messages.filter(m => m.requestID === request.requestID);
+                const requestOrders = orders.filter(o => o.requestID === request.requestID)
+                    .map(order => ({
+                        ...order,
+                        items: order.items.map(item => ({
+                            itemName: itemsMap.get(item.itemID)?.itemName || 'Unknown Item',
+                            quantity: item.quantity
+                        }))
+                    }));
+    
                 return {
-                    ...request.toObject(),
-                    messages,
-                    orders: ordersWithItems
+                    ...request,
+                    customerName: customer?.name || 'Unknown Customer',
+                    messages: requestMessages,
+                    orders: requestOrders
                 };
             }));
-
+    
             res.render('sales-chat', {
                 requests,
                 userType: 'Sales',
@@ -131,178 +154,75 @@ const chatController = {
                 js: ['chat.js'],
             });
         } catch (error) {
-            console.error('Error loading sales chat view:', error);
-            res.status(500).send('Error loading chat view');
+            next(error instanceof ChatError ? error : new ChatError('Server error'));
         }
     },
 
-    // API Controllers
-    async getChatMessages(req, res) {
-    try {
-        const { requestId } = req.params;
-        console.log('Fetching chat messages for request:', requestId);
-        
-        // Get messages
-        const messages = await Message.find({ requestID: requestId });
-        console.log('Found messages:', messages.length);
-
-        // Get orders associated with the request
-        const orders = await Order.find({ requestID: requestId });
-        console.log('Found orders:', orders.length);
-
-        // Get request details
-        const request = await Request.findOne({ requestID: requestId });
-        console.log('Found request:', request);
-
-        if (!request) {
-            console.log('Request not found:', requestId);
-            return res.status(404).json({ error: 'Request not found' });
-        }
-
-        res.json({
-            messages,
-            orders,
-            request
-        });
-    } catch (error) {
-        console.error('Error fetching chat data:', error);
-        res.status(500).json({ error: 'Error fetching chat data' });
-    }
-},
-
-    async sendMessage(req, res) {
+    async sendMessage(req, res, next) {
         try {
             const { requestID, message } = req.body;
-            const senderID = req.session.userId;
-            
-            // Get request to determine receiver
-            const request = await Request.findOne({ requestID });
-            if (!request) {
-                return res.status(404).send('Request not found');
+            if (!requestID || !message?.trim()) {
+                throw new ChatError('Invalid message data', 400);
             }
 
-            // Determine receiver based on sender type
+            const senderID = req.session.userId;
+            if (!senderID) {
+                throw new ChatError('Unauthorized', 401);
+            }
+
+            const request = await Request.findOne({ requestID });
+            if (!request) {
+                throw new ChatError('Request not found', 404);
+            }
+
+            // Verify user has access to this request
+            if (req.session.userType === 'Customer' && request.customerID !== senderID) {
+                throw new ChatError('Unauthorized access to request', 403);
+            }
+
             const receiverID = req.session.userType === 'Customer' 
                 ? request.pointPersonID 
                 : request.customerID;
 
-            const newMessage = new Message({
+            const newMessage = await Message.create({
                 senderID,
                 receiverID,
-                message,
+                message: message.trim(),
                 requestID,
                 date: new Date()
             });
 
-            await newMessage.save();
             res.status(201).json(newMessage);
         } catch (error) {
-            console.error('Error sending message:', error);
-            res.status(500).send('Error sending message');
+            next(error instanceof ChatError ? error : new ChatError('Server error'));
         }
     },
 
-    async getOrderDetails(req, res) {
+    async getChatMessages(req, res, next) {
         try {
-            const { orderId } = req.params;
-            const order = await Order.findOne({ OrderID: orderId });
-            
-            if (!order) {
-                return res.status(404).send('Order not found');
+            const { requestId } = req.params;
+            if (!requestId) {
+                throw new ChatError('Request ID is required', 400);
             }
 
-            // Fetch item details for the order
-            const itemDetails = await Promise.all(
-                order.items.map(async (item) => {
-                    const itemData = await Item.findOne({ itemID: item.itemID });
-                    return {
-                        itemName: itemData ? itemData.itemName : 'Unknown Item',
-                        quantity: item.quantity
-                    };
-                })
-            );
+            const [messages, orders, request] = await Promise.all([
+                Message.find({ requestID: requestId }).sort({ date: 1 }).lean(),
+                Order.find({ requestID: requestId }).lean(),
+                Request.findOne({ requestID: requestId }).lean()
+            ]);
 
-            const orderWithItems = {
-                ...order.toObject(),
-                items: itemDetails
-            };
-
-            res.json(orderWithItems);
-        } catch (error) {
-            console.error('Error fetching order details:', error);
-            res.status(500).send('Error fetching order details');
-        }
-    },
-
-    async updateOrder(req, res) {
-        try {
-            const { orderId } = req.params;
-            const updates = req.body;
-            const { applyToAll } = updates;
-            
-            // Remove applyToAll from updates
-            delete updates.applyToAll;
-
-            if (applyToAll) {
-                // Get the order to find its requestID
-                const order = await Order.findOne({ OrderID: orderId });
-                if (!order) {
-                    return res.status(404).send('Order not found');
-                }
-
-                // Update all orders for this request
-                await Order.updateMany(
-                    { requestID: order.requestID },
-                    { $set: updates }
-                );
-            } else {
-                // Update single order
-                await Order.findOneAndUpdate(
-                    { OrderID: orderId },
-                    { $set: updates }
-                );
+            if (!request) {
+                throw new ChatError('Request not found', 404);
             }
 
-            // Create system message about the update
-            const systemMessage = new Message({
-                senderID: req.session.userId ,
-                receiverID: null, // System message
-                message: `Order #${orderId} has been updated`,
-                requestID: order.requestID,
-                date: new Date()
-            });
-            await systemMessage.save();
-
-            res.status(200).send('Order updated successfully');
+            res.json({ messages, orders, request });
         } catch (error) {
-            console.error('Error updating order:', error);
-            res.status(500).send('Error updating order');
-        }
-    },
-
-    async getCustomerRequests(req, res) {
-        try {
-            const { customerId } = req.params;
-            const requests = await Request.find({ customerID: customerId })
-                .sort({ requestDate: -1 });
-            res.json(requests);
-        } catch (error) {
-            console.error('Error fetching customer requests:', error);
-            res.status(500).send('Error fetching requests');
-        }
-    },
-
-    async getSalesRequests(req, res) {
-        try {
-            const { salesId } = req.params || 10002;
-            const requests = await Request.find({ pointPersonID: salesId })
-                .sort({ requestDate: -1 });
-            res.json(requests);
-        } catch (error) {
-            console.error('Error fetching sales requests:', error);
-            res.status(500).send('Error fetching requests');
+            next(error instanceof ChatError ? error : new ChatError('Server error'));
         }
     }
 };
 
 module.exports = chatController;
+
+
+
