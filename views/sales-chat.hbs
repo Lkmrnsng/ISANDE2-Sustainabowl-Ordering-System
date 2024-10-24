@@ -1,0 +1,158 @@
+
+<div class="chat-container sales-view">
+    <div class="sidebar">
+        <h2>Active Requests</h2>
+        <div class="request-list">
+            {{#each requests}}
+            <div class="request-item {{#if isActive}}active{{/if}}" data-request-id="{{requestID}}">
+                <div class="request-header">
+                    <span>Request #{{requestID}}</span>
+                    <span class="customer-name">{{customerName}}</span>
+                </div>
+                <div class="request-details">
+                    <span>Date: {{formatDate2 requestDate}}</span>
+                    <span>Status: {{status}}</span>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+
+    <div class="chat-main sales-view">
+<div class="chat-header">
+    {{#if activeRequest}}
+    <div class="customer-info">
+        <h3>Chat with {{activeRequest.customerName}}</h3>
+        <div class="request-info">
+            <span>Request #{{activeRequest.requestID}}</span>
+            <div class="status-control">
+                <label for="requestStatus">Request Status:</label>
+                <select id="requestStatus" class="request-status-select">
+                    <option value="Received" {{#if (eq activeRequest.status "Received")}}selected{{/if}}>Received</option>
+                    <option value="Negotiation" {{#if (eq activeRequest.status "Negotiation")}}selected{{/if}}>Negotiation</option>
+                    <option value="Approved" {{#if (eq activeRequest.status "Approved")}}selected{{/if}}>Approved</option>
+                    <option value="Cancelled" {{#if (eq activeRequest.status "Cancelled")}}selected{{/if}}>Cancelled</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    {{else}}
+    <div class="customer-info">
+        <h3>Customer Support Chat</h3>
+        <span>Select a request to start chatting</span>
+    </div>
+    {{/if}}
+</div>
+
+        <div class="chat-content">
+<div class="chat-messages" id="chatMessages">
+    {{log "Current userId:" userId}}
+    {{#each messages}}
+        
+        <div class="message-wrapper {{#if (eq (toString senderID) (toString ../userId))}}current-user{{else}}other-user{{/if}}">
+            <div class="message {{#if (eq (toString senderID) (toString ../userId))}}current-user{{else}}other-user{{/if}}">
+                <div class="message-content">{{message}}</div>
+                <div class="message-time">{{formatDate2 date}}</div>
+            </div>
+        </div>
+    {{/each}}
+</div>
+
+
+        {{!-- sales-chat.hbs order details section --}}
+        <div class="order-details">
+            <h4>Order Details</h4>
+            <select id="orderDateSelect">
+                {{#each activeRequest.orders}}
+                <option value="{{OrderID}}" {{#if (eq ../selectedOrder.OrderID OrderID)}}selected{{/if}}>
+                    Delivery: {{formatDate2 deliveryDate}}
+                </option>
+                {{/each}}
+            </select>
+
+            <div class="order-form">
+                <div class="form-group">
+                    <label>Delivery Date</label>
+                    <input type="date" id="deliveryDate" value="{{formatDate3 selectedOrder.deliveryDate}}">
+                </div>
+                <div class="form-group">
+                    <label>Time Range</label>
+                    <select id="timeRange">
+                        <option value="Morning" {{#if (eq selectedOrder.deliveryTimeRange "Morning")}}selected{{/if}}>Morning</option>
+                        <option value="Afternoon" {{#if (eq selectedOrder.deliveryTimeRange "Afternoon")}}selected{{/if}}>Afternoon</option>
+                        <option value="Evening" {{#if (eq selectedOrder.deliveryTimeRange "Evening")}}selected{{/if}}>Evening</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="orderStatus">
+                        <option value="Waiting Approval" {{#if (eq selectedOrder.status "Waiting Approval")}}selected{{/if}}>Waiting Approval</option>
+                        <option value="Preparing" {{#if (eq selectedOrder.status "Preparing")}}selected{{/if}}>Preparing</option>
+                        <option value="Dispatched" {{#if (eq selectedOrder.status "Dispatched")}}selected{{/if}}>Dispatched</option>
+                        <option value="Delivered" {{#if (eq selectedOrder.status "Delivered")}}selected{{/if}}>Delivered</option>
+                        <option value="Cancelled" {{#if (eq selectedOrder.status "Cancelled")}}selected{{/if}}>Cancelled</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <textarea id="deliveryAddress">{{selectedOrder.deliveryAddress}}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Customizations</label>
+                    <textarea id="customizations">{{selectedOrder.customizations}}</textarea>
+                </div>
+<div class="form-group">
+    <label>Items</label>
+<div class="items-list">
+    {{#each selectedOrder.items}}
+    <div class="item">
+        <div class="item-name">{{itemName}}</div>
+        <div class="item-details">
+            <span class="item-quantity quantity-input">x{{quantity}}</span>
+            <span class="item-price-detail">₱{{itemPrice}}</span>
+        </div>
+        <div class="item-subtotal">₱{{totalPrice}}</div>
+    </div>
+    {{/each}}
+    <div class="total-line">
+        <span>Total Amount:</span>
+        <span class="total-amount">₱{{selectedOrder.totalAmount}}</span>
+    </div>
+</div>
+</div>
+                <div class="button-group">
+                    <button id="saveCurrentOrder">Save for this order</button>
+                    <button id="saveAllOrders">Save for all orders</button>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <div class="chat-input">
+            <textarea id="messageInput" placeholder="Type your message..."></textarea>
+            <button id="sendMessage">Send</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // Initialize data for each request
+    {{#each requests}}
+    window.request_{{requestID}} = {
+        requestID: "{{requestID}}",
+        status: "{{status}}",
+        requestDate: "{{requestDate}}",
+        customerID: "{{customerID}}",
+        pointPersonID: "{{pointPersonID}}",
+        customerName: "{{customerName}}",
+        messages: {{{json messages}}},
+        orders: {{{json orders}}}
+    };
+    {{/each}}
+</script>
+
+<script>
+    window.userId = "{{userId}}";  // This will be set from the server
+    console.log('Current user ID:', window.userId); // For debugging
+</script>

@@ -1,0 +1,133 @@
+
+<div class="chat-container customer-view">
+    <div class="sidebar">
+        <h2>My Requests</h2>
+        <div class="request-list">
+            {{#each requests}}
+            <div class="request-item {{#if isActive}}active{{/if}}" data-request-id="{{requestID}}">
+                <div class="request-header">
+                    <span>Request #{{requestID}}</span>
+                    <span class="status">{{status}}</span>
+                </div>
+                <div class="request-details">
+                    <span>Date: {{formatDate2 requestDate}}</span>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+
+    <div class="chat-main customer-view">
+        <div class="chat-header">
+            <h3>Chat with Sales Representative</h3>
+            {{#if activeRequest}}
+            <div class="request-info">
+                <span>Request #{{activeRequest.requestID}}</span>
+                <span>Status: {{activeRequest.status}}</span>
+            </div>
+            {{else}}
+            <div class="request-info">
+                <span>Select a request to start chatting</span>
+            </div>
+            {{/if}}
+        </div>
+
+        <div class="chat-content">
+        <div class="chat-messages" id="chatMessages">
+            {{log "Current userId:" userId}}
+            {{#each messages}}
+                {{log "Message senderID:" senderID "Current userId:" ../userId "IsEqual:" (eq senderID ../userId)}}
+                <div class="message-wrapper {{#if (eq (toString senderID) (toString ../userId))}}current-user{{else}}other-user{{/if}}">
+                    <div class="message {{#if (eq (toString senderID) (toString ../userId))}}current-user{{else}}other-user{{/if}}">
+                        <div class="message-content">{{message}}</div>
+                        <div class="message-time">{{formatDate2 date}}</div>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+
+        {{!-- customer-chat.hbs order details section --}}
+        <div class="order-details read-only">
+            <h4>Order Details</h4>
+            <select id="orderDateSelect" class="view-only">
+                {{#each activeRequest.orders}}
+                <option value="{{OrderID}}">Delivery: {{formatDate2 deliveryDate}}</option>
+                {{/each}}
+            </select>
+
+            <div class="order-info">
+                <div class="info-group" data-field="deliveryDate">
+                    <label>Delivery Date</label>
+                    <div class="info-value">{{formatDate2 selectedOrder.deliveryDate}}</div>
+                </div>
+                <div class="info-group" data-field="timeRange">
+                    <label>Time Range</label>
+                    <div class="info-value">{{selectedOrder.deliveryTimeRange}}</div>
+                </div>
+                <div class="info-group" data-field="status">
+                    <label>Status</label>
+                    <div class="info-value status-badge" data-status="{{selectedOrder.status}}">
+                        {{selectedOrder.status}}
+                    </div>
+                </div>
+                <div class="info-group" data-field="address">
+                    <label>Delivery Address</label>
+                    <div class="info-value">{{selectedOrder.deliveryAddress}}</div>
+                </div>
+                <div class="info-group" data-field="customizations">
+                    <label>Customizations</label>
+                    <div class="info-value">{{selectedOrder.customizations}}</div>
+                </div>
+<div class="info-group">
+    <label>Items</label>
+<div class="items-list">
+    {{#each selectedOrder.items}}
+    <div class="item">
+        <div class="item-name">{{itemName}}</div>
+        <div class="item-details">
+            <span class="item-quantity">x{{quantity}}</span>
+            <span class="item-price-detail">₱{{itemPrice}}</span>
+        </div>
+        <div class="item-subtotal">₱{{totalPrice}}</div>
+    </div>
+    {{/each}}
+    <div class="total-line">
+        <span>Total Amount:</span>
+        <span class="total-amount">₱{{selectedOrder.totalAmount}}</span>
+    </div>
+</div>
+</div>
+            </div>
+        </div>
+
+
+        </div>
+
+        <div class="chat-input">
+            <textarea id="messageInput" placeholder="Type your message..."></textarea>
+            <button id="sendMessage">Send</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // Initialize data for each request
+    {{#each requests}}
+    window.request_{{requestID}} = {
+        requestID: "{{requestID}}",
+        status: "{{status}}",
+        requestDate: "{{requestDate}}",
+        customerID: "{{customerID}}",
+        pointPersonID: "{{pointPersonID}}",
+        customerName: "{{customerName}}",
+        messages: {{{json messages}}},
+        orders: {{{json orders}}}
+    };
+    {{/each}}
+</script>
+
+<script>
+    window.userId = "{{userId}}";  // This will be set from the server
+    console.log('Current user ID:', window.userId); // For debugging
+</script>

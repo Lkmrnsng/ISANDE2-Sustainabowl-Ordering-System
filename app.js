@@ -42,7 +42,11 @@ initializePassport(passport);
 
 /* Imported Routes */
 const customerRoutes = require('./routes/customerRoutes');
+
+const chatRoutes = require('./routes/chatRoutes');
+
 const marketplaceRoutes = require('./routes/marketplaceRoutes');
+
 
 // Import Models
 const User = require('./models/User');
@@ -59,6 +63,8 @@ const app = express();
 app.use(express.static(__dirname + "/public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 
 // Use Handlebars as the view engine
@@ -93,13 +99,26 @@ const hbs = exphbs.create({
         formatDates: function (dates) {
             return dates.map(date => date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })).join(' | ');
         },
+        //formatDate2 helper
+        formatDate2: function (date) {
+            return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        },
+        //formatDate3 helper
+        formatDate3: function (date) {
+            if (!date) return '';
+            return new Date(date).toISOString().split('T')[0];
+        },
         //formatAmount
         formatAmount: function (amount) {
             return amount.toLocaleString('en-US', { style: 'currency', currency: 'PHP' });
+        },
+        toString: function (value) {
+            return value ? value.toString() : '';
+        },
+        log: function (){
+            console.log.apply(console, arguments);
+            return null;
         }
-
-
-
     },
     runtimeOptions: {
         allowProtoPropertiesByDefault: true,
@@ -156,9 +175,23 @@ app.use((req, res, next) => {
     next();
 });
 
+/* Middleware to Simulate User Login (For Testing) */
+app.use((req, res, next) => {
+    if (!req.session.userId) {
+        req.session.userId = 10001; // Replace with your test user ID
+        req.session.userType = 'Customer';
+        console.log(`Simulated login with userId: ${req.session.userId}`);
+    }
+    next();
+});
+
 // Routes
 app.use('/customer', customerRoutes);
+
+app.use('/chat', chatRoutes);
+
 app.use('/marketplace', marketplaceRoutes);
+
 
 // app.get('/', (req, res) => {
 //     res.render('index', {
@@ -170,11 +203,20 @@ app.use('/marketplace', marketplaceRoutes);
 
 // megan test 
 app.get('/', async (req, res) => {
-    res.render('marketplace_catalog', {
-        title: "Home",
-        css: ["marketplace_catalog.css", "marketplace.css"],
-        layout: "marketplace"
-    });
+    try {
+        const user = await User.findOne({ userID: req.session.userId }).lean(); // Query by userID
+
+        console.log('User found:', user);
+        res.render('marketplace_catalog', {
+            title: "Home",
+            css: ["marketplace_catalog.css", "marketplace.css"],
+            layout: "marketplace",
+            user: user || null
+        });
+    } catch (err) {
+        console.error('Error fetching user:', err);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 
