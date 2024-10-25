@@ -1,0 +1,89 @@
+<div class="reviews-container">
+    <div class="reviews-header">
+        <h1>My Reviews</h1>
+        <p class="subtitle">View and manage your feedback for past orders</p>
+    </div>
+
+    {{#if (eq (length reviews) 0)}}
+        <div class="no-reviews">
+            <p>You haven't submitted any reviews yet.</p>
+            <a href="/customer/orders" class="button-link">View My Orders</a>
+        </div>
+    {{else}}
+        <div class="reviews-list">
+            {{#each reviews}}
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="review-meta">
+                        <span class="review-order">Order #{{this.orderID}}</span>
+                        <span class="review-date">{{formatDate this.date}}</span>
+                    </div>
+                    <div class="overall-rating">
+                        <span class="stars">
+                            {{#times this.ratings.overall}}★{{/times}}
+                        </span>
+                        <span class="rating-value">{{this.ratings.overall}}/5</span>
+                    </div>
+                </div>
+
+                <div class="review-content">
+                    {{#if this.comment}}
+                        <p class="review-comment">{{this.comment}}</p>
+                    {{/if}}
+
+                    {{#if this.ratings}}
+                        <div class="detailed-ratings">
+                            {{#each this.ratings}}
+                                {{#if (ne @key "overall")}}
+                                    {{#if this}}
+                                    <div class="rating-item">
+                                        <span class="rating-label">{{@key}}</span>
+                                        <span class="rating-stars">
+                                            {{#times this}}★{{/times}}
+                                        </span>
+                                    </div>
+                                    {{/if}}
+                                {{/if}}
+                            {{/each}}
+                        </div>
+                    {{/if}}
+
+                    {{#if this.response}}
+                        <div class="sales-response">
+                            <h4>Response from Sales Team</h4>
+                            <p>{{this.response.text}}</p>
+                            <span class="response-date">Responded on {{formatDate this.response.responseDate}}</span>
+                        </div>
+                    {{/if}}
+                </div>
+
+                <div class="review-tags">
+                    {{#each this.tags}}
+                        <span class="tag">{{this}}</span>
+                    {{/each}}
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    {{/if}}
+</div>
+
+<!-- Add this helper function for the stars -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Helper to handle partial stars
+        const ratingElements = document.querySelectorAll('.rating-value');
+        ratingElements.forEach(element => {
+            const rating = parseFloat(element.textContent);
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            
+            let starsHTML = '★'.repeat(fullStars);
+            if (hasHalfStar) {
+                starsHTML += '½';
+            }
+            
+            element.previousElementSibling.innerHTML = starsHTML;
+        });
+    });
+</script>

@@ -1,0 +1,166 @@
+<div class="review-container">
+    <div class="review-header">
+        <div class="header-content">
+            <h1>Review Details</h1>
+            <div class="review-meta">
+                <span class="review-id">Review #{{review.reviewID}}</span>
+                <span class="order-reference">Order #{{review.orderID}}</span>
+            </div>
+        </div>
+        <div class="review-date">
+            {{formatDate review.date}}
+        </div>
+    </div>
+
+    <div class="review-content">
+        <!-- Overall Rating -->
+        <div class="rating-section">
+            <h3>Overall Rating</h3>
+            <div class="overall-rating">
+                <div class="stars">
+                    {{#times review.ratings.overall}}★{{/times}}
+                </div>
+                <span class="rating-value">{{review.ratings.overall}}/5</span>
+            </div>
+        </div>
+
+        <!-- Detailed Ratings -->
+        {{#if review.ratings}}
+        <div class="detailed-ratings">
+            <h3>Detailed Ratings</h3>
+            <div class="ratings-grid">
+                {{#each review.ratings}}
+                    {{#if (ne @key "overall")}}
+                        {{#if this}}
+                        <div class="rating-item">
+                            <span class="rating-label">{{@key}}</span>
+                            <div class="rating-stars">
+                                {{#times this}}★{{/times}}
+                                <span class="rating-number">({{this}})</span>
+                            </div>
+                        </div>
+                        {{/if}}
+                    {{/if}}
+                {{/each}}
+            </div>
+        </div>
+        {{/if}}
+
+        <!-- Review Comment -->
+        {{#if review.comment}}
+        <div class="comment-section">
+            <h3>Customer Comments</h3>
+            <div class="comment-content">
+                {{review.comment}}
+            </div>
+        </div>
+        {{/if}}
+
+        <!-- Sales Team Response -->
+        {{#if review.response}}
+        <div class="response-section">
+            <h3>Response from Sales Team</h3>
+            <div class="response-content">
+                <p>{{review.response.text}}</p>
+                <div class="response-meta">
+                    <span>Responded on {{formatDate review.response.responseDate}}</span>
+                </div>
+            </div>
+        </div>
+        {{else}}
+            {{#if (eq session.userType "Sales")}}
+            <div class="response-section">
+                <h3>Add Response</h3>
+                <form id="responseForm" class="response-form">
+                    <textarea 
+                        name="response" 
+                        placeholder="Type your response here..." 
+                        required
+                    ></textarea>
+                    <button type="submit" class="submit-btn">Submit Response</button>
+                </form>
+            </div>
+            {{/if}}
+        {{/if}}
+
+        <!-- Tags -->
+        {{#if review.tags.length}}
+        <div class="tags-section">
+            <h3>Tags</h3>
+            <div class="review-tags">
+                {{#each review.tags}}
+                <span class="tag">{{this}}</span>
+                {{/each}}
+            </div>
+        </div>
+        {{/if}}
+    </div>
+
+    <!-- Order Details -->
+    <div class="order-details">
+        <h3>Order Information</h3>
+        <div class="order-info-grid">
+            <div class="info-item">
+                <span class="label">Order Date:</span>
+                <span class="value">{{formatDate order.OrderDate}}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Status:</span>
+                <span class="value status-badge" data-status="{{order.status}}">
+                    {{order.status}}
+                </span>
+            </div>
+            <div class="info-item">
+                <span class="label">Delivery Address:</span>
+                <span class="value">{{order.deliveryAddress}}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Delivery Time:</span>
+                <span class="value">{{order.deliveryTimeRange}}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="review-actions">
+        <a href="javascript:history.back()" class="back-btn">Back</a>
+        {{#if (eq session.userType "Customer")}}
+            {{#if (eq session.userId review.reviewerID)}}
+                <button class="edit-btn" onclick="location.href='/review/edit/{{review.reviewID}}'">
+                    Edit Review
+                </button>
+            {{/if}}
+        {{/if}}
+    </div>
+</div>
+
+<script>
+    // Handle response form submission
+    const responseForm = document.getElementById('responseForm');
+    if (responseForm) {
+        responseForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            try {
+                const response = await fetch(`/review/{{review.reviewID}}/respond`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        response: responseForm.response.value
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to submit response');
+                }
+
+                // Reload page to show the new response
+                window.location.reload();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to submit response. Please try again.');
+            }
+        });
+    }
+</script>

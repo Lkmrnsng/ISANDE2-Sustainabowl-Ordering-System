@@ -59,7 +59,9 @@
                     <div class="request-actions">
                         <button class="contact-sales">Contact Sales</button>
                         <button class="cancel-request">Cancel Request</button>
-                        <button class="give-feedback">Give Feedback</button>
+                        {{#if (eq this.status 'Approved')}}
+                            <a href="/review/my-reviews" class="give-feedback">View Reviews</a>
+                        {{/if}}
                     </div>
                     
                     <p class="contact-note">Contact Sales department for any concerns regarding this request</p>

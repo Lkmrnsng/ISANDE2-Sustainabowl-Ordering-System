@@ -47,6 +47,8 @@ const chatRoutes = require('./routes/chatRoutes');
 
 const marketplaceRoutes = require('./routes/marketplaceRoutes');
 
+const reviewRoutes = require('./routes/reviewRoutes');
+
 
 // Import Models
 const User = require('./models/User');
@@ -79,6 +81,9 @@ const hbs = exphbs.create({
         eq: function (a, b) {
             return a === b;
         },
+        ne: function (a, b) {
+            return a !== b;
+        },
         //checkempty returns true if array is empty
         checkempty: function (array) {
             if (array.length > 0) {
@@ -93,7 +98,48 @@ const hbs = exphbs.create({
         },
         //Format Date
         formatDate: function (date) {
-            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            if (!date) return '';
+            const dateObj = typeof date === 'string' ? new Date(date) : date;
+            if (isNaN(dateObj.getTime())) return '';
+            return dateObj.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        },
+    
+        // For date with time
+        formatDateTime: function (date) {
+            if (!date) return '';
+            const dateObj = typeof date === 'string' ? new Date(date) : date;
+            if (isNaN(dateObj.getTime())) return '';
+            return dateObj.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        },
+    
+        // For relative time (e.g., "2 days ago")
+        formatRelativeDate: function (date) {
+            if (!date) return '';
+            const dateObj = typeof date === 'string' ? new Date(date) : date;
+            if (isNaN(dateObj.getTime())) return '';
+            
+            const now = new Date();
+            const diffTime = Math.abs(now - dateObj);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) return 'Today';
+            if (diffDays === 1) return 'Yesterday';
+            if (diffDays < 7) return `${diffDays} days ago`;
+            return dateObj.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
         },
         //Format An Array of Dates, separated by | 
         formatDates: function (dates) {
@@ -118,6 +164,18 @@ const hbs = exphbs.create({
         log: function (){
             console.log.apply(console, arguments);
             return null;
+        },
+        hasBeenReviewed: function(orderId, reviews) {
+            return reviews && reviews.some(review => review.orderID === orderId);
+        },
+        canBeReviewed: function(status) {
+            return status === 'Delivered';
+        },
+        times: function(n, options) {
+            let accum = '';
+            for(let i = 0; i < Math.floor(n); i++)
+                accum += options.fn(this);
+            return accum;
         }
     },
     runtimeOptions: {
@@ -191,6 +249,8 @@ app.use('/customer', customerRoutes);
 app.use('/chat', chatRoutes);
 
 app.use('/marketplace', marketplaceRoutes);
+
+app.use('/review', reviewRoutes);
 
 
 // app.get('/', (req, res) => {

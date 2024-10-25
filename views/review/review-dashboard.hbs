@@ -1,0 +1,119 @@
+<div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+        <h1>Review Feedback</h1>
+        <div class="overview-stats">
+            <div class="stat-card">
+                <div class="stat-value">{{averageRatings.averageOverall}}</div>
+                <div class="stat-label">Average Rating</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{averageRatings.totalReviews}}</div>
+                <div class="stat-label">Total Reviews</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters-section">
+        <h3>Filter Feedback By</h3>
+        <div class="filter-tags">
+            {{#each tagCounts}}
+            <button class="filter-tag {{#if (eq ../activeFilters.tag @key)}}active{{/if}}"
+                    data-tag="{{@key}}">
+                {{@key}} ({{this}})
+            </button>
+            {{/each}}
+        </div>
+
+        <div class="advanced-filters">
+            <div class="filter-group">
+                <label>Rating</label>
+                <select id="ratingFilter" name="rating">
+                    <option value="">All Ratings</option>
+                    <option value="4" {{#if (eq activeFilters.rating "4")}}selected{{/if}}>4★ & above</option>
+                    <option value="3" {{#if (eq activeFilters.rating "3")}}selected{{/if}}>3★ & above</option>
+                    <option value="2" {{#if (eq activeFilters.rating "2")}}selected{{/if}}>2★ & above</option>
+                    <option value="1" {{#if (eq activeFilters.rating "1")}}selected{{/if}}>1★ & above</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Date Range</label>
+                <div class="date-range">
+                    <input type="date" id="startDate" name="startDate" 
+                           value="{{activeFilters.startDate}}">
+                    <span>to</span>
+                    <input type="date" id="endDate" name="endDate" 
+                           value="{{activeFilters.endDate}}">
+                </div>
+            </div>
+
+            <button id="applyFilters" class="apply-filters-btn">Apply Filters</button>
+        </div>
+    </div>
+
+    <!-- Reviews List -->
+    <div class="reviews-list">
+        {{#each reviews}}
+        <div class="review-card">
+            <div class="review-header">
+                <div class="review-meta">
+                    <span class="review-id">Review #{{this.reviewID}}</span>
+                    <span class="review-date">{{formatDate this.date}}</span>
+                </div>
+                <div class="review-rating">
+                    <span class="stars">
+                        {{#times this.ratings.overall}}★{{/times}}
+                    </span>
+                    <span class="rating-value">{{this.ratings.overall}}</span>
+                </div>
+            </div>
+
+            <div class="review-content">
+                <p class="review-text">{{this.comment}}</p>
+                
+                {{#if this.ratings}}
+                <div class="detailed-ratings">
+                    {{#each this.ratings}}
+                        {{#if (ne @key "overall")}}
+                            {{#if this}}
+                            <div class="rating-item">
+                                <span class="rating-label">{{@key}}</span>
+                                <span class="rating-stars">
+                                    {{#times this}}★{{/times}}
+                                </span>
+                            </div>
+                            {{/if}}
+                        {{/if}}
+                    {{/each}}
+                </div>
+                {{/if}}
+
+                {{#if this.tags.length}}
+                <div class="review-tags">
+                    {{#each this.tags}}
+                    <span class="tag">{{this}}</span>
+                    {{/each}}
+                </div>
+                {{/if}}
+            </div>
+
+            {{#if this.response}}
+            <div class="review-response">
+                <p class="response-text">{{this.response.text}}</p>
+                <div class="response-meta">
+                    <span>Responded on {{formatDate this.response.responseDate}}</span>
+                </div>
+            </div>
+            {{else}}
+            <div class="review-actions">
+                <button class="respond-btn" data-review-id="{{this.reviewID}}">
+                    Respond
+                </button>
+            </div>
+            {{/if}}
+        </div>
+        {{/each}}
+    </div>
+</div>
