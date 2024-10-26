@@ -1,14 +1,4 @@
-<div class="dashboard-container">
-    <div class="sidebar">
-        <h2>Main Menu</h2>
-        <ul>
-            <li><a href="dashboard">My Requests</a></li>
-            <li><a href="orders" class="active">My Orders</a></li>
-            <li><a href="/chats">Chats</a></li>
-            <li><a href="/cancel-order">Cancel Orders</a></li>
-            <li><a href="/account">Account</a></li>
-        </ul>
-    </div>
+
 
     <div class="main-content">
         <div class="orders-list">
@@ -22,13 +12,18 @@
             {{else}}
                 {{#each orders}}
                 <div class="order-row" data-order-id="{{this.OrderID}}">
-                    <div class="order-summary">
-                        <span class="order-id">Order #{{this.OrderID}}</span>
-                        <span class="order-status">{{this.status}}</span>
-                        <span class="date">{{formatDate this.deliveryDate}}</span>
-                        <span class="order-amount">{{formatAmount this.totalAmount}}</span>
-                        <span class="toggle-details">▼</span>
-                    </div>
+                <div class="order-summary">
+                    <span class="order-id">Order #{{this.OrderID}}</span>
+                    <span class="order-status">{{this.status}}</span>
+                    <span class="date">{{formatDate this.deliveryDate}}</span>
+                    <span class="order-amount">{{formatAmount this.totalAmount}}</span>
+                    {{#if this.hasBeenReviewed}}
+                        <span class="review-status">✓ Reviewed</span>
+                    {{else if (canBeReviewed this.status)}}
+                        <span class="review-status pending">Pending Review</span>
+                    {{/if}}
+                    <span class="toggle-details">▼</span>
+                </div>
                     <div class="order-details hidden">
                         <div class="details-grid">
                             <div class="details-section">
@@ -63,10 +58,12 @@
                         {{/if}}
 
                         <div class="request-actions">
-                            <button class="give-feedback">Give Feedback</button>
-                            <button class="contact-support">Contact Support</button>
+                            {{#if (eq this.status 'Delivered')}}
+                                <a href="/review/form/{{this.OrderID}}" class="give-feedback">Give Feedback</a>
+                            {{/if}}
+                                <a href="/chat/customer" class="contact-support">Contact Support</a>
                             {{#if (eq this.status 'Preparing')}}
-                            <button class="cancel-order">Cancel Order</button>
+                                <button class="cancel-order">Cancel Order</button>
                             {{/if}}
                         </div>
                     </div>
@@ -113,7 +110,7 @@
     </div>
 </div>
     </div>
-</div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

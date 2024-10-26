@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Request = require('../models/Request');
 const Order = require('../models/Order');
 const Item = require('../models/Item');
+const Review = require('../models/Review');
 
 //Define Functions
 
@@ -14,22 +15,23 @@ async function getDashboard(req, res) {
         const customerId = req.session.userId;
 
         // Fetch requests for this customer
-        let requests = await Request.find({ customerID: customerId }).sort({ requestID: -1 });
+        const originalRequests = await Request.find({ customerID: customerId }).sort({ requestID: -1 });
 
-        if (requests.length === 0) {
+        if (originalRequests.length === 0) {
             return res.render('customer_dashboard', {
                 title: 'Dashboard',
-                css: ['customer_dashboard.css'],
-                layout: 'main',
-                requests: []
+                css: ['customer.css'],
+                layout: 'customer',
+                requests: [],
+                active: 'requests'
             });
         }
 
-        const orderIDs = requests.map(request => request.requestID);
+        const orderIDs = originalRequests.map(request => request.requestID);
         const orders = await Order.find({ requestID: { $in: orderIDs } });
         
         // Process the requests
-        requests = await Promise.all(requests.map(async (request) => {
+        const processedRequests = await Promise.all(originalRequests.map(async (request) => {
             let deliveryDates = [];
             let deliveriesCount = 0;
             let totalItemsBreakdown = [];
@@ -61,7 +63,6 @@ async function getDashboard(req, res) {
             //get the name of the Sales Rep
             const pointPerson = await User.findOne({ userID: request.pointPersonID });
             
-
             return {
                 ...request.toObject(),
                 deliveriesCount,
@@ -69,17 +70,17 @@ async function getDashboard(req, res) {
                 totalItemsBreakdown,
                 itemNames: itemNames.join(', '),
                 pointPersonName: pointPerson.name
-                
             };
         }));
 
-        console.log('Processed requests:', requests); // Log the processed requests
+        console.log('Processed requests:', processedRequests);
 
         res.render('customer_dashboard', {
             title: 'Dashboard',
-            css: ['customer_dashboard.css'],
-            layout: 'main',
-            requests: requests
+            css: ['customer.css'],
+            layout: 'customer',
+            requests: processedRequests,
+            active: 'requests'
         });
 
     } catch (error) {
@@ -128,16 +129,18 @@ async function getOrders(req, res) {
         let requests = await Request.find({ customerID: customerId }).sort({ requestID: -1 });
         requests = requests.filter(request => request.status === 'Approved');
         
-        // Find orders for these requests
-        let orders = await Order.find({ 
-            requestID: { $in: requests.map(request => request.requestID) }
-        }).sort({ OrderID: -1 });
-
-        // Filter out waiting approval orders
-        orders = orders.filter(order => order.status !== 'Waiting Approval');
+        // Find orders and reviews
+        const [orders, reviews] = await Promise.all([
+            Order.find({ 
+                requestID: { $in: requests.map(request => request.requestID) }
+            }).sort({ OrderID: -1 }),
+            Review.find({
+                reviewerID: customerId
+            }).lean()
+        ]);
 
         // Process the orders
-        orders = await Promise.all(orders.map(async (order) => {
+        const processedOrders = await Promise.all(orders.map(async (order) => {
             const request = requests.find(request => request.requestID === order.requestID);
             
             // Process items with details
@@ -152,27 +155,28 @@ async function getOrders(req, res) {
                 };
             }));
 
-            // Calculate total order amount
+            // Calculate total amount
             const totalAmount = processedItems.reduce((sum, item) => sum + item.totalPrice, 0);
 
-            // Get the sales rep name
-            const pointPerson = await User.findOne({ userID: request.pointPersonID });
+            // Check if order has been reviewed
+            const review = reviews.find(r => r.orderID === order.OrderID);
 
             return {
                 ...order.toObject(),
                 items: processedItems,
                 totalAmount,
-                pointPersonName: pointPerson.name,
-                requestDate: request.requestDate,
-                requestID: request.requestID
+                review: review || null,
+                hasBeenReviewed: !!review
             };
         }));
 
         res.render('customer_orders', {
             title: 'My Orders',
-            css: [ 'customer_orders.css', 'customer_dashboard.css'],
-            layout: 'main',
-            orders
+            css: ['customer.css'],
+            layout: 'customer',
+            orders: processedOrders,
+            reviews: reviews,
+            active: 'orders'
         });
     } catch (error) {
         console.error('Error in getOrders:', error);
