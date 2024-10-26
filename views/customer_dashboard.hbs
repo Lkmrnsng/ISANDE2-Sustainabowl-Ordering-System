@@ -1,14 +1,5 @@
-<div class="dashboard-container">
-    <div class="sidebar">
-        <h2>Main Menu</h2>
-        <ul>
-            <li><a href="dashboard" class="active">My Requests</a></li>
-            <li><a href="orders">My Orders</a></li>
-            <li><a href="/chats">Chats</a></li>
-            <li><a href="/cancel-order">Cancel Orders</a></li>
-            <li><a href="/account">Account</a></li>
-        </ul>
-    </div>
+
+
 
     {{#if (eq (length requests) 0)}}
         <p>You have no requests at the moment</p>
@@ -57,7 +48,7 @@
 
 
                     <div class="request-actions">
-                        <button class="contact-sales">Contact Sales</button>
+                        <a href="/chat/customer" class="button-link">Contact Sales</a>
                         <button class="cancel-request">Cancel Request</button>
                         {{#if (eq this.status 'Approved')}}
                             <a href="/review/my-reviews" class="give-feedback">View Reviews</a>
@@ -81,7 +72,7 @@
         </div>
     </div>
     {{/if}}
-</div>
+
 
 
 <script>

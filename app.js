@@ -176,6 +176,10 @@ const hbs = exphbs.create({
             for(let i = 0; i < Math.floor(n); i++)
                 accum += options.fn(this);
             return accum;
+        },
+        formatNumber: function(number, decimals) {
+            if (typeof number !== 'number') return number;
+            return number.toFixed(decimals);
         }
     },
     runtimeOptions: {

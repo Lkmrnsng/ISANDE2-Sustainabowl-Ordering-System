@@ -20,9 +20,10 @@ async function getDashboard(req, res) {
         if (originalRequests.length === 0) {
             return res.render('customer_dashboard', {
                 title: 'Dashboard',
-                css: ['customer_dashboard.css'],
-                layout: 'main',
-                requests: []
+                css: ['customer.css'],
+                layout: 'customer',
+                requests: [],
+                active: 'requests'
             });
         }
 
@@ -76,9 +77,10 @@ async function getDashboard(req, res) {
 
         res.render('customer_dashboard', {
             title: 'Dashboard',
-            css: ['customer_dashboard.css'],
-            layout: 'main',
-            requests: processedRequests
+            css: ['customer.css'],
+            layout: 'customer',
+            requests: processedRequests,
+            active: 'requests'
         });
 
     } catch (error) {
@@ -170,10 +172,11 @@ async function getOrders(req, res) {
 
         res.render('customer_orders', {
             title: 'My Orders',
-            css: ['customer_orders.css'],
-            layout: 'main',
+            css: ['customer.css'],
+            layout: 'customer',
             orders: processedOrders,
-            reviews: reviews
+            reviews: reviews,
+            active: 'orders'
         });
     } catch (error) {
         console.error('Error in getOrders:', error);

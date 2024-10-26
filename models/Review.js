@@ -106,12 +106,22 @@ ReviewSchema.pre('save', function(next) {
         this.tags.push('Low Ratings');
     }
     
-    // Add category tags for notably good or bad ratings
+    // Add category tags for notably good ratings
     Object.entries(this.ratings).forEach(([category, rating]) => {
         if (category !== 'overall' && rating) {
-            if (rating >= 4) {
-                this.tags.push(category.charAt(0).toUpperCase() + category.slice(1));
-            }
+                // Map the category to the correct tag name
+                const tagMap = {
+                    'customerService': 'Customer Service',
+                    'delivery': 'Delivery',
+                    'freshness': 'Freshness',
+                    'quality': 'Quality',
+                    'price': 'Price',
+                    'packaging': 'Packaging',
+                    'convenience': 'Convenience',
+                    'customization': 'Customization'
+                };
+                this.tags.push(tagMap[category]);
+            
         }
     });
     
@@ -124,7 +134,15 @@ ReviewSchema.statics.getAverageRatings = async function() {
         {
             $group: {
                 _id: null,
-                averageOverall: { $avg: '$ratings.overall' },
+                averageOverall: { 
+                    $avg: { 
+                        $cond: [
+                            { $gt: ["$ratings.overall", 0] }, 
+                            "$ratings.overall", 
+                            null
+                        ]
+                    }
+                },
                 averageCustomerService: { $avg: '$ratings.customerService' },
                 averageDelivery: { $avg: '$ratings.delivery' },
                 averageFreshness: { $avg: '$ratings.freshness' },
@@ -137,8 +155,19 @@ ReviewSchema.statics.getAverageRatings = async function() {
             }
         }
     ]);
+
+    if (aggregation.length === 0) {
+        return {
+            averageOverall: 0,
+            totalReviews: 0
+        };
+    }
+
+        // Round the average to 1 decimal place
+    const result = aggregation[0];
+    result.averageOverall = Math.round(result.averageOverall * 10) / 10;
     
-    return aggregation[0] || null;
+    return result;
 };
 
 const Review = mongoose.model('reviews', ReviewSchema);

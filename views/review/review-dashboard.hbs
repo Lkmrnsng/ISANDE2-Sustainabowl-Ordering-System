@@ -4,7 +4,7 @@
         <h1>Review Feedback</h1>
         <div class="overview-stats">
             <div class="stat-card">
-                <div class="stat-value">{{averageRatings.averageOverall}}</div>
+                <div class="stat-value">{{formatNumber averageRatings.averageOverall}}</div>
                 <div class="stat-label">Average Rating</div>
             </div>
             <div class="stat-card">
@@ -18,12 +18,47 @@
     <div class="filters-section">
         <h3>Filter Feedback By</h3>
         <div class="filter-tags">
-            {{#each tagCounts}}
-            <button class="filter-tag {{#if (eq ../activeFilters.tag @key)}}active{{/if}}"
-                    data-tag="{{@key}}">
-                {{@key}} ({{this}})
+            <!-- Fixed category filters -->
+            <button class="filter-tag {{#if (eq activeFilters.category 'High Ratings')}}active{{/if}}" 
+                    data-category="High Ratings">
+                High Ratings (4★ & above)
             </button>
-            {{/each}}
+            <button class="filter-tag {{#if (eq activeFilters.category 'Low Ratings')}}active{{/if}}" 
+                    data-category="Low Ratings">
+                Low Ratings (2★ & below)
+            </button>
+            <button class="filter-tag {{#if (eq activeFilters.category 'Customer Service')}}active{{/if}}" 
+                    data-category="Customer Service">
+                Customer Service
+            </button>
+            <button class="filter-tag {{#if (eq activeFilters.category 'Delivery')}}active{{/if}}" 
+                    data-category="Delivery">
+                Delivery
+            </button>
+            <button class="filter-tag {{#if (eq activeFilters.category 'Freshness')}}active{{/if}}" 
+                    data-category="Freshness">
+                Freshness
+            </button>
+            <button class="filter-tag {{#if (eq activeFilters.category 'Quality')}}active{{/if}}" 
+                    data-category="Quality">
+                Quality
+            </button>
+            <button class="filter-tag {{#if (eq activeFilters.category 'price')}}active{{/if}}" 
+                    data-category="price">
+                Price
+            </button>
+            <button class="filter-tag {{#if (eq activeFilters.category 'Packaging')}}active{{/if}}" 
+                    data-category="Packaging">
+                Packaging
+            </button>
+            <button class="filter-tag {{#if (eq activeFilters.category 'Convenience')}}active{{/if}}" 
+                    data-category="Convenience">
+                Convenience
+            </button>
+            <button class="filter-tag {{#if (eq activeFilters.category 'Customization')}}active{{/if}}" 
+                    data-category="Customization">
+                Customization
+            </button>
         </div>
 
         <div class="advanced-filters">
@@ -49,7 +84,8 @@
                 </div>
             </div>
 
-            <button id="applyFilters" class="apply-filters-btn">Apply Filters</button>
+            <button id="applyFilters" class="apply-filters-btn submit-btn">Apply Filters</button>
+            <button id="clearFilters" class="clear-filters-btn cancel-btn">Clear Filters</button>
         </div>
     </div>
 
@@ -108,7 +144,7 @@
             </div>
             {{else}}
             <div class="review-actions">
-                <button class="respond-btn" data-review-id="{{this.reviewID}}">
+                <button class="respond-btn submit-btn" data-review-id="{{this.reviewID}}">
                     Respond
                 </button>
             </div>
@@ -117,3 +153,126 @@
         {{/each}}
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter functionality
+    const filterTags = document.querySelectorAll('.filter-tag');
+    const ratingFilter = document.getElementById('ratingFilter');
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
+    const applyFilters = document.getElementById('applyFilters');
+    const clearFilters = document.getElementById('clearFilters');
+
+    // Set up filter click handlers
+    filterTags.forEach(tag => {
+        tag.addEventListener('click', () => {
+            // If clicking an already active filter, deactivate it
+            if (tag.classList.contains('active')) {
+                tag.classList.remove('active');
+            } else {
+                // Otherwise, remove active class from all filters and activate this one
+                filterTags.forEach(t => t.classList.remove('active'));
+                tag.classList.add('active');
+            }
+            applyCurrentFilters();
+        });
+    });
+
+    // Apply filters button
+    applyFilters.addEventListener('click', applyCurrentFilters);
+
+    // Clear filters button
+    clearFilters.addEventListener('click', () => {
+        filterTags.forEach(tag => tag.classList.remove('active'));
+        ratingFilter.value = '';
+        startDate.value = '';
+        endDate.value = '';
+        applyCurrentFilters();
+    });
+
+    function applyCurrentFilters() {
+        const params = new URLSearchParams();
+
+        // Get active category filter
+        const activeFilter = document.querySelector('.filter-tag.active');
+        if (activeFilter) {
+            params.set('category', activeFilter.dataset.category);
+        }
+
+        // Add rating filter
+        if (ratingFilter.value) {
+            params.set('rating', ratingFilter.value);
+        }
+
+        // Add date range
+        if (startDate.value && endDate.value) {
+            params.set('startDate', startDate.value);
+            params.set('endDate', endDate.value);
+        }
+
+        // Update URL and reload
+        window.location.href = params.toString() ? `?${params.toString()}` : window.location.pathname;
+    }
+
+    // Response modal functionality
+    const respondButtons = document.querySelectorAll('.respond-btn');
+    respondButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const reviewId = button.dataset.reviewId;
+            showResponseModal(reviewId);
+        });
+    });
+});
+
+function showResponseModal(reviewId) {
+    const modal = document.createElement('div');
+    modal.className = 'response-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h3>Respond to Review #${reviewId}</h3>
+            <textarea id="responseText" placeholder="Type your response..."></textarea>
+            <div class="modal-actions">
+                <button class="cancel-btn">Cancel</button>
+                <button class="submit-btn">Submit Response</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+
+    const cancelBtn = modal.querySelector('.cancel-btn');
+    const submitBtn = modal.querySelector('.submit-btn');
+    const textarea = modal.querySelector('#responseText');
+
+    cancelBtn.addEventListener('click', () => modal.remove());
+
+    submitBtn.addEventListener('click', async () => {
+        const response = textarea.value.trim();
+        if (!response) {
+            alert('Please enter a response');
+            return;
+        }
+
+        try {
+            const res = await fetch(`/review/${reviewId}/respond`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ response })
+            });
+
+            if (!res.ok) throw new Error('Failed to submit response');
+            window.location.reload();
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to submit response. Please try again.');
+        }
+    });
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
+}
+</script>

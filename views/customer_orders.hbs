@@ -1,14 +1,4 @@
-<div class="dashboard-container">
-    <div class="sidebar">
-        <h2>Main Menu</h2>
-        <ul>
-            <li><a href="dashboard">My Requests</a></li>
-            <li><a href="orders" class="active">My Orders</a></li>
-            <li><a href="/chats">Chats</a></li>
-            <li><a href="/cancel-order">Cancel Orders</a></li>
-            <li><a href="/account">Account</a></li>
-        </ul>
-    </div>
+
 
     <div class="main-content">
         <div class="orders-list">
@@ -71,7 +61,7 @@
                             {{#if (eq this.status 'Delivered')}}
                                 <a href="/review/form/{{this.OrderID}}" class="give-feedback">Give Feedback</a>
                             {{/if}}
-                            <button class="contact-support">Contact Support</button>
+                                <a href="/chat/customer" class="contact-support">Contact Support</a>
                             {{#if (eq this.status 'Preparing')}}
                                 <button class="cancel-order">Cancel Order</button>
                             {{/if}}
@@ -120,7 +110,7 @@
     </div>
 </div>
     </div>
-</div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

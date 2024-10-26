@@ -102,56 +102,78 @@ const reviewController = {
     },
 
     // Get all reviews (with filtering options) - for sales view
-    async getAllReviews(req, res) {
-        try {
-            const filters = {};
-            const { tag, rating, startDate, endDate } = req.query;
+// In reviewController.js, update the getAllReviews function
+async getAllReviews(req, res) {
+    try {
+        const filters = {};
+        const { category, rating, startDate, endDate } = req.query;
 
-            if (tag) {
-                filters.tags = tag;
-            }
+       // Category filter
+       if (category) {
+        if (category === 'High Ratings') {
+            filters['ratings.overall'] = { $gte: 4 };
+        } else if (category === 'Low Ratings') {
+            filters['ratings.overall'] = { $lte: 2 };
+        } else {
+            // Map the category filter to the rating field
+            const categoryToField = {
+                'Customer Service': 'customerService',
+                'Delivery': 'delivery',
+                'Freshness': 'freshness',
+                'Quality': 'quality',
+                'Price': 'price',
+                'Packaging': 'packaging',
+                'Convenience': 'convenience',
+                'Customization': 'customization'
+            };
             
-            if (rating) {
-                filters['ratings.overall'] = { $gte: parseFloat(rating) };
-            }
-
-            if (startDate && endDate) {
-                filters.date = {
-                    $gte: new Date(startDate),
-                    $lte: new Date(endDate)
-                };
-            }
-
-            const reviews = await Review.find(filters)
-                .sort({ date: -1 })
-                .lean();
-
-            // Get average ratings
-            const averageRatings = await Review.getAverageRatings();
-
-            // Count reviews by tag
-            const tagCounts = {};
-            reviews.forEach(review => {
-                review.tags.forEach(tag => {
-                    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-                });
-            });
-
-            res.render('review/review-dashboard', {
-                title: 'Review Dashboard',
-                css: ['review.css'],
-                layout: 'main',
-                reviews: reviews,
-                averageRatings: averageRatings,
-                tagCounts: tagCounts,
-                activeFilters: { tag, rating, startDate, endDate },
-                js: ['review.js']
-            });
-        } catch (error) {
-            console.error('Error in getAllReviews:', error);
-            res.status(500).send('An error occurred while loading reviews');
+            const ratingField = `ratings.${categoryToField[category]}`;
+            filters[ratingField] = { $exists: true, $gte: 4 };
         }
-    },
+    }
+        
+        // Rating filter
+        if (rating) {
+            filters['ratings.overall'] = { $gte: parseFloat(rating) };
+        }
+
+        // Date range filter
+        if (startDate && endDate) {
+            filters.date = {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate)
+            };
+        }
+
+        console.log('Applied filters:', filters); // For debugging
+
+        const reviews = await Review.find(filters)
+            .sort({ date: -1 })
+            .lean();
+
+        console.log('Found reviews:', reviews.length); // For debugging
+
+        // Get average ratings
+        const averageRatings = await Review.getAverageRatings();
+
+        res.render('review/review-dashboard', {
+            title: 'Review Dashboard',
+            css: ['review.css'],
+            layout: 'main',
+            reviews: reviews,
+            averageRatings: averageRatings,
+            activeFilters: {
+                category,
+                rating,
+                startDate,
+                endDate
+            }
+        });
+    } catch (error) {
+        console.error('Error in getAllReviews:', error);
+        res.status(500).send('An error occurred while loading reviews');
+    }
+},
 
     // View a single review
     async getReview(req, res) {
