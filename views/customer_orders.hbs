@@ -1,116 +1,111 @@
-
-
-    <div class="main-content">
-        <div class="orders-list">
+<div class="dashboard-container">
+    <div class="content-container">
+        <div class="main-section">
             <div class="header-section">
                 <h1>My Orders</h1>
                 <p class="subtitle"><i class="info-icon">ℹ</i> Track your order status and delivery details here.</p>
             </div>
 
-            {{#if (eq (length orders) 0)}}
-                <p>You have no orders at the moment</p>
-            {{else}}
-                {{#each orders}}
-                <div class="order-row" data-order-id="{{this.OrderID}}">
-                <div class="order-summary">
-                    <span class="order-id">Order #{{this.OrderID}}</span>
-                    <span class="order-status">{{this.status}}</span>
-                    <span class="date">{{formatDate this.deliveryDate}}</span>
-                    <span class="order-amount">{{formatAmount this.totalAmount}}</span>
-                    {{#if this.hasBeenReviewed}}
-                        <span class="review-status">✓ Reviewed</span>
-                    {{else if (canBeReviewed this.status)}}
-                        <span class="review-status pending">Pending Review</span>
-                    {{/if}}
-                    <span class="toggle-details">▼</span>
-                </div>
-                    <div class="order-details hidden">
-                        <div class="details-grid">
-                            <div class="details-section">
-                                <h3>Delivery Information</h3>
+            <div class="request-rows">
+                {{#if (eq (length orders) 0)}}
+                    <p>You have no orders at the moment</p>
+                {{else}}
+                    {{#each orders}}
+                    <div class="order-row" data-order-id="{{this.OrderID}}">
+                        <div class="order-summary">
+                            <span class="order-id">Order #{{this.OrderID}}</span>
+                            <span class="order-status">{{this.status}}</span>
+                            <span class="date">{{formatDate this.deliveryDate}}</span>
+                            <span class="order-amount">{{formatAmount this.totalAmount}}</span>
+                            <span class="toggle-details">▼</span>
+                        </div>
+                        <div class="order-details hidden">
+                            <h3>Delivery Information</h3>
+                            <div class="delivery-info-grid">
                                 <p><strong>Address:</strong> {{this.deliveryAddress}}</p>
                                 <p><strong>Time:</strong> {{this.deliveryTimeRange}}</p>
                                 <p><strong>Payment:</strong> {{this.paymentMethod}}</p>
                                 <p><strong>Linked to Request #</strong> {{this.requestID}}</p>
                             </div>
-                        </div>
 
-                        <div class="stage-tracker">
-                            <div class="stage">
-                                <div class="stage-dot {{#if (eq this.status 'Preparing')}}active{{/if}}"></div>
-                                <div class="stage-label">Preparing</div>
+                            <div class="stage-tracker">
+                                <div class="stage">
+                                    <div class="stage-dot {{#if (eq this.status 'Preparing')}}active{{/if}}"></div>
+                                    <div class="stage-label">Preparing</div>
+                                </div>
+                                <div class="stage">
+                                    <div class="stage-dot {{#if (eq this.status 'Dispatched')}}active{{/if}}"></div>
+                                    <div class="stage-label">Dispatched</div>
+                                </div>
+                                <div class="stage">
+                                    <div class="stage-dot {{#if (eq this.status 'Delivered')}}active{{/if}}"></div>
+                                    <div class="stage-label">Delivered</div>
+                                </div>
                             </div>
-                            <div class="stage">
-                                <div class="stage-dot {{#if (eq this.status 'Dispatched')}}active{{/if}}"></div>
-                                <div class="stage-label">Dispatched</div>
-                            </div>
-                            <div class="stage">
-                                <div class="stage-dot {{#if (eq this.status 'Delivered')}}active{{/if}}"></div>
-                                <div class="stage-label">Delivered</div>
-                            </div>
-                        </div>
 
-                        {{#if this.customizations}}
-                        <div class="customizations-section">
-                            <h3>Special Instructions</h3>
-                            <p>{{this.customizations}}</p>
-                        </div>
-                        {{/if}}
-
-                        <div class="request-actions">
-                            {{#if (eq this.status 'Delivered')}}
-                                <a href="/review/form/{{this.OrderID}}" class="give-feedback">Give Feedback</a>
+                            {{#if this.customizations}}
+                            <div class="customizations-section">
+                                <h3>Special Instructions</h3>
+                                <p>{{this.customizations}}</p>
+                            </div>
                             {{/if}}
-                                <a href="/chat/customer" class="contact-support">Contact Support</a>
-                            {{#if (eq this.status 'Preparing')}}
-                                <button class="cancel-order">Cancel Order</button>
+
+                            {{#if this.hasBeenReviewed}}
+                                <span class="review-status">✓ Reviewed</span>
+                            {{else if (canBeReviewed this.status)}}
+                                <span class="review-status pending">Pending Review</span>
                             {{/if}}
+
+                            <div class="request-actions">
+                                {{#if this.hasBeenReviewed}}
+                                    <a href="/review/form/{{this.OrderID}}" class="give-feedback">View Review</a>
+                                {{else if (canBeReviewed this.status)}}
+                                    <a href="/review/form/{{this.OrderID}}" class="give-feedback">Give Feedback</a>
+                                {{/if}}
+                                <a href="/chat/customer" class="button-link">Contact Support</a>
+                                {{#if (eq this.status 'Preparing')}}
+                                    <button class="cancel-request">Cancel Order</button>
+                                {{/if}}
+                            </div>
                         </div>
                     </div>
-                </div>
-                {{/each}}
-            {{/if}}
-        </div>
-
-<div class="order-breakdown">
-    <h2>Order Details</h2>
-    <div id="breakdown-content" class="breakdown-details">
-        <div class="order-identifier">
-            <h3>Order #<span class="order-id"></span></h3>
-            <p class="request-date">Requested: <span></span></p>
-        </div>
-        
-        <div class="delivery-info">
-            <h4>Delivery Details</h4>
-            <div class="delivery-details">
-                <p><strong>Date:</strong> <span class="delivery-date"></span></p>
-                <p><strong>Time:</strong> <span class="delivery-time"></span></p>
-                <p><strong>Address:</strong> <span class="delivery-address"></span></p>
+                    {{/each}}
+                {{/if}}
             </div>
         </div>
 
-        <div class="order-items-breakdown">
-            <h4>Items</h4>
-            <div class="items-table">
-                <div class="item-row header">
-                    <span>Item</span>
-                    <span>Quantity</span>
-                    <span>Price</span>
-                    <span>Total</span>
-                </div>
-                <div class="items-list">
-                    <!-- Items will be inserted here via JavaScript -->
+        <div class="side-panel">
+            <div class="order-breakdown">
+                <h2>Order Details</h2>
+                <div id="breakdown-content" class="breakdown-details">
+                    <div class="request-identifier">
+                        <h3>Order #<span class="order-number"></span></h3>
+                    </div>
+                    
+                    <div class="delivery-info">
+                        <h4>Delivery Details</h4>
+                        <div class="delivery-details">
+                            <p><strong>Date:</strong> <span class="delivery-date"></span></p>
+                            <p><strong>Time:</strong> <span class="delivery-time"></span></p>
+                            <p><strong>Address:</strong> <span class="delivery-address"></span></p>
+                        </div>
+                    </div>
+
+                    <div class="items-breakdown">
+                        <h4>Items</h4>
+                        <div class="breakdown-items">
+                            <!-- Items will be added here by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="total-amount">
+                        <strong>Total Amount: ₱<span class="amount-value"></span></strong>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="total-amount">
-            <strong>Total Amount: <span></span></strong>
         </div>
     </div>
 </div>
-    </div>
-
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -157,49 +152,34 @@
             const order = ordersData.find(ord => ord.OrderID == orderId);
 
             if (order) {
-                const orderIdentifier = document.querySelector('.order-identifier');
-                orderIdentifier.innerHTML = `
-                    <h3>Order #${order.OrderID}</h3>
-                    <p class="text-muted">Requested: ${new Date(order.requestDate).toLocaleDateString()}</p>
-                `;
+                // Update order identifier
+                document.querySelector('.order-number').textContent = order.OrderID;
 
-                const deliveryInfo = document.querySelector('.delivery-info');
-                deliveryInfo.innerHTML = `
-                    <h4>Delivery Details</h4>
-                    <p><strong>Date:</strong> ${new Date(order.deliveryDate).toLocaleDateString()}</p>
-                    <p><strong>Time:</strong> ${order.deliveryTimeRange}</p>
-                    <p><strong>Address:</strong> ${order.deliveryAddress}</p>
-                `;
+                // Update delivery details
+                document.querySelector('.delivery-date').textContent = 
+                    new Date(order.deliveryDate).toLocaleDateString();
+                document.querySelector('.delivery-time').textContent = order.deliveryTimeRange;
+                document.querySelector('.delivery-address').textContent = order.deliveryAddress;
 
-                const itemsBreakdown = document.querySelector('.order-items-breakdown');
-                let breakdownHTML = '<h4>Items</h4>';
-                
-                breakdownHTML += `
-                    <div class="item-row header">
-                        <span>Item</span>
-                        <span>Quantity</span>
-                        <span>Price</span>
-                        <span>Total</span>
-                    </div>
-                `;
+                // Update items with the same style as requests page
+                const itemsContainer = document.querySelector('.breakdown-items');
+                let itemsHTML = '';
 
                 order.items.forEach(item => {
-                    breakdownHTML += `
-                        <div class="item-row">
-                            <span class="item-name">${item.name}</span>
-                            <span>${item.quantity}</span>
-                            <span>${new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(item.price)}</span>
-                            <span class="item-total">${new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(item.totalPrice)}</span>
+                    const itemTotal = item.price * item.quantity;
+                    itemsHTML += `
+                        <div class="breakdown-row">
+                            <div class="item-info">${item.name}: ${item.quantity} × ₱${item.price.toFixed(2)}</div>
+                            <div class="item-total">₱${itemTotal.toFixed(2)}</div>
                         </div>
                     `;
                 });
 
-                itemsBreakdown.innerHTML = breakdownHTML;
+                itemsContainer.innerHTML = itemsHTML;
 
-                const totalAmount = document.querySelector('.total-amount');
-                totalAmount.innerHTML = `
-                    <strong>Total Amount: ${new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(order.totalAmount)}</strong>
-                `;
+                // Update total amount
+                document.querySelector('.amount-value').textContent = 
+                    order.totalAmount.toFixed(2);
 
                 breakdownContent.style.display = 'block';
             } else {

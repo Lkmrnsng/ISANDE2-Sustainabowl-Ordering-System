@@ -1,85 +1,83 @@
-
-
-
+<div class="dashboard-container">
     {{#if (eq (length requests) 0)}}
         <p>You have no requests at the moment</p>
     {{else}}
-
-    
-    <div class="main-content">
-        <div class="header-section">
-            <h1>Track Your Requests</h1>
-            <p class="subtitle"><i class="info-icon">ℹ</i> Some requests are under review, click the request to view more details</p>
-        </div>
-
-        <div class="requests-list">
-            {{#each requests}}
-            <div class="request-row" data-request-id="{{this.requestID}}">
-                <div class="request-summary">
-                    <span class="request-id">Request ID: {{this.requestID}}</span>
-                    <span class="request-status">Status: {{this.status}}</span>
-                    <span class="request-date">Request Date: {{formatDate this.requestDate}}</span>
-                    <span class="request-items">Items: {{this.itemNames}}</span>
-                    <span class="toggle-details">▼</span>
-                </div>
-                <div class="request-details hidden">
-                    <h3>Request Details</h3>
-                    <p><strong>Sales Representative:</strong> {{this.pointPersonName}}</p>
-                    
-                    <div class="delivery-schedule">
-                        <p><strong>Total Deliveries:</strong> {{this.deliveriesCount}}</p>
-                    </div>
-                    
-                    <div class="stage-tracker">
-                        <div class="stage">
-                            <div class="stage-dot {{#if (eq this.status 'Received')}}active{{/if}}"></div>
-                            <div class="stage-label">Received</div>
-                        </div>
-                        <div class="stage">
-                            <div class="stage-dot {{#if (eq this.status 'Negotiation')}}active{{/if}}"></div>
-                            <div class="stage-label">Negotiation</div>
-                        </div>
-                        <div class="stage">
-                            <div class="stage-dot {{#if (eq this.status 'Approved')}}active{{/if}}"></div>
-                            <div class="stage-label">Approved</div>
-                        </div>
-                    </div>
-
-
-
-                    <div class="request-actions">
-                        <a href="/chat/customer" class="button-link">Contact Sales</a>
-                        <button class="cancel-request">Cancel Request</button>
-                        {{#if (eq this.status 'Approved')}}
-                            <a href="/review/my-reviews" class="give-feedback">View Reviews</a>
-                        {{/if}}
-                    </div>
-                    
-                    <p class="contact-note">Contact Sales department for any concerns regarding this request</p>
-                </div>
+    <div class="content-container">
+        <div class="main-section">
+            <div class="header-section">
+                <h1>Track Your Requests</h1>
+                <p class="subtitle"><i class="info-icon">ℹ</i> Some requests are under review, click the request to view more details</p>
             </div>
-            {{/each}}
+
+            <div class="request-rows">
+                {{#each requests}}
+                <div class="request-row" data-request-id="{{this.requestID}}">
+                    <div class="request-summary">
+                        <span class="request-id">Request ID: {{this.requestID}}</span>
+                        <span class="request-status">Status: {{this.status}}</span>
+                        <span class="request-date">Request Date: {{formatDate this.requestDate}}</span>
+                        <span class="request-items">Items: {{this.itemNames}}</span>
+                        <span class="toggle-details">▼</span>
+                    </div>
+                    <div class="request-details hidden">
+                        <h3>Request Details</h3>
+                        <p><strong>Sales Representative:</strong> {{this.pointPersonName}}</p>
+                        
+                        <div class="delivery-schedule">
+                            <p><strong>Total Deliveries:</strong> {{this.deliveriesCount}}</p>
+                        </div>
+                        
+                        <div class="stage-tracker">
+                            <div class="stage">
+                                <div class="stage-dot {{#if (eq this.status 'Received')}}active{{/if}}"></div>
+                                <div class="stage-label">Received</div>
+                            </div>
+                            <div class="stage">
+                                <div class="stage-dot {{#if (eq this.status 'Negotiation')}}active{{/if}}"></div>
+                                <div class="stage-label">Negotiation</div>
+                            </div>
+                            <div class="stage">
+                                <div class="stage-dot {{#if (eq this.status 'Approved')}}active{{/if}}"></div>
+                                <div class="stage-label">Approved</div>
+                            </div>
+                        </div>
+
+                        <div class="request-actions">
+                            <a href="/chat/customer" class="button-link">Contact Sales</a>
+                            <button class="cancel-request">Cancel Request</button>
+                            {{#if (eq this.status 'Approved')}}
+                                <a href="/review/my-reviews" class="give-feedback">View Reviews</a>
+                            {{/if}}
+                        </div>
+                        
+                        <p class="contact-note">Contact Sales department for any concerns regarding this request</p>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
         </div>
 
-        <div class="total-breakdown">
-            <h2>Total Item Breakdown</h2>
-            <div id="breakdown-content" class="breakdown-details">
-                <div class="request-identifier"></div>
-                <div class="delivery-dates"></div>
-                <div class="items-breakdown"></div>
-                <div class="total-amount"></div>
+        <div class="side-panel">
+            <div class="total-breakdown">
+                <h2>Total Item Breakdown</h2>
+                <div id="breakdown-content" class="breakdown-details">
+                    <div class="request-identifier"></div>
+                    <div class="delivery-dates"></div>
+                    <div class="items-breakdown"></div>
+                    <div class="total-amount"></div>
+                </div>
             </div>
         </div>
     </div>
     {{/if}}
-
-
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const requestsData = {{{json requests}}};
         const requestRows = document.querySelectorAll('.request-row');
         const breakdownContent = document.getElementById('breakdown-content');
+        let activeRequestId = null;
 
         requestRows.forEach(row => {
             const summary = row.querySelector('.request-summary');
@@ -87,10 +85,30 @@
             const toggleIcon = row.querySelector('.toggle-details');
 
             summary.addEventListener('click', function() {
-                details.classList.toggle('hidden');
-                toggleIcon.textContent = details.classList.contains('hidden') ? '▼' : '▲';
-
                 const requestId = row.dataset.requestId;
+                
+                // If clicking the same request, toggle it
+                if (activeRequestId === requestId) {
+                    details.classList.toggle('hidden');
+                    toggleIcon.textContent = details.classList.contains('hidden') ? '▼' : '▲';
+                    if (details.classList.contains('hidden')) {
+                        activeRequestId = null;
+                    }
+                } else {
+                    // Close previously open request
+                    if (activeRequestId) {
+                        const activeRow = document.querySelector(`[data-request-id="${activeRequestId}"]`);
+                        if (activeRow) {
+                            activeRow.querySelector('.request-details').classList.add('hidden');
+                            activeRow.querySelector('.toggle-details').textContent = '▼';
+                        }
+                    }
+                    // Open new request
+                    details.classList.remove('hidden');
+                    toggleIcon.textContent = '▲';
+                    activeRequestId = requestId;
+                }
+                
                 updateTotalBreakdown(requestId);
             });
         });
@@ -119,8 +137,10 @@
                     const itemTotal = item.quantity * item.itemPrice;
                     total += itemTotal;
                     breakdownHTML += `
-                        <div>${item.itemName}: ${item.quantity} × ₱${item.itemPrice.toFixed(2)}</div>
-                        <div>₱${itemTotal.toFixed(2)}</div>
+                        <div class="breakdown-row">
+                            <div class="item-info">${item.itemName}: ${item.quantity} × ₱${item.itemPrice.toFixed(2)}</div>
+                            <div class="item-total">₱${itemTotal.toFixed(2)}</div>
+                        </div>
                     `;
                 });
 
