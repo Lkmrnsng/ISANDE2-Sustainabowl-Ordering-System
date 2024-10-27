@@ -12,7 +12,7 @@
     {{else}}
         <div class="reviews-list">
             {{#each reviews}}
-            <div class="review-card">
+            <div class="review-card" onclick="openReviewDetail({{this.reviewID}})">
                 <div class="review-header">
                     <div class="review-meta">
                         <span class="review-order">Order #{{this.orderID}}</span>
@@ -85,5 +85,10 @@
             
             element.previousElementSibling.innerHTML = starsHTML;
         });
+
+        // Helper to open review detail
+        openReviewDetail = (reviewID) => {
+            window.location.href = `/review/view/${reviewID}`;
+        }
     });
 </script>

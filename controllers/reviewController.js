@@ -245,10 +245,11 @@ async getAllReviews(req, res) {
 
             res.render('review/customer-reviews', {
                 title: 'My Reviews',
-                css: ['review.css'],
-                layout: 'main',
+                css: ['review.css', "customer.css"],
+                layout: 'customer',
                 reviews: reviews,
-                js: ['review.js']
+                js: ['review.js'],
+                active: 'reviews'
             });
         } catch (error) {
             console.error('Error in getCustomerReviews:', error);

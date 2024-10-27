@@ -60,12 +60,15 @@
         <div class="side-panel">
             <div class="total-breakdown">
                 <h2>Total Item Breakdown</h2>
+                <p>Select a request to view details</p>            
                 <div id="breakdown-content" class="breakdown-details">
                     <div class="request-identifier"></div>
                     <div class="delivery-dates"></div>
                     <div class="items-breakdown"></div>
                     <div class="total-amount"></div>
+                    <div class="note"></div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -140,7 +143,7 @@
                         <div class="breakdown-row">
                             <div class="item-info">${item.itemName}: ${item.quantity} × ₱${item.itemPrice.toFixed(2)}</div>
                             <div class="item-total">₱${itemTotal.toFixed(2)}</div>
-                        </div>
+                        </div> 
                     `;
                 });
 
@@ -149,6 +152,10 @@
                 // Update total amount
                 const totalAmount = document.querySelector('.total-amount');
                 totalAmount.innerHTML = `<strong>Total: ₱${total.toFixed(2)}</strong>`;
+
+                // Update note
+                const note = document.querySelector('.note');
+                note.innerHTML = '<p>This is how much the request will cost you after all deliveries are made</p>';
 
                 // Show the breakdown
                 breakdownContent.style.display = 'block';

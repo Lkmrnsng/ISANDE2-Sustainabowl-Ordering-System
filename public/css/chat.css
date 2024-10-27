@@ -3,15 +3,17 @@
   display: flex;
   height: calc(100vh - 100px);
   margin: 20px;
+  margin-left: 220px; /* Account for customer sidebar */
   gap: 20px;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   margin-top: 70px;
+  width: calc(100% - 240px);
 }
 
 /* Sidebar Styles */
-.sidebar {
+.chat-sidebar {
   flex: 0 0 300px;
   border-right: 1px solid #e0e0e0;
   background: #f8f9fa;
@@ -19,7 +21,7 @@
   overflow-y: auto;
 }
 
-.sidebar h2 {
+.chat-sidebar h2 {
   margin-bottom: 20px;
   color: #333;
   font-size: 1.2rem;

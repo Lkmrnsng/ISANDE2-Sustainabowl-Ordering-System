@@ -89,9 +89,10 @@ const chatController = {
                 requests,
                 userType: 'Customer',
                 userId: customerId,
-                layout: 'main',
+                layout: 'customer',
                 title: 'Customer Chat',
-                css: ['chat.css'],
+                css: ['chat.css', 'customer.css'],
+                active: 'chat',
                 js: ['chat.js'],
                 activeRequest: requests.length > 0 ? requests[0] : null
             });
