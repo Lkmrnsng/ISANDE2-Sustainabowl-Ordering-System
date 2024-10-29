@@ -25,28 +25,19 @@ mongoose.connect(dbURI)
         console.log(err);
     });
 
-
-
 // Imported for sessions
 const passport = require('passport');
 const flash = require('express-flash');
 const session = require('express-session');
 const methodOverride = require('method-override');
 const MongoStore = require('connect-mongo');
-
 const initializePassport = require('./passport-config.js');
 initializePassport(passport);
 
-
-
-
 /* Imported Routes */
 const customerRoutes = require('./routes/customerRoutes');
-
 const chatRoutes = require('./routes/chatRoutes');
-
 const marketplaceRoutes = require('./routes/marketplaceRoutes');
-
 const reviewRoutes = require('./routes/reviewRoutes');
 
 
@@ -55,8 +46,9 @@ const User = require('./models/User');
 const Request = require('./models/Request');
 const Order = require('./models/Order');
 const Item = require('./models/Item');
-
-
+const Message = require('./models/Message');
+const Review = require('./models/Review');
+const Shipment = require('./models/Shipment');
 
 /* Initialize Express App */
 const app = express();
@@ -67,7 +59,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 
 // Use Handlebars as the view engine
 const hbs = exphbs.create({
@@ -189,12 +180,9 @@ const hbs = exphbs.create({
 });
 
 // Setting up Handlebars engine
-
 app.engine("hbs", hbs.engine); // Inform Express to use Handlebars as the engine
 app.set("view engine", "hbs");  // Set default file extension for views to .hbs
 app.set("views", "./views");    // Set the directory for the views
-
-
 app.use(express.json());
 
 // Use sessions
@@ -213,7 +201,6 @@ app.use(session({
 }));
 app.use(passport.initialize()); // Only call once
 app.use(passport.session()); // Only call once
-
 app.use(methodOverride('_method'));
 
 // Middleware to check and refresh session
@@ -249,13 +236,9 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/customer', customerRoutes);
-
 app.use('/chat', chatRoutes);
-
 app.use('/marketplace', marketplaceRoutes);
-
 app.use('/review', reviewRoutes);
-
 
 // app.get('/', (req, res) => {
 //     res.render('index', {
@@ -282,7 +265,6 @@ app.get('/', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
 
 // ishi test
 // app.get('/', (req, res) => {
@@ -338,7 +320,6 @@ function ensureAuthenticated(req, res, next) {
     }
     res.redirect('/login');
 }
-
 
 // const cron = require('node-cron');
 // const { autoRejectDueBookings } = require('./controllers/bookingController');
