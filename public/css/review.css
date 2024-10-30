@@ -542,3 +542,8 @@
   background: #dc3545;
   color: white;
 }
+
+.required {
+  color: #BF045B;
+  margin-left: 2px;
+}

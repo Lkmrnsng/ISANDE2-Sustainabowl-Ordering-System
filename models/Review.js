@@ -139,21 +139,6 @@ const ReviewSchema = new mongoose.Schema({
         },
         default: 'pending'
     },
-    response: {
-        text: {
-            type: String,
-            maxLength: [1000, 'Response cannot exceed 1000 characters'],
-            trim: true
-        },
-        respondedBy: {
-            type: Number,
-            ref: 'User'
-        },
-        responseDate: {
-            type: Date,
-            default: Date.now
-        }
-    },
     tags: [{
         type: String,
         enum: {

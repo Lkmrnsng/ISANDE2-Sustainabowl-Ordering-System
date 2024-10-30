@@ -4,120 +4,158 @@
         <p class="subtitle">Order #{{order.OrderID}}</p>
     </div>
 
-    <form id="reviewForm" action="{{#if isEditing}}/review/edit/{{review.reviewID}}{{else}}/review/submit{{/if}}" method="POST">
+    <form id="reviewForm" 
+          {{#if isEditing}}data-is-editing="true" data-review-id="{{review.reviewID}}"{{/if}}
+          method="POST">
         <input type="hidden" name="orderId" value="{{order.OrderID}}">
         
-        <!-- Overall Rating (Required) -->
-        <div class="rating-group required">
-            <label>Overall Rating*</label>
-            <div class="star-rating" data-rating-input="overallRating">
-                <span class="star" data-value="1">★</span>
-                <span class="star" data-value="2">★</span>
-                <span class="star" data-value="3">★</span>
-                <span class="star" data-value="4">★</span>
-                <span class="star" data-value="5">★</span>
+        <!-- Overall Rating -->
+        <div class="rating-group">
+            <label>Overall Rating <span class="required">*</span></label>
+            <div class="star-rating-group">
+                {{#each (array 5 4 3 2 1)}}
+                <input type="radio" 
+                    id="overall-{{this}}" 
+                    name="overallRating" 
+                    value="{{this}}" 
+                    {{#if ../review}}
+                        {{#if (eq ../review.ratings.overall this)}}checked{{/if}}
+                    {{/if}}>
+                <label for="overall-{{this}}" class="star" aria-label="{{this}} stars">★</label>
+                {{/each}}
             </div>
-            <input type="hidden" name="overallRating" required value="{{#if review}}{{review.ratings.overall}}{{/if}}">
         </div>
 
-        <!-- Optional Rating Categories -->
+        <!-- Optional Ratings -->
         <div class="optional-ratings">
             <h3>Rate Specific Aspects (Optional)</h3>
             <div class="rating-grid">
                 <div class="rating-group">
                     <label>Customer Service</label>
-                    <div class="star-rating" data-rating-input="customerServiceRating">
-                        <span class="star" data-value="1">★</span>
-                        <span class="star" data-value="2">★</span>
-                        <span class="star" data-value="3">★</span>
-                        <span class="star" data-value="4">★</span>
-                        <span class="star" data-value="5">★</span>
+                    <div class="star-rating-group">
+                        {{#each (array 5 4 3 2 1)}}
+                        <input type="radio" 
+                               id="customerService-{{this}}" 
+                               name="customerServiceRating" 
+                               value="{{this}}"
+                               {{#if ../review}}
+                                   {{#if (eq ../review.ratings.customerService this)}}checked{{/if}}
+                               {{/if}}>
+                        <label for="customerService-{{this}}" class="star">★</label>
+                        {{/each}}
                     </div>
-                    <input type="hidden" name="customerServiceRating" value="{{#if review}}{{review.ratings.customerService}}{{/if}}">
                 </div>
 
                 <div class="rating-group">
                     <label>Delivery</label>
-                    <div class="star-rating" data-rating-input="deliveryRating">
-                        <span class="star" data-value="1">★</span>
-                        <span class="star" data-value="2">★</span>
-                        <span class="star" data-value="3">★</span>
-                        <span class="star" data-value="4">★</span>
-                        <span class="star" data-value="5">★</span>
+                    <div class="star-rating-group">
+                        {{#each (array 5 4 3 2 1)}}
+                        <input type="radio" 
+                               id="delivery-{{this}}" 
+                               name="deliveryRating" 
+                               value="{{this}}"
+                               {{#if ../review}}
+                                   {{#if (eq ../review.ratings.delivery this)}}checked{{/if}}
+                               {{/if}}>
+                        <label for="delivery-{{this}}" class="star">★</label>
+                        {{/each}}
                     </div>
-                    <input type="hidden" name="deliveryRating" value="{{#if review}}{{review.ratings.delivery}}{{/if}}">
                 </div>
 
                 <div class="rating-group">
                     <label>Freshness</label>
-                    <div class="star-rating" data-rating-input="freshnessRating">
-                        <span class="star" data-value="1">★</span>
-                        <span class="star" data-value="2">★</span>
-                        <span class="star" data-value="3">★</span>
-                        <span class="star" data-value="4">★</span>
-                        <span class="star" data-value="5">★</span>
+                    <div class="star-rating-group">
+                        {{#each (array 5 4 3 2 1)}}
+                        <input type="radio" 
+                               id="freshness-{{this}}" 
+                               name="freshnessRating" 
+                               value="{{this}}"
+                               {{#if ../review}}
+                                   {{#if (eq ../review.ratings.freshness this)}}checked{{/if}}
+                               {{/if}}>
+                        <label for="freshness-{{this}}" class="star">★</label>
+                        {{/each}}
                     </div>
-                    <input type="hidden" name="freshnessRating" value="{{#if review}}{{review.ratings.freshness}}{{/if}}">
                 </div>
 
                 <div class="rating-group">
                     <label>Quality</label>
-                    <div class="star-rating" data-rating-input="qualityRating">
-                        <span class="star" data-value="1">★</span>
-                        <span class="star" data-value="2">★</span>
-                        <span class="star" data-value="3">★</span>
-                        <span class="star" data-value="4">★</span>
-                        <span class="star" data-value="5">★</span>
+                    <div class="star-rating-group">
+                        {{#each (array 5 4 3 2 1)}}
+                        <input type="radio" 
+                               id="quality-{{this}}" 
+                               name="qualityRating" 
+                               value="{{this}}"
+                               {{#if ../review}}
+                                   {{#if (eq ../review.ratings.quality this)}}checked{{/if}}
+                               {{/if}}>
+                        <label for="quality-{{this}}" class="star">★</label>
+                        {{/each}}
                     </div>
-                    <input type="hidden" name="qualityRating" value="{{#if review}}{{review.ratings.quality}}{{/if}}">
                 </div>
 
                 <div class="rating-group">
                     <label>Price</label>
-                    <div class="star-rating" data-rating-input="priceRating">
-                        <span class="star" data-value="1">★</span>
-                        <span class="star" data-value="2">★</span>
-                        <span class="star" data-value="3">★</span>
-                        <span class="star" data-value="4">★</span>
-                        <span class="star" data-value="5">★</span>
+                    <div class="star-rating-group">
+                        {{#each (array 5 4 3 2 1)}}
+                        <input type="radio" 
+                               id="price-{{this}}" 
+                               name="priceRating" 
+                               value="{{this}}"
+                               {{#if ../review}}
+                                   {{#if (eq ../review.ratings.price this)}}checked{{/if}}
+                               {{/if}}>
+                        <label for="price-{{this}}" class="star">★</label>
+                        {{/each}}
                     </div>
-                    <input type="hidden" name="priceRating" value="{{#if review}}{{review.ratings.price}}{{/if}}">
                 </div>
 
                 <div class="rating-group">
                     <label>Packaging</label>
-                    <div class="star-rating" data-rating-input="packagingRating">
-                        <span class="star" data-value="1">★</span>
-                        <span class="star" data-value="2">★</span>
-                        <span class="star" data-value="3">★</span>
-                        <span class="star" data-value="4">★</span>
-                        <span class="star" data-value="5">★</span>
+                    <div class="star-rating-group">
+                        {{#each (array 5 4 3 2 1)}}
+                        <input type="radio" 
+                               id="packaging-{{this}}" 
+                               name="packagingRating" 
+                               value="{{this}}"
+                               {{#if ../review}}
+                                   {{#if (eq ../review.ratings.packaging this)}}checked{{/if}}
+                               {{/if}}>
+                        <label for="packaging-{{this}}" class="star">★</label>
+                        {{/each}}
                     </div>
-                    <input type="hidden" name="packagingRating" value="{{#if review}}{{review.ratings.packaging}}{{/if}}">
                 </div>
 
                 <div class="rating-group">
                     <label>Convenience</label>
-                    <div class="star-rating" data-rating-input="convenienceRating">
-                        <span class="star" data-value="1">★</span>
-                        <span class="star" data-value="2">★</span>
-                        <span class="star" data-value="3">★</span>
-                        <span class="star" data-value="4">★</span>
-                        <span class="star" data-value="5">★</span>
+                    <div class="star-rating-group">
+                        {{#each (array 5 4 3 2 1)}}
+                        <input type="radio" 
+                               id="convenience-{{this}}" 
+                               name="convenienceRating" 
+                               value="{{this}}"
+                               {{#if ../review}}
+                                   {{#if (eq ../review.ratings.convenience this)}}checked{{/if}}
+                               {{/if}}>
+                        <label for="convenience-{{this}}" class="star">★</label>
+                        {{/each}}
                     </div>
-                    <input type="hidden" name="convenienceRating" value="{{#if review}}{{review.ratings.convenience}}{{/if}}">
                 </div>
 
                 <div class="rating-group">
                     <label>Customization</label>
-                    <div class="star-rating" data-rating-input="customizationRating">
-                        <span class="star" data-value="1">★</span>
-                        <span class="star" data-value="2">★</span>
-                        <span class="star" data-value="3">★</span>
-                        <span class="star" data-value="4">★</span>
-                        <span class="star" data-value="5">★</span>
+                    <div class="star-rating-group">
+                        {{#each (array 5 4 3 2 1)}}
+                        <input type="radio" 
+                               id="customization-{{this}}" 
+                               name="customizationRating" 
+                               value="{{this}}"
+                               {{#if ../review}}
+                                   {{#if (eq ../review.ratings.customization this)}}checked{{/if}}
+                               {{/if}}>
+                        <label for="customization-{{this}}" class="star">★</label>
+                        {{/each}}
                     </div>
-                    <input type="hidden" name="customizationRating" value="{{#if review}}{{review.ratings.customization}}{{/if}}">
                 </div>
             </div>
         </div>
@@ -129,182 +167,16 @@
                       placeholder="Share your experience with this order...">{{#if review}}{{review.comment}}{{/if}}</textarea>
         </div>
 
-
         <div class="form-actions">
             <button type="submit" class="submit-btn">
                 {{#if isEditing}}Update Review{{else}}Submit Review{{/if}}
             </button>
             <button type="button" class="cancel-btn" onclick="history.back()">Cancel</button>
             {{#if isEditing}}
-            <button type="button" class="delete-btn" onclick="confirmDelete(event)">Delete Review</button>
+            <button type="button" class="delete-btn" onclick="deleteReview({{review.reviewID}})">
+                Delete Review
+            </button>
             {{/if}}
         </div>
     </form>
 </div>
-
-<!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="confirm-modal" style="display: none;">
-    <div class="modal-content">
-        <h3>Delete Review?</h3>
-        <p>Are you sure you want to delete this review? This action cannot be undone.</p>
-        <div class="modal-actions">
-            <button class="modal-btn modal-cancel" onclick="closeModal()">Cancel</button>
-            <button class="modal-btn modal-confirm" onclick="deleteReview()">Delete</button>
-        </div>
-    </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Get the form element
-    const form = document.getElementById('reviewForm');
-    
-    // Add form submit handler
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            {{#if isEditing}}
-            const action = '/review/edit/{{review.reviewID}}';
-            {{else}}
-            const action = '/review/submit';
-            {{/if}}
-            
-            // Submit form data
-            fetch(action, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    orderId: form.orderId.value,
-                    overallRating: form.overallRating.value,
-                    customerServiceRating: form.customerServiceRating.value,
-                    deliveryRating: form.deliveryRating.value,
-                    freshnessRating: form.freshnessRating.value,
-                    qualityRating: form.qualityRating.value,
-                    priceRating: form.priceRating.value,
-                    packagingRating: form.packagingRating.value,
-                    convenienceRating: form.convenienceRating.value,
-                    customizationRating: form.customizationRating.value,
-                    comment: form.comment.value
-                })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Failed to save review');
-                window.location.href = '/review/my-reviews';
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to save review. Please try again.');
-            });
-        });
-    }
-
-    initializeStarRatings();
-    
-    // Pre-fill ratings if editing
-    {{#if review}}
-        const ratings = {
-            overall: {{review.ratings.overall}},
-            customerService: {{review.ratings.customerService}},
-            delivery: {{review.ratings.delivery}},
-            freshness: {{review.ratings.freshness}},
-            quality: {{review.ratings.quality}},
-            price: {{review.ratings.price}},
-            packaging: {{review.ratings.packaging}},
-            convenience: {{review.ratings.convenience}},
-            customization: {{review.ratings.customization}}
-        };
-
-        Object.entries(ratings).forEach(([key, value]) => {
-            if (value) {
-                const inputName = key === 'overall' ? 'overallRating' : `${key}Rating`;
-                const group = document.querySelector(`[data-rating-input="${inputName}"]`);
-                if (group) {
-                    const stars = group.querySelectorAll('.star');
-                    stars.forEach(star => {
-                        if (parseInt(star.dataset.value) <= value) {
-                            star.classList.add('selected');
-                            star.classList.add('active');
-                        }
-                    });
-                }
-            }
-        });
-    {{/if}}
-});
-
-function initializeStarRatings() {
-    const starRatings = document.querySelectorAll('.star-rating');
-    
-    starRatings.forEach(ratingGroup => {
-        const stars = ratingGroup.querySelectorAll('.star');
-        const inputName = ratingGroup.dataset.ratingInput;
-        const hiddenInput = document.querySelector(`input[name="${inputName}"]`);
-        
-        stars.forEach(star => {
-            star.addEventListener('mouseover', () => {
-                const value = star.dataset.value;
-                highlightStars(stars, value);
-            });
-            
-            star.addEventListener('click', () => {
-                const value = star.dataset.value;
-                hiddenInput.value = value;
-                highlightStars(stars, value);
-                stars.forEach(s => {
-                    s.classList.remove('selected');
-                    if (s.dataset.value <= value) {
-                        s.classList.add('selected');
-                    }
-                });
-            });
-        });
-        
-        ratingGroup.addEventListener('mouseleave', () => {
-            if (!hiddenInput.value) {
-                highlightStars(stars, 0);
-            } else {
-                highlightStars(stars, hiddenInput.value);
-            }
-        });
-    });
-}
-
-function highlightStars(stars, value) {
-    stars.forEach(star => {
-        star.classList.toggle('active', star.dataset.value <= value);
-    });
-}
-
-// Updated delete functions
-function confirmDelete(e) {
-    e.preventDefault(); // Add this to prevent form submission
-    document.getElementById('deleteModal').style.display = 'flex';
-}
-
-function closeModal() {
-    document.getElementById('deleteModal').style.display = 'none';
-}
-
-function deleteReview() {
-    fetch('/review/delete/{{review.reviewID}}', {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to delete review');
-        }
-        window.location.href = '/review/my-reviews';
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to delete review. Please try again.');
-        closeModal();
-    });
-}
-</script>

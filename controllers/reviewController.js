@@ -104,11 +104,6 @@ const reviewController = {
                 throw new ReviewError('Order not found', 404);
             }
 
-            // Check if user has permission to review this order
-            if (req.session.userType === 'Customer' && order.customerID !== req.session.userId) {
-                throw new ReviewError('Unauthorized to review this order', 403);
-            }
-
             // Check for existing review
             const existingReview = await Review.findOne({
                 orderID: orderId,
@@ -547,61 +542,25 @@ const reviewController = {
         }
     },
 
-    // Delete review
-    async deleteReview(req, res) {
-        try {
-            const reviewId = parseInt(req.params.reviewId);
-            if (!reviewId) {
-                throw new ReviewError('Invalid review ID', 400);
-            }
-
-            const review = await Review.findOne({ 
-                reviewID: reviewId,
-                reviewerID: req.session.userId
-            });
-
-            if (!review) {
-                throw new ReviewError('Review not found or unauthorized', 404);
-            }
-
-            // Check if review has a response (can't delete after response)
-            if (review.response?.text) {
-                throw new ReviewError('Cannot delete review after response', 400);
-            }
-
-
-
-            await Review.findOneAndDelete({ reviewID: reviewId });
-
-            // Return appropriate response based on request type
-            if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-                res.json({ 
-                    success: true, 
-                    message: 'Review deleted successfully'
-                });
-            } else {
-                req.flash('success', 'Review deleted successfully');
-                res.redirect('/review/my-reviews');
-            }
-        } catch (error) {
-            console.error('Error in deleteReview:', error);
-            if (error instanceof ReviewError) {
-                if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-                    res.status(error.status).json({ error: error.message });
-                } else {
-                    req.flash('error', error.message);
-                    res.redirect('/review/my-reviews');
-                }
-            } else {
-                if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-                    res.status(500).json({ error: 'Failed to delete review' });
-                } else {
-                    req.flash('error', 'Failed to delete review');
-                    res.redirect('/review/my-reviews');
-                }
-            }
+ // In reviewController.js
+async deleteReview(req, res) {
+    try {
+        const reviewId = parseInt(req.params.reviewId);
+        if (!reviewId) {
+            return res.status(400).json({ error: 'Invalid review ID' });
         }
-    },
+
+        const review = await Review.findOneAndDelete({ reviewID: reviewId });
+        if (!review) {
+            return res.status(404).json({ error: 'Review not found' });
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting review:', error);
+        res.status(500).json({ error: 'Failed to delete review' });
+    }
+},
 
     // Get review statistics
     async getReviewStats(req, res) {
