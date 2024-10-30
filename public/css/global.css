@@ -151,6 +151,7 @@ footer {
     padding: 0 50px;
     position: relative;
     bottom: 0;
+    z-index: 1;
   }
 
 .footer-container{
