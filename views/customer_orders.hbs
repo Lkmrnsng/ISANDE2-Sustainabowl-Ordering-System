@@ -58,7 +58,7 @@
 
                             <div class="request-actions">
                                 {{#if this.hasBeenReviewed}}
-                                    <a href="/review/form/{{this.OrderID}}" class="give-feedback">View Review</a>
+                                    <a href="/review/view/{{this.review.reviewID}}" class="give-feedback">View Review</a>
                                 {{else if (canBeReviewed this.status)}}
                                     <a href="/review/form/{{this.OrderID}}" class="give-feedback">Give Feedback</a>
                                 {{/if}}

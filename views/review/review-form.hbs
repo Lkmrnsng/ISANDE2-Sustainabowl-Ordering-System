@@ -129,20 +129,78 @@
                       placeholder="Share your experience with this order...">{{#if review}}{{review.comment}}{{/if}}</textarea>
         </div>
 
+
         <div class="form-actions">
             <button type="submit" class="submit-btn">
                 {{#if isEditing}}Update Review{{else}}Submit Review{{/if}}
             </button>
             <button type="button" class="cancel-btn" onclick="history.back()">Cancel</button>
             {{#if isEditing}}
-            <button type="button" class="delete-btn" onclick="confirmDelete()">Delete Review</button>
+            <button type="button" class="delete-btn" onclick="confirmDelete(event)">Delete Review</button>
             {{/if}}
         </div>
     </form>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="confirm-modal" style="display: none;">
+    <div class="modal-content">
+        <h3>Delete Review?</h3>
+        <p>Are you sure you want to delete this review? This action cannot be undone.</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-cancel" onclick="closeModal()">Cancel</button>
+            <button class="modal-btn modal-confirm" onclick="deleteReview()">Delete</button>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Get the form element
+    const form = document.getElementById('reviewForm');
+    
+    // Add form submit handler
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            {{#if isEditing}}
+            const action = '/review/edit/{{review.reviewID}}';
+            {{else}}
+            const action = '/review/submit';
+            {{/if}}
+            
+            // Submit form data
+            fetch(action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    orderId: form.orderId.value,
+                    overallRating: form.overallRating.value,
+                    customerServiceRating: form.customerServiceRating.value,
+                    deliveryRating: form.deliveryRating.value,
+                    freshnessRating: form.freshnessRating.value,
+                    qualityRating: form.qualityRating.value,
+                    priceRating: form.priceRating.value,
+                    packagingRating: form.packagingRating.value,
+                    convenienceRating: form.convenienceRating.value,
+                    customizationRating: form.customizationRating.value,
+                    comment: form.comment.value
+                })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to save review');
+                window.location.href = '/review/my-reviews';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to save review. Please try again.');
+            });
+        });
+    }
+
     initializeStarRatings();
     
     // Pre-fill ratings if editing
@@ -177,14 +235,6 @@ document.addEventListener('DOMContentLoaded', function() {
     {{/if}}
 });
 
-{{#if isEditing}}
-function confirmDelete() {
-    if (confirm('Are you sure you want to delete this review?')) {
-        window.location.href = '/review/delete/{{review.reviewID}}';
-    }
-}
-{{/if}}
-
 function initializeStarRatings() {
     const starRatings = document.querySelectorAll('.star-rating');
     
@@ -194,18 +244,15 @@ function initializeStarRatings() {
         const hiddenInput = document.querySelector(`input[name="${inputName}"]`);
         
         stars.forEach(star => {
-            // Hover effect
             star.addEventListener('mouseover', () => {
                 const value = star.dataset.value;
                 highlightStars(stars, value);
             });
             
-            // Click handler
             star.addEventListener('click', () => {
                 const value = star.dataset.value;
                 hiddenInput.value = value;
                 highlightStars(stars, value);
-                // Add permanent highlight class
                 stars.forEach(s => {
                     s.classList.remove('selected');
                     if (s.dataset.value <= value) {
@@ -215,7 +262,6 @@ function initializeStarRatings() {
             });
         });
         
-        // Reset on mouse leave if no rating selected
         ratingGroup.addEventListener('mouseleave', () => {
             if (!hiddenInput.value) {
                 highlightStars(stars, 0);
@@ -229,6 +275,36 @@ function initializeStarRatings() {
 function highlightStars(stars, value) {
     stars.forEach(star => {
         star.classList.toggle('active', star.dataset.value <= value);
+    });
+}
+
+// Updated delete functions
+function confirmDelete(e) {
+    e.preventDefault(); // Add this to prevent form submission
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+}
+
+function deleteReview() {
+    fetch('/review/delete/{{review.reviewID}}', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to delete review');
+        }
+        window.location.href = '/review/my-reviews';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to delete review. Please try again.');
+        closeModal();
     });
 }
 </script>
