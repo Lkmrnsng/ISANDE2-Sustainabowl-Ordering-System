@@ -1,94 +1,162 @@
 <div class="reviews-container">
-    <div class="reviews-header">
-        <h1>My Reviews</h1>
-        <p class="subtitle">View and manage your feedback for past orders</p>
-    </div>
+   <div class="reviews-header">
+       <h1>My Reviews</h1>
+       <p class="subtitle">View and manage your feedback for past orders</p>
+   </div>
 
-    {{#if (eq (length reviews) 0)}}
-        <div class="no-reviews">
-            <p>You haven't submitted any reviews yet.</p>
-            <a href="/customer/orders" class="button-link">View My Orders</a>
-        </div>
-    {{else}}
-        <div class="reviews-list">
-            {{#each reviews}}
-            <div class="review-card" onclick="openReviewDetail({{this.reviewID}})">
-                <div class="review-header">
-                    <div class="review-meta">
-                        <span class="review-order">Order #{{this.orderID}}</span>
-                        <span class="review-date">{{formatDate this.date}}</span>
-                    </div>
-                    <div class="overall-rating">
-                        <span class="stars">
-                            {{#times this.ratings.overall}}★{{/times}}
-                        </span>
-                        <span class="rating-value">{{this.ratings.overall}}/5</span>
-                    </div>
-                </div>
+   {{#if success}}
+   <div class="alert alert-success" role="alert">
+       {{success}} 
+   </div>
+   {{/if}}
 
-                <div class="review-content">
-                    {{#if this.comment}}
-                        <p class="review-comment">{{this.comment}}</p>
-                    {{/if}}
+   {{#if error}}
+   <div class="alert alert-error" role="alert">
+       {{error}}
+   </div>
+   {{/if}}
 
-                    {{#if this.ratings}}
-                        <div class="detailed-ratings">
-                            {{#each this.ratings}}
-                                {{#if (ne @key "overall")}}
-                                    {{#if this}}
-                                    <div class="rating-item">
-                                        <span class="rating-label">{{@key}}</span>
-                                        <span class="rating-stars">
-                                            {{#times this}}★{{/times}}
-                                        </span>
-                                    </div>
-                                    {{/if}}
-                                {{/if}}
-                            {{/each}}
-                        </div>
-                    {{/if}}
+   {{#if (eq (length reviews) 0)}}
+       <div class="no-reviews">
+           <p>You haven't submitted any reviews yet.</p>
+           <a href="/customer/orders" class="button-link">View My Orders</a>
+       </div>
+   {{else}}
+       <div class="reviews-list">
+           {{#each reviews}}
+           <article class="review-card" data-review-id="{{this.reviewID}}">
+               <div class="review-header">
+                   <div class="review-meta">
+                       Review #{{this.reviewID}} for Order #{{this.orderID}}
+                       <time datetime="{{this.date}}" class="review-date">
+                           {{formatDate this.date}}
+                       </time>
+                   </div>
+                   <div class="review-actions-top">
+                       {{#unless this.response}}
+                       <div class="action-buttons">
+                           <a href="/review/edit/{{this.reviewID}}" 
+                              class="edit-btn" 
+                              title="Edit review"
+                              aria-label="Edit review">
+                               <i class="fas fa-edit"></i>
+                               <span class="visually-hidden">Edit</span>
+                           </a>
+                           <button type="button"
+                                   class="delete-btn"
+                                   onclick="deleteReview({{this.reviewID}})"
+                                   title="Delete review"
+                                   aria-label="Delete review">
+                               <i class="fas fa-trash"></i>
+                               <span class="visually-hidden">Delete</span>
+                           </button>
+                       </div>
+                       {{/unless}}
+                   </div>
+               </div>
 
-                    {{#if this.response}}
-                        <div class="sales-response">
-                            <h4>Response from Sales Team</h4>
-                            <p>{{this.response.text}}</p>
-                            <span class="response-date">Responded on {{formatDate this.response.responseDate}}</span>
-                        </div>
-                    {{/if}}
-                </div>
+               <div class="review-content">
+                   <div class="overall-rating" aria-label="Overall rating: {{this.ratings.overall}} out of 5 stars">
+                       <div class="stars" role="img" aria-hidden="true">
+                           {{#times this.ratings.overall}}★{{/times}}
+                       </div>
+                       <span class="rating-value">{{this.ratings.overall}}/5</span>
+                   </div>
 
-                <div class="review-tags">
-                    {{#each this.tags}}
-                        <span class="tag">{{this}}</span>
-                    {{/each}}
-                </div>
-            </div>
-            {{/each}}
-        </div>
-    {{/if}}
+                   {{#if this.comment}}
+                       <p class="review-comment">{{this.comment}}</p>
+                   {{/if}}
+
+                   {{#if this.ratings}}
+                       <div class="detailed-ratings">
+                           {{#each this.ratings}}
+                               {{#if (ne @key "overall")}}
+                                   {{#if this}}
+                                   <div class="rating-item">
+                                       <span class="rating-label">{{@key}}</span>
+                                       <div class="rating-stars" 
+                                            role="img" 
+                                            aria-label="{{@key}} rating: {{this}} out of 5 stars"
+                                            aria-hidden="true">
+                                           {{#times this}}★{{/times}}
+                                       </div>
+                                   </div>
+                                   {{/if}}
+                               {{/if}}
+                           {{/each}}
+                       </div>
+                   {{/if}}
+
+                   {{#if this.order}}
+                   <div class="order-details">
+                       <h4>Order Details</h4>
+                       <p>Delivery Date: {{formatDate this.order.deliveryDate}}</p>
+                       <p>Status: {{this.order.status}}</p>
+                   </div>
+                   {{/if}}
+
+                   {{#if this.response}}
+                       <div class="sales-response">
+                           <h4>Response from Sales Team</h4>
+                           <p class="response-text">{{this.response.text}}</p>
+                           <time datetime="{{this.response.responseDate}}" class="response-date">
+                               Responded on {{formatDate this.response.responseDate}}
+                           </time>
+                       </div>
+                   {{/if}}
+               </div>
+
+               <div class="review-tags" aria-label="Review categories">
+                   {{#each this.tags}}
+                       <span class="tag">{{this}}</span>
+                   {{/each}}
+               </div>
+           </article>
+           {{/each}}
+       </div>
+   {{/if}}
 </div>
 
-<!-- Add this helper function for the stars -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Helper to handle partial stars
-        const ratingElements = document.querySelectorAll('.rating-value');
-        ratingElements.forEach(element => {
-            const rating = parseFloat(element.textContent);
-            const fullStars = Math.floor(rating);
-            const hasHalfStar = rating % 1 >= 0.5;
-            
-            let starsHTML = '★'.repeat(fullStars);
-            if (hasHalfStar) {
-                starsHTML += '½';
+async function deleteReview(reviewId) {
+    if (!confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/review/delete/${reviewId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
             }
-            
-            element.previousElementSibling.innerHTML = starsHTML;
         });
 
-        // Helper to open review detail
-        openReviewDetail = (reviewID) => {
-            window.location.href = `/review/view/${reviewID}`;
+        if (!response.ok) {
+            throw new Error('Failed to delete review');
         }
-    });
+
+        const reviewCard = document.querySelector(`[data-review-id="${reviewId}"]`);
+        reviewCard.remove();
+        
+        const remainingReviews = document.querySelectorAll('.review-card');
+        if (remainingReviews.length === 0) {
+            window.location.reload();
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+        showError('Failed to delete review. Please try again.');
+    }
+}
+
+function showError(message) {
+    const container = document.querySelector('.reviews-container');
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-error';
+    alert.role = 'alert';
+    alert.textContent = message;
+    
+    container.insertBefore(alert, container.firstChild);
+    setTimeout(() => alert.remove(), 5000);
+}
 </script>

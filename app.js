@@ -75,6 +75,26 @@ const hbs = exphbs.create({
         ne: function (a, b) {
             return a !== b;
         },
+        and: function () {
+            return Array.prototype.every.call(arguments, (argument) => {
+                return argument ? true : false;
+            });
+        },
+        array: function() {
+            return Array.from(arguments).slice(0, -1);
+        },
+        object: function() {
+            const args = Array.from(arguments);
+            const options = args.pop(); // Remove the Handlebars options object
+            const obj = {};
+            
+            // Process arguments in pairs (key, value)
+            for (let i = 0; i < args.length; i += 2) {
+                obj[args[i]] = args[i + 1];
+            }
+            
+            return obj;
+        },
         //checkempty returns true if array is empty
         checkempty: function (array) {
             if (array.length > 0) {
