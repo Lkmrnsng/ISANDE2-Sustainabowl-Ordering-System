@@ -1,30 +1,18 @@
-// Sample Data
-const processingRequests = [
-    {
-        id: 'REQ001',
-        name: 'Alberto Baguio',
-        toProcess: 'Tomatoes',
-        status: 'Pending',
-        alertIcon: true,
-        produce: [
-            { id: 'P001', name: 'Tomatoes', process: 'Washing', deliverBy: '2024-10-25', quantity: 100, status: 'In Progress' },
-            { id: 'P002', name: 'Peppers', process: 'Slicing', deliverBy: '2024-10-26', quantity: 200, status: 'Pending' }
-        ]
-    },
-    {
-        id: 'REQ002',
-        name: 'Baguio Cy',
-        toProcess: 'Potatoes',
-        status: 'In Progress',
-        alertIcon: false,
-        produce: [
-            { id: 'P003', name: 'Potatoes', process: 'Peeling', deliverBy: '2024-10-24', quantity: 300, status: 'In Progress' }
-        ]
-    }
-];
+// public/js/logistics_foodprocess.js
 
-// Populate Left Table with Sample Data
-function populateLeftTable() {
+// Fetch and populate data from the JSON file
+async function loadData() {
+    try {
+        const response = await fetch('/path/to/foodProcessingData.json');
+        const data = await response.json();
+        populateLeftTable(data.processingRequests);
+    } catch (error) {
+        console.error("Error loading data:", error);
+    }
+}
+
+// Populate Left Table with Data
+function populateLeftTable(processingRequests) {
     const tbody = document.querySelector('.processing-table tbody');
     tbody.innerHTML = ''; // Clear existing rows
 
@@ -43,14 +31,14 @@ function populateLeftTable() {
     document.querySelectorAll('.request-id-btn').forEach(button => {
         button.addEventListener('click', () => {
             const requestId = button.getAttribute('data-request-id');
-            populateRightTable(requestId);
+            const selectedRequest = processingRequests.find(req => req.id === requestId);
+            populateRightTable(selectedRequest);
         });
     });
 }
 
 // Populate Right Table based on selected request
-function populateRightTable(requestId) {
-    const selectedRequest = processingRequests.find(req => req.id === requestId);
+function populateRightTable(selectedRequest) {
     if (!selectedRequest) return;
 
     const detailsDiv = document.getElementById('processing-details');
@@ -70,7 +58,7 @@ function populateRightTable(requestId) {
         tbody.appendChild(row);
     });
 
-    // Move the event listener setup here
+    // Add event listeners to details buttons
     const detailButtons = tbody.querySelectorAll('.details-btn');
     detailButtons.forEach(button => {
         button.addEventListener('click', () => {
@@ -96,10 +84,8 @@ function showModal(selectedRequest, produceId) {
     // Show modal
     document.getElementById('process-details-modal').classList.remove('hidden');
 
-    // Add event listener to close the modal (make sure this is not added multiple times)
-    const closeButton = document.querySelector('.close-btn');
-    closeButton.removeEventListener('click', closeModal); // Remove any previous listeners to avoid duplicates
-    closeButton.addEventListener('click', closeModal);
+    // Add event listener to close the modal
+    document.querySelector('.close-btn').addEventListener('click', closeModal);
 }
 
 // Function to close the modal
@@ -107,5 +93,5 @@ function closeModal() {
     document.getElementById('process-details-modal').classList.add('hidden');
 }
 
-// Initialize
-populateLeftTable();
+// Initialize by loading data
+loadData();
