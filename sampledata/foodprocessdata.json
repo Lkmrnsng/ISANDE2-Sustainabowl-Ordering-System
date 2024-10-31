@@ -1,10 +1,13 @@
 {
     "processingRequests": [
         {
-            "id": "REQ001",
+            "requestID": "REQ001",
+            "customerID": 123,
+            "status": "Pending",
+            "pointPersonID": 456,
+            "requestDate": "2024-10-10",
             "name": "Farm A",
             "toProcess": "Tomatoes",
-            "status": "Pending",
             "alertIcon": true,
             "produce": [
                 {
@@ -26,10 +29,13 @@
             ]
         },
         {
-            "id": "REQ002",
+            "requestID": "REQ002",
+            "customerID": 124,
+            "status": "In Progress",
+            "pointPersonID": 457,
+            "requestDate": "2024-10-11",
             "name": "Farm B",
             "toProcess": "Potatoes",
-            "status": "In Progress",
             "alertIcon": false,
             "produce": [
                 {
@@ -39,23 +45,6 @@
                     "deliverBy": "2024-10-24",
                     "quantity": 300,
                     "status": "In Progress"
-                }
-            ]
-        },
-        {
-            "id": "REQ003",
-            "name": "Farm C",
-            "toProcess": "Carrots",
-            "status": "Complete",
-            "alertIcon": false,
-            "produce": [
-                {
-                    "id": "P004",
-                    "name": "Carrots",
-                    "process": "Chopping",
-                    "deliverBy": "2024-10-23",
-                    "quantity": 150,
-                    "status": "Complete"
                 }
             ]
         }
