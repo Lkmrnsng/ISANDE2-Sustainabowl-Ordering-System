@@ -162,8 +162,10 @@ const reviewController = {
     async getAllReviews(req, res) {
         try {
             const filters = {};
-            const { category, rating, startDate, endDate } = req.query;
-
+            const { category, rating, startDate, endDate, page = 1 } = req.query;
+    
+            console.log('Received query params:', req.query); // Debug log
+    
             // Category filter
             if (category) {
                 if (category === 'High Ratings') {
@@ -171,7 +173,6 @@ const reviewController = {
                 } else if (category === 'Low Ratings') {
                     filters['ratings.overall'] = { $lte: 2 };
                 } else {
-                    // Map the category filter to the rating field
                     const categoryToField = {
                         'Customer Service': 'customerService',
                         'Delivery': 'delivery',
@@ -183,29 +184,38 @@ const reviewController = {
                         'Customization': 'customization'
                     };
                     
-                    const ratingField = `ratings.${categoryToField[category]}`;
-                    filters[ratingField] = { $exists: true };
+                    if (categoryToField[category]) {
+                        const ratingField = `ratings.${categoryToField[category]}`;
+                        filters[ratingField] = { $exists: true, $gt: 0 };
+                    }
                 }
             }
             
             // Rating filter
             if (rating) {
-                filters['ratings.overall'] = { $gte: parseFloat(rating) };
+                filters['ratings.overall'] = { $gte: parseInt(rating) };
             }
-
+    
             // Date range filter
-            if (startDate && endDate) {
-                filters.date = {
-                    $gte: new Date(startDate),
-                    $lte: new Date(endDate + 'T23:59:59.999Z')  // Include the entire end date
-                };
+            if (startDate || endDate) {
+                filters.date = {};
+                if (startDate) {
+                    filters.date.$gte = new Date(startDate);
+                }
+                if (endDate) {
+                    const endDateTime = new Date(endDate);
+                    endDateTime.setHours(23, 59, 59, 999);
+                    filters.date.$lte = endDateTime;
+                }
             }
-
-            // Get reviews with pagination
-            const page = parseInt(req.query.page) || 1;
+    
+            console.log('Applied MongoDB filters:', JSON.stringify(filters, null, 2)); // Debug log
+    
+            // Pagination
             const limit = 10;
-            const skip = (page - 1) * limit;
-
+            const skip = (parseInt(page) - 1) * limit;
+    
+            // Execute queries
             const [reviews, totalReviews, averageRatings] = await Promise.all([
                 Review.find(filters)
                     .sort({ date: -1 })
@@ -215,20 +225,22 @@ const reviewController = {
                 Review.countDocuments(filters),
                 Review.getAverageRatings()
             ]);
-
+    
+            console.log(`Found ${reviews.length} reviews matching filters`); // Debug log
+    
             const totalPages = Math.ceil(totalReviews / limit);
-
+    
             res.render('review/review-dashboard', {
                 title: 'Review Dashboard',
                 css: ['review.css'],
                 layout: 'main',
-                reviews: reviews,
-                averageRatings: averageRatings,
+                reviews,
+                averageRatings,
                 pagination: {
-                    currentPage: page,
-                    totalPages: totalPages,
-                    hasNextPage: page < totalPages,
-                    hasPrevPage: page > 1
+                    currentPage: parseInt(page),
+                    totalPages,
+                    hasNextPage: parseInt(page) < totalPages,
+                    hasPrevPage: parseInt(page) > 1
                 },
                 activeFilters: {
                     category,
@@ -241,6 +253,7 @@ const reviewController = {
             console.error('Error in getAllReviews:', error);
             res.status(500).render('error', {
                 message: 'An error occurred while loading reviews',
+                error: error.toString(),
                 layout: 'main'
             });
         }
@@ -322,9 +335,13 @@ const reviewController = {
                 { reviewID: parseInt(reviewId) },
                 {
                     $set: {
-                        'response.text': response.trim(),
-                        'response.responseDate': new Date(),
-                        'response.responderId': req.session.userId
+                        response: {
+                            'text': response.trim(),
+                            'respondedBy': req.session.userId,
+                            'responseDate': new Date(),
+                            
+                        }
+
                     }
                 }
             );

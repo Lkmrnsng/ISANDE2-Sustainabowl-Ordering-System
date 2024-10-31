@@ -548,42 +548,125 @@
   margin-left: 2px;
 }
 
-/* Add these styles to your existing review.css file */
+/* Filter Styles */
+.advanced-filters {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-end;
+}
 
-.error-message {
-  color: #dc3545;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
+.filter-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 0.9rem;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1em;
+}
+
+.date-filter-group {
+  flex: 2;
+  min-width: 300px;
+}
+
+.date-inputs {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
-.error-message::before {
-  content: '!';
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  background: #dc3545;
+.date-input-wrapper {
+  flex: 1;
+}
+
+.date-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.date-separator {
+  color: #666;
+  font-weight: 500;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.apply-filters-btn,
+.clear-filters-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.apply-filters-btn {
+  background: var(--primary-color);
   color: white;
-  border-radius: 50%;
-  font-size: 12px;
-  font-weight: bold;
 }
 
-.rating-group {
-  position: relative;
+.apply-filters-btn:hover {
+  background: #b1bc20;
 }
 
-.star-rating-group {
-  margin-top: 0.5rem;
+.clear-filters-btn {
+  background: #f5f5f5;
+  color: #666;
 }
 
-/* Style for the required indicator on the label */
-.rating-label-required::after {
-  content: '*';
-  color: #dc3545;
-  margin-left: 4px;
+.clear-filters-btn:hover {
+  background: #e0e0e0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .advanced-filters {
+      flex-direction: column;
+      gap: 1rem;
+  }
+
+  .filter-group,
+  .date-filter-group {
+      width: 100%;
+  }
+
+  .filter-actions {
+      flex-direction: column;
+      width: 100%;
+  }
+
+  .apply-filters-btn,
+  .clear-filters-btn {
+      width: 100%;
+  }
 }
