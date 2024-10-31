@@ -139,6 +139,10 @@ const ReviewSchema = new mongoose.Schema({
         },
         default: 'pending'
     },
+    response: {
+        type: Object,
+        default: null
+    },
     tags: [{
         type: String,
         enum: {

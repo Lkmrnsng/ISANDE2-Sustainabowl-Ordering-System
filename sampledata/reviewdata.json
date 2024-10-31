@@ -1,117 +1,164 @@
 [
-  {
+    {
       "reviewID": 50001,
       "reviewerID": 10001,
       "orderID": 40001,
       "requestID": 30001,
       "ratings": {
-          "overall": 4.5,
-          "customerService": 5,
-          "delivery": 4,
-          "freshness": 5,
-          "quality": 4,
-          "price": 4,
-          "packaging": 5,
-          "convenience": 4,
-          "customization": 5
+        "overall": 4,
+        "customerService": 5,
+        "delivery": 4,
+        "freshness": 5,
+        "quality": 4,
+        "price": 2,
+        "packaging": 5,
+        "convenience": 4,
+        "customization": 5
       },
-      "comment": "Excellent service and very fresh produce. The customization options were exactly what I needed for my restaurant. The delivery was slightly delayed but the quality made up for it.",
+      "comment": "Excellent service and very fresh produce. The customization options were exactly what I needed for my restaurant. The delivery was good but the prices are a bit high for the quantity.",
       "date": "2024-09-27T08:30:00Z",
       "status": "approved",
-      "tags": ["High Ratings", "Customer Service", "Freshness", "Packaging", "Customization"]
-  },
-  {
+      "tags": [
+        "High Ratings",
+        "Customer Service",
+        "Delivery",
+        "Freshness",
+        "Quality",
+        "Price",
+        "Packaging",
+        "Convenience",
+        "Customization"
+      ]
+    },
+    {
       "reviewID": 50002,
       "reviewerID": 10004,
       "orderID": 40002,
       "requestID": 30002,
       "ratings": {
-          "overall": 2,
-          "customerService": 3,
-          "delivery": 1,
-          "freshness": 2,
-          "quality": 2,
-          "price": 3,
-          "packaging": 2,
-          "convenience": 2,
-          "customization": 3
+        "overall": 2,
+        "customerService": 3,
+        "delivery": 1,
+        "freshness": 2,
+        "quality": 2,
+        "price": 1,
+        "packaging": 2,
+        "convenience": 2,
+        "customization": 3
       },
-      "comment": "Delivery was extremely late and some items weren't as fresh as expected. Pricing is reasonable but quality needs improvement.",
+      "comment": "Delivery was extremely late and some items weren't as fresh as expected. The prices are too high for the quality received.",
       "date": "2024-09-26T14:20:00Z",
       "status": "approved",
       "response": {
-          "text": "We sincerely apologize for the delayed delivery and quality issues. We've addressed this with our logistics team and have implemented stricter quality control measures. Please contact us directly to discuss compensation.",
-          "respondedBy": 10002,
-          "responseDate": "2024-09-26T16:45:00Z"
+        "text": "We sincerely apologize for the delayed delivery and quality issues. We've addressed this with our logistics team and have implemented stricter quality control measures. Please contact us directly to discuss compensation.",
+        "respondedBy": 10002,
+        "responseDate": "2024-09-26T16:45:00Z"
       },
-      "tags": ["Low Ratings", "Delivery"]
-  },
-  {
+      "tags": [
+        "Low Ratings",
+        "Delivery",
+        "Freshness",
+        "Quality",
+        "Price",
+        "Packaging",
+        "Convenience"
+      ]
+    },
+    {
       "reviewID": 50003,
       "reviewerID": 10001,
       "orderID": 40003,
       "requestID": 30003,
       "ratings": {
-          "overall": 5,
-          "customerService": 5,
-          "delivery": 5,
-          "freshness": 5,
-          "quality": 5,
-          "price": 4,
-          "packaging": 5,
-          "convenience": 5,
-          "customization": 5
+        "overall": 5,
+        "customerService": 5,
+        "delivery": 5,
+        "freshness": 5,
+        "quality": 5,
+        "price": 4,
+        "packaging": 5,
+        "convenience": 5,
+        "customization": 5
       },
       "comment": "Outstanding service from start to finish! The vegetables were incredibly fresh and the packaging was perfect for our storage needs. Very satisfied with the customization options.",
       "date": "2024-09-25T16:15:00Z",
       "status": "approved",
-      "tags": ["High Ratings", "Customer Service", "Delivery", "Freshness", "Quality", "Packaging", "Convenience", "Customization"]
-  },
-  {
+      "tags": [
+        "High Ratings",
+        "Customer Service",
+        "Delivery",
+        "Freshness",
+        "Quality",
+        "Price",
+        "Packaging",
+        "Convenience",
+        "Customization"
+      ]
+    },
+    {
       "reviewID": 50004,
       "reviewerID": 10004,
       "orderID": 40005,
       "requestID": 30005,
       "ratings": {
-          "overall": 4,
-          "customerService": 4,
-          "delivery": 4,
-          "freshness": 5,
-          "quality": 4,
-          "price": 3,
-          "packaging": 4,
-          "convenience": 4,
-          "customization": 4
+        "overall": 4,
+        "customerService": 4,
+        "delivery": 4,
+        "freshness": 5,
+        "quality": 4,
+        "price": 1,
+        "packaging": 4,
+        "convenience": 4,
+        "customization": 4
       },
-      "comment": "Great quality and freshness. The prices are a bit high, but the service quality justifies it. Would recommend to other restaurants.",
+      "comment": "Great quality and freshness but the prices are way too high. The service and delivery were good though.",
       "date": "2024-09-24T11:30:00Z",
       "status": "approved",
-      "tags": ["High Ratings", "Freshness"]
-  },
-  {
+      "tags": [
+        "High Ratings",
+        "Customer Service",
+        "Delivery",
+        "Freshness",
+        "Quality",
+        "Price",
+        "Packaging",
+        "Convenience",
+        "Customization"
+      ]
+    },
+    {
       "reviewID": 50005,
       "reviewerID": 10001,
       "orderID": 40007,
       "requestID": 30001,
       "ratings": {
-          "overall": 3,
-          "customerService": 4,
-          "delivery": 2,
-          "freshness": 3,
-          "quality": 3,
-          "price": 3,
-          "packaging": 4,
-          "convenience": 3,
-          "customization": 4
+        "overall": 3,
+        "customerService": 4,
+        "delivery": 2,
+        "freshness": 3,
+        "quality": 3,
+        "price": 2,
+        "packaging": 4,
+        "convenience": 3,
+        "customization": 4
       },
-      "comment": "Delivery timing needs improvement. The produce quality was average this time, but customer service was helpful in addressing concerns.",
+      "comment": "Delivery timing needs improvement and prices could be more competitive. The produce quality was average this time, but customer service was helpful in addressing concerns.",
       "date": "2024-09-23T15:45:00Z",
       "status": "approved",
       "response": {
-          "text": "Thank you for your feedback. We're working on optimizing our delivery routes to improve timing. We appreciate your patience and value your business.",
-          "respondedBy": 10002,
-          "responseDate": "2024-09-23T17:20:00Z"
+        "text": "Thank you for your feedback. We're working on optimizing our delivery routes to improve timing and reviewing our pricing structure. We appreciate your patience and value your business.",
+        "respondedBy": 10002,
+        "responseDate": "2024-09-23T17:20:00Z"
       },
-      "tags": ["Customer Service", "Packaging", "Customization"]
-  }
-]
+      "tags": [
+        "Customer Service",
+        "Delivery",
+        "Freshness",
+        "Quality",
+        "Price",
+        "Packaging",
+        "Convenience",
+        "Customization"
+      ]
+    }
+  ]

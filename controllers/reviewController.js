@@ -311,53 +311,43 @@ const reviewController = {
     // Respond to a review (sales team only)
     async respondToReview(req, res) {
         try {
-            const reviewId = parseInt(req.params.reviewId);
+            const { reviewId } = req.params;
             const { response } = req.body;
 
-            // Validate input
-            if (!reviewId || !response?.trim()) {
-                throw new ReviewError('Missing required fields', 400);
+            if (!response || !response.trim()) {
+                return res.status(400).json({ error: 'Response text is required' });
             }
 
-            // Check if user is sales team
-            if (req.session.userType !== 'Sales') {
-                throw new ReviewError('Unauthorized to respond to reviews', 403);
+            const result = await Review.updateOne(
+                { reviewID: parseInt(reviewId) },
+                {
+                    $set: {
+                        'response.text': response.trim(),
+                        'response.responseDate': new Date(),
+                        'response.responderId': req.session.userId
+                    }
+                }
+            );
+
+            if (result.matchedCount === 0) {
+                return res.status(404).json({ error: 'Review not found' });
             }
 
-            const review = await Review.findOne({ reviewID: reviewId });
-            
-            if (!review) {
-                throw new ReviewError('Review not found', 404);
+            if (result.modifiedCount === 0) {
+                return res.status(400).json({ error: 'Failed to update review' });
             }
-
-            // Check if review already has a response
-            if (review.response?.text) {
-                throw new ReviewError('Review already has a response', 400);
-            }
-
-            review.response = {
-                text: response.trim(),
-                respondedBy: req.session.userId,
-                responseDate: new Date()
-            };
-            review.status = 'approved';
-
-            await review.save();
 
             res.json({ 
                 success: true, 
-                message: 'Response added successfully',
-                response: review.response
+                message: 'Response added successfully'
             });
+
         } catch (error) {
-            console.error('Error in respondToReview:', error);
-            if (error instanceof ReviewError) {
-                res.status(error.status).json({ error: error.message });
-            } else {
-                res.status(500).json({ error: 'Failed to respond to review' });
-            }
+            console.error('Error responding to review:', error);
+            res.status(500).json({ error: 'Failed to save response' });
         }
     },
+
 
     // Get customer's reviews
     async getCustomerReviews(req, res) {

@@ -231,10 +231,10 @@ function showResponseModal(reviewId) {
     modal.innerHTML = `
         <div class="modal-content">
             <h3>Respond to Review #${reviewId}</h3>
-            <textarea id="responseText" placeholder="Type your response..."></textarea>
+            <textarea id="responseText" placeholder="Type your response..." rows="5"></textarea>
             <div class="modal-actions">
-                <button class="cancel-btn">Cancel</button>
-                <button class="submit-btn">Submit Response</button>
+                <button class="cancel-btn modal-btn">Cancel</button>
+                <button class="submit-btn modal-btn">Submit Response</button>
             </div>
         </div>
     `;
@@ -248,31 +248,43 @@ function showResponseModal(reviewId) {
     cancelBtn.addEventListener('click', () => modal.remove());
 
     submitBtn.addEventListener('click', async () => {
-        const response = textarea.value.trim();
-        if (!response) {
+        const responseText = textarea.value.trim();
+        if (!responseText) {
             alert('Please enter a response');
             return;
         }
 
         try {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
             const res = await fetch(`/review/${reviewId}/respond`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ response })
+                body: JSON.stringify({ response: responseText })
             });
 
-            if (!res.ok) throw new Error('Failed to submit response');
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || 'Failed to submit response');
+            }
+
             window.location.reload();
         } catch (error) {
             console.error('Error:', error);
-            alert('Failed to submit response. Please try again.');
+            alert(error.message || 'Failed to submit response. Please try again.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Response';
         }
     });
 
     modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.remove();
     });
+
+    // Focus on textarea
+    textarea.focus();
 }
 </script>

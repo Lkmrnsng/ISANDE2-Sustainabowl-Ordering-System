@@ -191,7 +191,13 @@ const hbs = exphbs.create({
         formatNumber: function(number, decimals) {
             if (typeof number !== 'number') return number;
             return number.toFixed(decimals);
-        }
+        },
+        formatDateInput: function(date) {
+            if (!date) return '';
+            const d = new Date(date);
+            if (isNaN(d.getTime())) return '';
+            return d.toISOString().split('T')[0];
+        },
     },
     runtimeOptions: {
         allowProtoPropertiesByDefault: true,
