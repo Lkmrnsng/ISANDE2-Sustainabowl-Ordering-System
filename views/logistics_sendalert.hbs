@@ -16,10 +16,10 @@
     <main class="dashboard-container">
         <h2>Send Logistics Alerts / Concerns</h2>
         <p>Delays, Cancellations, & Notices to be sent to customers</p>
-        
+
         <div class="alerts-table">
             <table>
-                {{!-- <thead>
+                <thead>
                     <tr>
                         <th><input type="checkbox"></th>
                         <th>Request ID</th>
@@ -29,65 +29,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{#each alerts as |alert|}}
+                    {{#each alerts}}
                     <tr>
-                        <td><input type="checkbox" {{#if alert.selected}}checked{{/if}}></td>
-                        <td>{{alert.requestId}}</td>
-                        <td>{{alert.status}}</td>
-                        <td>{{alert.date}}</td>
-                        <td>{{alert.items}}</td>
+                        <td><input type="checkbox" {{#if selected}}checked{{/if}}></td>
+                        <td>{{requestId}}</td>
+                        <td>{{status}}</td>
+                        <td>{{date}}</td>
+                        <td>{{items}}</td>
                     </tr>
-                    {{/each}} --}}
-                 <tr>
-                     <tr>
-      <td><input type="checkbox"></td>
-      <td>1000001</td>
-      <td>Pending</td>
-      <td>July 24, 2024</td>
-      <td>Tomato, Tomato</td>
-    </tr>
-    <tr>
-      <td><input type="checkbox" checked></td>
-      <td>1000002</td>
-      <td>Pending</td>
-      <td>July 24, 2024</td>
-      <td>Tomato, Tomato</td>
-    </tr>
-    <tr>
-      <td><input type="checkbox"></td>
-      <td>1000003</td>
-      <td>Pending</td>
-      <td>July 24, 2024</td>
-      <td>Tomato, Tomato</td>
-    </tr>
-    <tr>
-      <td><input type="checkbox" checked></td>
-      <td>1000004</td>
-      <td>Pending</td>
-      <td>July 24, 2024</td>
-      <td>Tomato, Tomato</td>
-    </tr>
-    <tr>
-      <td><input type="checkbox"></td>
-      <td>1000005</td>
-      <td>Pending</td>
-      <td>July 24, 2024</td>
-      <td>Tomato, Tomato</td>
-    </tr>
-    <tr>
-      <td><input type="checkbox"></td>
-      <td>1000006</td>
-      <td>Pending</td>
-      <td>July 24, 2024</td>
-      <td>Tomato, Tomato</td>
-    </tr>
-    <tr>
-      <td><input type="checkbox"></td>
-      <td>1000007</td>
-      <td>Pending</td>
-      <td>July 24, 2024</td>
-      <td>Tomato, Tomato</td>
-    </tr>
+                    {{/each}}
                 </tbody>
             </table>
         </div>
@@ -112,3 +62,79 @@
         </div>
     </main>
 </div>
+
+<!-- Send Alert Modal -->
+<div id="sendAlertModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Send Alert</h2>
+        <form id="sendAlertForm">
+            <label for="concernType">Concern Type:</label>
+            <select id="concernType" name="concernType">
+                <option value="Delay">Delay</option>
+                <option value="Cancellation">Cancellation</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label for="details">Details:</label>
+            <textarea id="details" name="details" required></textarea>
+
+            <label for="cancelRequest">Cancel Request:</label>
+            <input type="checkbox" id="cancelRequest" name="cancelRequest">
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const modal = document.getElementById("sendAlertModal");
+        const openModalBtn = document.querySelector(".send-alert-btn");
+        const closeModalBtn = document.querySelector(".close-btn");
+
+        // Open modal on button click
+        openModalBtn.addEventListener("click", () => {
+            modal.style.display = "block";
+        });
+
+        // Close modal on close button click
+        closeModalBtn.addEventListener("click", () => {
+            modal.style.display = "none";
+        });
+
+        // Close modal when clicking outside the modal
+        window.addEventListener("click", (event) => {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+
+        // Handle form submission
+        document.getElementById("sendAlertForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const concernType = document.getElementById("concernType").value;
+            const details = document.getElementById("details").value;
+            const cancelRequest = document.getElementById("cancelRequest").checked;
+
+            try {
+                const response = await fetch('/api/alerts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ concernType, details, cancelRequest })
+                });
+
+                if (response.ok) {
+                    alert("Alert sent successfully!");
+                    modal.style.display = "none";
+                    document.getElementById("sendAlertForm").reset();
+                } else {
+                    const result = await response.json();
+                    alert("Error sending alert: " + result.message);
+                }
+            } catch (error) {
+                alert("Error: " + error.message);
+            }
+        });
+    });
+</script>
