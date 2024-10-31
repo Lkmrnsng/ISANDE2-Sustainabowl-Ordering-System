@@ -232,6 +232,9 @@ const reviewController = {
 
             const isSalesTeam = req.session.userType === 'Sales';
             console.log('isSalesTeam:', isSalesTeam);
+
+            const isCustomer = req.session.userType === 'Customer';
+            console.log('isCustomer:', isCustomer);
     
             res.render('review/review-dashboard', {
                 title: 'Review Dashboard',
@@ -251,7 +254,8 @@ const reviewController = {
                     startDate,
                     endDate
                 },
-                isSalesTeam
+                isSalesTeam,
+                isCustomer
             });
         } catch (error) {
             console.error('Error in getAllReviews:', error);
