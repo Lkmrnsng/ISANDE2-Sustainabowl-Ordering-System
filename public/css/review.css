@@ -22,6 +22,18 @@
   box-shadow: var(--shadow-md);
 }
 
+.reviews-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.reviews-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+
 /* Headers */
 .reviews-header, .dashboard-header, .review-header {
   margin-bottom: 2rem;

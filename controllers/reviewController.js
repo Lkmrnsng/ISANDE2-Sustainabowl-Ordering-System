@@ -158,7 +158,7 @@ const reviewController = {
         }
     },
 
-    // Get all reviews with filters (for sales dashboard)
+    // Get all reviews with filters
     async getAllReviews(req, res) {
         try {
             const filters = {};
@@ -229,6 +229,9 @@ const reviewController = {
             console.log(`Found ${reviews.length} reviews matching filters`); // Debug log
     
             const totalPages = Math.ceil(totalReviews / limit);
+
+            const isSalesTeam = req.session.userType === 'Sales';
+            console.log('isSalesTeam:', isSalesTeam);
     
             res.render('review/review-dashboard', {
                 title: 'Review Dashboard',
@@ -247,7 +250,8 @@ const reviewController = {
                     rating,
                     startDate,
                     endDate
-                }
+                },
+                isSalesTeam
             });
         } catch (error) {
             console.error('Error in getAllReviews:', error);

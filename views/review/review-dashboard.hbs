@@ -1,7 +1,7 @@
 <div class="dashboard-container">
     <!-- Header Section -->
     <div class="dashboard-header">
-        <h1>Review Feedback</h1>
+        <h1>All Reviews</h1>
         <div class="overview-stats">
             <div class="stat-card">
                 <div class="stat-value">{{formatNumber averageRatings.averageOverall 1}}</div>
@@ -181,19 +181,22 @@
             </div>
 
             {{#if this.response}}
-            <div class="review-response">
-                <p class="response-text">{{this.response.text}}</p>
-                <div class="response-meta">
-                    <span>Responded on {{formatDate this.response.responseDate}}</span>
+                <div class="review-response">
+                    <p class="response-text">{{this.response.text}}</p>
+                    <div class="response-meta">
+                        <span>Responded on {{formatDate this.response.responseDate}}</span>
+                    </div>
                 </div>
-            </div>
             {{else}}
-            <div class="review-actions">
-                <button class="respond-btn submit-btn" data-review-id="{{this.reviewID}}">
-                    Respond
-                </button>
-            </div>
+                {{#if ../isSalesTeam}}
+                    <div class="review-actions">
+                        <button class="respond-btn submit-btn" data-review-id="{{this.reviewID}}">
+                            Respond
+                        </button>
+                    </div>
+                {{/if}}
             {{/if}}
+
         </div>
         {{/each}}
     </div>

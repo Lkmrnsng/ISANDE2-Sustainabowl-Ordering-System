@@ -120,12 +120,13 @@ router.delete('/delete/:reviewId',
     reviewController.deleteReview
 );
 
-// Sales Team Routes
+
 router.get('/dashboard', 
     isAuthenticated, 
-    isSalesTeam, 
     reviewController.getAllReviews
 );
+
+// Sales Team Routes
 
 router.post('/:reviewId/respond', 
     isAuthenticated, 
