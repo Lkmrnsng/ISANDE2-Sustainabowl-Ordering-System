@@ -1,4 +1,4 @@
-// 1. First, update chatController.js with proper error handling and session management
+
 
 const Message = require('../models/Message');
 const Request = require('../models/Request');
@@ -297,6 +297,19 @@ const chatController = {
     
             if (!request) {
                 return res.status(404).json({ error: 'Request not found' });
+            }
+    
+            // If status is changed to Approved, update all waiting approval orders
+            if (status === 'Approved') {
+                await Order.updateMany(
+                    { 
+                        requestID: requestId, 
+                        status: 'Waiting Approval'
+                    },
+                    { 
+                        status: 'Preparing'
+                    }
+                );
             }
     
             res.json({ 

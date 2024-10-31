@@ -11,7 +11,7 @@
         
         <!-- Overall Rating -->
         <div class="rating-group">
-            <label>Overall Rating <span class="required">*</span></label>
+            <label class="rating-label-required">Overall Rating</label>
             <div class="star-rating-group">
                 {{#each (array 5 4 3 2 1)}}
                 <input type="radio" 
@@ -180,3 +180,6 @@
         </div>
     </form>
 </div>
+
+
+<script src="/js/reviewValidation.js"></script>

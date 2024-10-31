@@ -547,3 +547,43 @@
   color: #BF045B;
   margin-left: 2px;
 }
+
+/* Add these styles to your existing review.css file */
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error-message::before {
+  content: '!';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.rating-group {
+  position: relative;
+}
+
+.star-rating-group {
+  margin-top: 0.5rem;
+}
+
+/* Style for the required indicator on the label */
+.rating-label-required::after {
+  content: '*';
+  color: #dc3545;
+  margin-left: 4px;
+}
