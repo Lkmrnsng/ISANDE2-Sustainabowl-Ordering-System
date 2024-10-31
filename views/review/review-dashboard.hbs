@@ -4,12 +4,47 @@
         <h1>Review Feedback</h1>
         <div class="overview-stats">
             <div class="stat-card">
-                <div class="stat-value">{{formatNumber averageRatings.averageOverall}}</div>
+                <div class="stat-value">{{formatNumber averageRatings.averageOverall 1}}</div>
                 <div class="stat-label">Average Rating</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value">{{averageRatings.totalReviews}}</div>
                 <div class="stat-label">Total Reviews</div>
+            </div>
+        </div>
+        
+        <div class="overview-substats">
+            <div class="stat-card">
+                <div class="stat-value">{{formatNumber averageRatings.averageCustomerService 1}}</div>
+                <div class="stat-label">Average Customer Service Rating</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{formatNumber averageRatings.averageDelivery 1}}</div>
+                <div class="stat-label">Average Delivery Rating</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{formatNumber averageRatings.averageFreshness 1}}</div>
+                <div class="stat-label">Average Freshness Rating</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{formatNumber averageRatings.averageQuality 1}}</div>
+                <div class="stat-label">Average Quality Rating</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{formatNumber averageRatings.averagePrice 1}}</div>
+                <div class="stat-label">Average Price Rating</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{formatNumber averageRatings.averagePackaging 1}}</div>
+                <div class="stat-label">Average Packaging Rating</div>
+            </div>
+            <div class="stat-card"> 
+                <div class="stat-value">{{formatNumber averageRatings.averageConvenience 1}}</div>
+                <div class="stat-label">Average Convenience Rating</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{formatNumber averageRatings.averageCustomization 1}}</div>
+                <div class="stat-label">Average Customization Rating</div>
             </div>
         </div>
     </div>

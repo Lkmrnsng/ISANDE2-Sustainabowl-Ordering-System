@@ -322,6 +322,17 @@
   margin-top: 1rem;
 }
 
+.overview-substats {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--background-color);
+  border-radius: 8px;
+}
+
+
+
 .stat-card {
   padding: 1rem;
   background: var(--background-color);
@@ -329,6 +340,7 @@
   text-align: center;
   min-width: 120px;
 }
+
 
 .stat-value {
   font-size: 1.5rem;
