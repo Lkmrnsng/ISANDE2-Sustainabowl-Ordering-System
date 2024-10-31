@@ -287,6 +287,7 @@ select, input[type="date"], textarea {
 .item-name {
   font-weight: 500;
   color: #333;
+  width: 65px;
 }
 
 .item-details {

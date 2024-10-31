@@ -34,7 +34,7 @@ const chatController = {
                     layout: 'main',
                     title: 'Customer Chat',
                     css: ['chat.css'],
-                    js: ['chat.js'],
+                    js: ['customer-chat.js'],
                 });
             }
     
@@ -93,7 +93,7 @@ const chatController = {
                 title: 'Customer Chat',
                 css: ['chat.css', 'customer.css'],
                 active: 'chat',
-                js: ['chat.js'],
+                js: ['customer-chat.js'],
                 activeRequest: requests.length > 0 ? requests[0] : null
             });
         } catch (error) {
@@ -120,7 +120,7 @@ const chatController = {
                     layout: 'main',
                     title: 'Sales Chat',
                     css: ['chat.css'],
-                    js: ['chat.js'],
+                    js: ['sales-chat.js'],
                 });
             }
     
@@ -185,7 +185,7 @@ const chatController = {
                 layout: 'main',
                 title: 'Sales Chat',
                 css: ['chat.css'],
-                js: ['chat.js'],
+                js: ['sales-chat.js'],
                 activeRequest: requests.length > 0 ? requests[0] : null
             });
         } catch (error) {
