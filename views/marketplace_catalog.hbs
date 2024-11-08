@@ -1,6 +1,5 @@
 <main>
     <div class="container">
-
         <!-- Banner Section -->
         <div class="banner-div">
             <div class="left-banner-div">
@@ -14,52 +13,40 @@
         </div>
 
         <!-- Catalog Section -->
+        <h2 id="featured-products-header">Featured Products</h2>
         <div class="catalog-div">
-            <h2>Featured Products</h2>
-
-            <div class="card-container">
-                <!-- Sample Product 1 -->
-                <div class="card-element">
-                    <img src="/img/tomato.jpg" alt="product-image">
-                    <div class="produce-details">
-                        <div class="details-top">
-                            <h3>Tomato</h3>
-                            <p>₱50 / kg</p>
-                        </div>
-                        <div class="actions">
-                            <div class="quantity-control">
-                                <i class="fa-regular fa-square-plus"></i>
-                                <p>1 kg</p>
-                                <i class="fa-regular fa-square-minus"></i>
+            {{#each items}}
+                <div class="card-container">
+                    <div class="card-element" onclick="showOverlay(this)" 
+                            data-name="{{this.itemName}}" 
+                            data-price="{{this.itemPrice}}"
+                            data-description="{{this.itemDescription}}"
+                            data-image="{{this.itemImage}}">
+                            
+                        <img src="{{this.itemImage}}" alt="product-image">
+                        <div class="produce-details">
+                            <div class="details-top">
+                                <h3>{{this.itemName}}</h3>
+                                <p>₱{{this.itemPrice}} / kg</p>
                             </div>
-                            <button onclick="addToCart()">Add to Request</button>
-
+                            <div class="actions">
+                                <div class="quantity-control">
+                                    <i class="fa-regular fa-square-plus"></i>
+                                    <p>1 kg</p> {{!-- TODO: Make this reflect --}}
+                                    <i class="fa-regular fa-square-minus"></i>
+                                </div>
+                                <button onclick="addToCart()">Add to Request</button>
+                            </div>
                         </div>
                     </div>
-
                 </div>
-
-            </div>
+            {{/each}}
         </div>
 
-        <!-- Produce Description Overlay -->
-        {{!-- <div class="description-overlay" id="description-overlay">
-            <div class="overlay-content">
-                <img src="x-icon.png" width="40px" height="40px" onclick="closeOverlay()">
-                <h2>More About: Tomato</h2>
-                <img src="/img/tomato.png" alt="tomato" width="160px" height="160px">
-                <p>₱50 / kg</p>
-                <button onclick="addToCartOverlay()">Add to Request</button>
-                <h3>Product Description:</h3>
-                <p>Fresh and ripe tomatoes sourced locally from sustainable farms.</p>
-            </div>
-        </div> --}}
-
-        <!-- Overlay for Product Description -->
-        <div id="description-overlay" >
+        <!-- Item Description Overlay -->
+        <div id="description-overlay" onclick="closeOverlayOutside(event)">
             <div class="overlay-content">
                 <i class="fa-solid fa-xmark" alt="Close" onclick="closeOverlay()"></i>
-
                 <h2>More About: <span id="overlay-name"></span></h2>
                 <div class="details-desc-container">
                     <img id="overlay-image" src="" alt="Product Image" >
@@ -68,9 +55,7 @@
                         <button onclick="addToCart()">Add to Request</button>
                         <h3>Product Description:</h3>
                         <p id="overlay-description"></p>
-
                     </div>
-
                 </div>
             </div>
         </div>
@@ -88,69 +73,12 @@
                 <p>x ₱50 / kg</p>
                 <p>₱100</p>
             </div>
-
             <hr>
-
             <h3>Request Total:</h3>
             <h3>₱100</h3>
             <button onclick="checkout()">Proceed to Checkout</button>
             <button onclick="closeCartOverlay()">Close</button>
         </div>
-
-
-{{!--
-
-
-        <div class="catalog-div"></div>
-            <h2>Featured Products</h2>
-
-            <div class="card-container">
-                {{#each card}}
-                    <div class="card-element">
-                        <img src="/img/{{this.image}}.png" alt="{{this.image}}" width="40px" height="40px">
-                        <h3>{{this.name}}</h3>
-                        <p>₱{{this.price}} / kg</p>
-                        <img src="plus-icon.png" width="40px" height="40px" onclick="addQty()">
-                        <p>1 kg</p>
-                        <img src="minus-icon.png" width="40px" height="40px" onclick="lessQty()">
-                        <button onclick="addToCart()">Add to Request</button>
-                    </div>
-                {{/each}}
-            </div>
-        </div>
-
-
-        <div class="description-overlay">
-            <img src="x-icon.png" width="40px" height="40px" onclick="closeOverlay()">
-            <h2>More About: {{item}}</h2>
-            <img src="/img/{{image}}.png" alt="{{this.image}}" width="160px" height="160px">
-            <p>₱ {{price}} / kg</p>
-            <button onclick="addToCartOverlay()">Add to Request</button>
-            <h3>Product Description:</h3>
-            <p>{{description}}</p>
-        </div>
-
-
-        <div class="cart-overlay">
-            {{#each cartItem}}
-                <img src="/img/{{this.image}}.png" alt="{{this.image}}" width="40px" height="40px">
-                <h3>{{this.name}}</h3>
-                <img src="plus-icon.png" width="40px" height="40px" onclick="addQty()">
-                <p>{{this.quantity}}</p>
-                <img src="minus-icon.png" width="40px" height="40px" onclick="lessQty()">
-                <p>x ₱ {{this.price}} / kg</p>
-                <p>₱ {{subtotal}}</p>
-            {{/each}}
-
-            <hr>
-
-            <h3>Request Total:</h3>
-            <h3>₱ {{total}}</h3>
-            <button onclick="checkout()">Proceed to Checkout</button>
-            <button onclick="closeCartOverlay">Close</button>
-        </div>
- --}}
-
     </div>
 </main>
 

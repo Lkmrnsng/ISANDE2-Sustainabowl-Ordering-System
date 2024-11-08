@@ -7,7 +7,7 @@
         >
         </a>
             <ul class="nav-links">
-                <li><a href="/">Search</a></li>
+                <li><a href="/marketplace">Buy Produce</a></li>
                 <li><a href="/ride/driverhome">Notifications</a></li>
                 <li class="user-dropdown">
                     {{#if user}}
@@ -26,14 +26,14 @@
                             <li><a href="/booking/dashboard" class="dropdown-item">Driver Dashboard</a></li>
                         {{/if}}    
                         <li><a href="/user/{{user.userID}}" class="dropdown-item">View Account</a></li>
-                        <li><a href="/auth/logout" class="dropdown-item">Logout</a></li>
+                        <li><a onclick="logoutUser()" class="dropdown-item">Logout</a></li>
                     </ul>
 
                     {{else}}
                     <a href="#" id="user-icon"><i class="fa-solid fa-user"></i></a>
                     <ul class="dropdown-menu" id="dropdown-menu">
                         <li><a href="/login" class="dropdown-item">Login</a></li>
-                        <li><a href="/auth/register" class="dropdown-item">Register</a></li>
+                        <li><a href="/register" class="dropdown-item">Register</a></li>
                     </ul>
                     {{/if}}
                 </li>     

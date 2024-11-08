@@ -6,7 +6,8 @@ const ItemSchema = new mongoose.Schema({
     itemCategory: { type: String },
     itemDescription: { type: String },
     itemPrice: { type: Number },
-    itemStock: { type: Number }
+    itemStock: { type: Number },
+    itemImage: { type: String }
 });
 
 const Item = mongoose.model('items', ItemSchema);

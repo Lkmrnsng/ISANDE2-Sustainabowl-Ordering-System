@@ -1,12 +1,7 @@
-{{!< main}}
-
-
-
-
 <!DOCTYPE html>
 <html>
 <head>
-    {{> head}}
+    {{> landing_head}}
 
     {{!-- Unique Stylesheet/s for Page --}}
     {{!-- Pass a stylesheets array to this .hbs file using res.render() --}}
@@ -19,15 +14,7 @@
     <title>{{title}}</title>
 </head>
 <body>
-    {{> navbar}}
-
- 
-        {{> customer-sidebar}}
-        <div style="margin-top: 70px"></div>
-        <div class="main-content">
-            {{{body}}}
-        </div>
-    
+    {{{body}}}
 
     {{> footer}}
 
@@ -37,7 +24,5 @@
             <script src="/js/{{this}}"></script>
         {{/each}}
     {{/if}}
-
-    <script src="/js/logout.js"></script>
 </body>
 </html> 

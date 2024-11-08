@@ -1,0 +1,108 @@
+div#main-div {
+    position: fixed;
+    min-width: 1042px;
+    width: 80%;
+    height: 95%;
+    overflow: hidden;
+    border-radius: 10px;
+    display: flex;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+div#register-form-div {
+    flex: 0 0 30%;
+    height: 100%;
+	display: flex;
+	flex-direction: column;
+    padding: 30px;
+    padding-top: 0px;
+}
+
+#register-form-div p {
+    font-weight: 700;
+}
+
+div#register-bg-div {
+    flex: 0 0 70%;
+    height: 100%;
+    background: #363636;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+img#register-bg {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+}
+
+#register-form-div h2, p {
+    margin-left: 10px;
+}
+
+#overlay {
+    position: absolute;
+    text-align: center;
+    z-index: 1;
+    margin-right: 40px;
+}
+
+#overlay h1, #overlay h2 {
+    color: var(--beige);
+}
+
+#upload-pfp {
+    background-color: var(--gray);
+    border-radius: 8px;
+    border: none;
+    margin: 10px;
+    padding: 10px;
+    width: 60%;
+    color: var(--dark-purple);
+    font-family: var(--roboto);
+}
+
+#upload-pfp-label {
+    margin: 0px;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+input[type="submit"] {
+    width: 30%;
+}
+
+#select-account-type-div input[type="radio"],
+#select-account-type-div label {
+    display: inline-block;
+    padding: 10px;
+}
+
+#select-account-type-div input[type="radio"] {
+    width: 15px;
+    height: 15px;
+    margin: 0px;
+}
+
+#select-account-label {
+    margin: 0px;
+}
+
+#select-account-type-div {
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+#select-account-type-div input[type="radio"]:hover,
+#upload-pfp:hover {
+    cursor: pointer;
+}
+
+.submit:hover {
+    background-color: var(--dark-purple);
+    color: var(--white);
+    cursor: pointer;
+}

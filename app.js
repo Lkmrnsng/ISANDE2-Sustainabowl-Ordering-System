@@ -5,26 +5,6 @@ const mongoose = require('mongoose'); // Import Mongoose, allows you to connect 
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt'); // For hashing passwords
 
-
-/* Connect to MongoDB and then Listen for Requests */
-/**
- * dbuser1 is the username
- * PioneeringParagons2024 is the password
- * isande2 is the database name
- */
-const dbURI = 'mongodb+srv://dbuser1:PioneeringParagons2024@isande2.zq1ez.mongodb.net/ISANDE2'; 
-mongoose.connect(dbURI)
-    .then((result) => {
-        console.log("App connected to MongoDB Atlas ISANDE2 database.");
-        /* If the DB connection was successful, listen for requests on localhost:3000 */
-        app.listen(3000, () => {
-            console.log("App started. Listening on port 3000.");
-        });
-    })
-    .catch((err) => {
-        console.log(err);
-    });
-
 // Imported for sessions
 const passport = require('passport');
 const flash = require('express-flash');
@@ -39,7 +19,7 @@ const customerRoutes = require('./routes/customerRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const marketplaceRoutes = require('./routes/marketplaceRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
-
+const registerRoutes = require('./routes/registerRoutes');
 
 // Import Models
 const User = require('./models/User');
@@ -59,6 +39,25 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+/* Connect to MongoDB and then Listen for Requests */
+/**
+ * dbuser1 is the username
+ * PioneeringParagons2024 is the password
+ * isande2 is the database name
+ */
+const dbURI = 'mongodb+srv://dbuser1:PioneeringParagons2024@isande2.zq1ez.mongodb.net/ISANDE2'; 
+mongoose.connect(dbURI)
+    .then((result) => {
+        console.log("App connected to MongoDB Atlas ISANDE2 database.");
+        /* If the DB connection was successful, listen for requests on localhost:3000 */
+        app.listen(3000, () => {
+            console.log("App started. Listening on port 3000.");
+        });
+    })
+    .catch((err) => {
+        console.log(err);
+    });
 
 // Use Handlebars as the view engine
 const hbs = exphbs.create({
@@ -237,26 +236,9 @@ app.use((req, res, next) => {
     next();
 });
 
-// Middleware to log session info
-app.use((req, res, next) => {
-    console.log('Session ID:', req.sessionID);
-    console.log('Is Authenticated:', req.isAuthenticated());
-    next();
-});
-
 // Make user available in all views
 app.use((req, res, next) => {
     res.locals.user = req.user || null;
-    next();
-});
-
-/* Middleware to Simulate User Login (For Testing) */
-app.use((req, res, next) => {
-    if (!req.session.userId) {
-        req.session.userId = 10002; // Replace with test user ID
-        req.session.userType = 'Sales'; // Replace with test user type
-        console.log(`Simulated login with userId: ${req.session.userId}`);
-    }
     next();
 });
 
@@ -265,32 +247,18 @@ app.use('/customer', customerRoutes);
 app.use('/chat', chatRoutes);
 app.use('/marketplace', marketplaceRoutes);
 app.use('/review', reviewRoutes);
-
-// app.get('/', (req, res) => {
-//     res.render('index', {
-//         title: "Home",
-//         css: ["index.css"],
-//         layout: "main"
-//     });
-// });
+app.use('/register', registerRoutes);
 
 // megan test 
-app.get('/', async (req, res) => {
-    try {
-        const user = await User.findOne({ userID: req.session.userId }).lean(); // Query by userID
-
-        console.log('User found:', user);
-        res.render('marketplace_catalog', {
-            title: "Home",
-            css: ["marketplace_catalog.css", "marketplace.css"],
-            layout: "marketplace",
-            user: user || null
-        });
-    } catch (err) {
-        console.error('Error fetching user:', err);
-        res.status(500).send('Internal Server Error');
-    }
-});
+// app.get('/', async (req, res) => {
+//     try {
+//         const user = await User.findOne({ userID: req.session.userId }).lean(); // Query by userID
+//         res.redirect('/marketplace');
+//     } catch (err) {
+//         console.error('Error fetching user:', err);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
 
 // ishi test
 // app.get('/', (req, res) => {
@@ -301,63 +269,46 @@ app.get('/', async (req, res) => {
 //     });
 // });
 
+app.get('/', (req, res) => {
+    // If user is authenticated, redirect to homepage
+    if (req.isAuthenticated()) {
+        res.redirect('/customer/dashboard'); // TODO: Redirect to appropriate user dashboard
+    } else {
+        // If user is not authenticated, redirect to login page
+        res.redirect('/login');
+    }
+});
+
+app.get('/login', (req, res) => {
+    res.render('index', {
+        title: "Home",
+        css: ["index.css"],
+        layout: "landing",
+        messages: req.flash('error')
+    });
+});
+
 app.post('/login', 
     passport.authenticate('local', {
-        failureRedirect: '/login-failed',
+        failureRedirect: '/login',
         failureFlash: true
     }),
     function(req, res) {
+        // This function is for checking if remember me was clicked
         if (req.body.rememberMe) {
-            req.session.cookie.maxAge = 3 * 7 * 24 * 60 * 60 * 1000; // 3 weeks
+            req.session.cookie.maxAge = 3 * 7 * 24 * 60 * 60 * 1000; // Cookie expires after 3 weeks
         } else {
-            req.session.cookie.maxAge = 24 * 60 * 60 * 1000; // 24 hours
+            req.session.cookie.expires = false; // Cookie expires at end of session
         }
-        res.redirect('/'); 
+      res.redirect('/customer/dashboard'); // TODO: Redirect to appropriate user dashboard
     }
 );
 
-app.get('/login', (req, res) => {
-    if(req.user){
-        res.redirect('/')
-    }
-    res.render('user/login', {
-        title: "Login",
-        css: ["login.css"],
-        layout: "bodyOnly",
-        messages: req.flash('error')
+app.delete('/logout', (req, res) => {
+    req.logout((err) => {
+        if (err) {
+            return next(err);
+        }
+        res.redirect('/');
     });
-});
-
-app.get('/login-failed', (req, res) => {
-    res.render('user/login', {
-        title: "Login",
-        css: ["login.css"],
-        layout: "bodyOnly",
-        isFailed: true,
-        messages: req.flash('error')
-    });
-});
-
-
-function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) { //  using Passport.js
-        res.locals.user = req.user;
-        return next();
-    }
-    res.redirect('/login');
-}
-
-// const cron = require('node-cron');
-// const { autoRejectDueBookings } = require('./controllers/bookingController');
-
-// // // Schedule the task to run every hour
-// // cron.schedule('0 * * * *', () => {
-// //     console.log('Running auto-reject task');
-// //     autoRejectDueBookings();
-// // });
-
-// // Scheduled Task Tester (run tasks per minute)
-// cron.schedule('* * * * *', () => {
-//     console.log('Running auto-reject task');
-//     autoRejectDueBookings();
-// }); 
+})

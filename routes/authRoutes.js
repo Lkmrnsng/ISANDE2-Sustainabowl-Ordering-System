@@ -29,36 +29,36 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 /* Define Routes */
-router.get('/register', (req, res) => {
-    res.render('user/register', {
-        title: "Register",
-        css: ["register.css"],
-        layout: "bodyOnly",
-    });
-});
+// router.get('/register', (req, res) => {
+//     res.render('user/register', {
+//         title: "Register",
+//         css: ["register.css"],
+//         layout: "bodyOnly",
+//     });
+// });
 
 
-router.post('/new', upload.fields([{ name: 'profilePicture' }, { name: 'enrollmentProof' }]), (req, res) => {
-    authController.uploadUser(req, res);
-    console.log('Request files:', req.files); // Debugging: Check the request files
-});
+// router.post('/new', upload.fields([{ name: 'profilePicture' }, { name: 'enrollmentProof' }]), (req, res) => {
+//     authController.uploadUser(req, res);
+//     console.log('Request files:', req.files); // Debugging: Check the request files
+// });
 
 // Logout Route
-router.get('/logout', (req, res) => {
-    req.logout(function(err) {
-        if (err) { s
-            console.log(err); 
-            return res.status(500).send('Error logging out'); 
-        }
-        req.session.destroy((err) => {
-            if (err) {
-                console.log(err);
-                return res.status(500).send('Error clearing session');
-            }
-            res.redirect('/'); // Redirect to login after logout
-        });
-    });
-});
+// router.get('/logout', (req, res) => {
+//     req.logout(function(err) {
+//         if (err) { s
+//             console.log(err); 
+//             return res.status(500).send('Error logging out'); 
+//         }
+//         req.session.destroy((err) => {
+//             if (err) {
+//                 console.log(err);
+//                 return res.status(500).send('Error clearing session');
+//             }
+//             res.redirect('/'); // Redirect to login after logout
+//         });
+//     });
+// });
 
 router.get('/verify-email/:token', authController.verifyEmail);
 

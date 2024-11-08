@@ -5,12 +5,19 @@ const Order = require('../models/Order');
 const Item = require('../models/Item');
 
 async function getCatalog(req, res) {
-    res.render('marketplace_catalog', {
-        title: "Catalog",
-        css: ["marketplace_catalog.css", "marketplace.css"],
-        layout: "marketplace",
-        user: user || null
-    });
+    try {
+        const items = await Item.find({});
+        
+        res.render('marketplace_catalog', {
+            title: "Catalog",
+            css: ["marketplace_catalog.css", "marketplace.css"],
+            layout: "marketplace",
+            user: req.user || null,
+            items: items
+        });
+    } catch(err) {
+        console.error('Error fetching items:', err);
+    }
 }
 
 async function getCheckout(req, res) {
