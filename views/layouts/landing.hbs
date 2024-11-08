@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    {{> landing_head}}
+    {{> head}}
 
     {{!-- Unique Stylesheet/s for Page --}}
     {{!-- Pass a stylesheets array to this .hbs file using res.render() --}}
@@ -14,9 +14,9 @@
     <title>{{title}}</title>
 </head>
 <body>
+    {{> landing-navbar}}
+    <div style="margin-top: 100px"></div>
     {{{body}}}
-
-    {{> footer}}
 
     {{!-- Include JavaScript files --}}
     {{#if js}}

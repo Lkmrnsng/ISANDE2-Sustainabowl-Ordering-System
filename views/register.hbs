@@ -1,0 +1,25 @@
+<main>
+    <div id="main-div">
+        <div id="register-form-div">
+            <h2>Create SustainaPartner Account</h2>
+            <form id="reg-form" action="/register/new" method="post" enctype="multipart/form-data">
+                <input type="text" name="username" id="username" placeholder="Full Name" required><br>
+                <input type="number" name"contact" id="contact" placeholder="000-000-0000" required><br>
+                <input type="text" name="restaurant" id="restaurant" placeholder="Optional"><br>
+                <input type="email" name="email" id="email" placeholder="email@site.com" required><br>
+                <input type="password" name="password" id="password" placeholder="Password" required><br>
+
+                <p id="upload-pfp-label">Select Profile Picture:</p>
+                <input type="file" name="upload-pfp" id="upload-pfp" accept="image/*">
+                <input type="submit" value="Submit" class="btn">
+            </form><br>
+        </div>
+        <div id="register-bg-div">
+            <img id="register-bg" src="/img/signup.jpg" alt="register-bg" width="1025px" height="840px">
+            <span id="overlay">    
+                <h1>Welcome!</h1>
+                <h2>Looking for a reliable supplier?</h2>
+            </span>
+        </div>
+    </div> 
+</main>

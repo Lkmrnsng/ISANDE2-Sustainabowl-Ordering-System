@@ -1,0 +1,102 @@
+<header>
+    <div class="header-left">
+        <a href="/">
+            <img src="/img/Sustainabowl.svg" alt="Sustainabowl Logo" class="logo">
+            <p>Sustainabowl</p>
+        </a>
+    </div>
+
+    {{#if homepage}}
+        <div id="header-middle">
+            <form action="/search.hbs" method="get">
+                <input type="text" placeholder="Search Produce.." id="search">
+                <button type="submit" class="image-btn">
+                    <img src="/img/search-icon.png" width="150px" height="150px">
+                </button>
+            </form>
+        </div>
+    {{/if}}
+
+    <div class="header-right">
+        <a href="/customer/dashboard">Back to Dashboard</a>
+        <i class="fa-regular fa-user" id="acc-icon"></i>
+        
+        <!-- Shopping Cart Icon with Dropdown -->
+        <i class="fa-solid fa-cart-shopping" id="cart-icon"></i>
+        
+        <div id="cart-dropdown" class="cart-popup">
+            <div class="cart-item">
+                <img src="/img/tomato.jpg" alt="product-image">
+                <div class="item-container">
+                    <div class="item-details">
+                        <p class="item-name">Tomato</p>
+                        <p class="item-weight">1 kg</p>
+                    </div>
+                    
+                    <div class="item-price">
+                        <div class="quantity-control">
+                            <i class="fa-regular fa-square-plus"></i>
+                            <p>1 kg</p>
+                            <i class="fa-regular fa-square-minus"></i>
+                        </div>
+                        <p class="item-price-per-kg">x ₱50 / kg</p>
+                        <p class="item-total-price">₱250</p>
+                    </div>
+
+                </div>
+            </div>
+            <div class="cart-item">
+                <img src="/img/tomato.jpg" alt="product-image">
+                <div class="item-container">
+                    <div class="item-details">
+                        <p class="item-name">Tomato</p>
+                        <p class="item-weight">1 kg</p>
+                    </div>
+                    
+                    <div class="item-price">
+                        <div class="quantity-control">
+                            <i class="fa-regular fa-square-plus"></i>
+                            <p>1 kg</p>
+                            <i class="fa-regular fa-square-minus"></i>
+                        </div>
+                        <p class="item-price-per-kg">x ₱50 / kg</p>
+                        <p class="item-total-price">₱250</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <hr>
+            <div class="cart-total">
+                <p>Request Total:</p>
+                <p class="total-price">₱500</p>
+            </div>
+            <a href="/marketplace/checkout">
+                <button class="checkout-button">Proceed to Checkout</button>
+            </a>
+            
+        </div>
+    </div>
+</header>
+
+<script>
+    // Toggle Cart Popup on click
+    document.getElementById("cart-icon").addEventListener("click", function() {
+        var cartDropdown = document.getElementById("cart-dropdown");
+        if (cartDropdown.style.display === "none" || cartDropdown.style.display === "") {
+            cartDropdown.style.display = "block";
+        } else {
+            cartDropdown.style.display = "none";
+        }
+    });
+
+    // Hide cart when clicking outside
+    document.addEventListener("click", function(event) {
+        var cartDropdown = document.getElementById("cart-dropdown");
+        var cartIcon = document.getElementById("cart-icon");
+
+        if (!cartIcon.contains(event.target) && !cartDropdown.contains(event.target)) {
+            cartDropdown.style.display = "none";
+        }
+    });
+</script>

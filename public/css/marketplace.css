@@ -15,20 +15,19 @@
     display: flex;
     align-items: center;
     justify-content: space-around;
+    gap: 10px;
 }
 
-.header-right p{
-    margin-right: 20px;
-}
-
-#acc-icon{
+.header-right a, #acc-icon, #cart-icon {
+    display: inline-flex;
+    align-items: center;
     cursor: pointer;
     margin-right: 20px;
 }
 
-#cart-icon{
-    cursor: pointer;
-    margin-right: 20px;
+.header-right a {
+    text-decoration: none;
+    color: inherit;
 }
 
 .cart-popup {
