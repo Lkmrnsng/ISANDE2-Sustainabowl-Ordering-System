@@ -3,15 +3,24 @@
         <div id="register-form-div">
             <h2>Create SustainaPartner Account</h2>
             <form id="reg-form" action="/register/new" method="post" enctype="multipart/form-data">
+                <label for="username">Username</label>
                 <input type="text" name="username" id="username" placeholder="Full Name" required><br>
-                <input type="number" name"contact" id="contact" placeholder="000-000-0000" required><br>
+                
+                <label for="contact">Phone Number</label>
+                <input type="text" name="contact" id="contact" placeholder="10-digit number" required><br>
+                
+                <label for="restaurant">Restaurant Name</label>
                 <input type="text" name="restaurant" id="restaurant" placeholder="Optional"><br>
+                
+                <label for="email">Email</label>
                 <input type="email" name="email" id="email" placeholder="email@site.com" required><br>
+                
+                <label for="password">Password</label>
                 <input type="password" name="password" id="password" placeholder="Password" required><br>
 
                 <p id="upload-pfp-label">Select Profile Picture:</p>
                 <input type="file" name="upload-pfp" id="upload-pfp" accept="image/*">
-                <input type="submit" value="Submit" class="btn">
+                <input type="submit" value="Submit" class="submit">
             </form><br>
         </div>
         <div id="register-bg-div">
