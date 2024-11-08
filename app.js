@@ -249,17 +249,6 @@ app.use('/marketplace', marketplaceRoutes);
 app.use('/review', reviewRoutes);
 app.use('/register', registerRoutes);
 
-// megan test 
-// app.get('/', async (req, res) => {
-//     try {
-//         const user = await User.findOne({ userID: req.session.userId }).lean(); // Query by userID
-//         res.redirect('/marketplace');
-//     } catch (err) {
-//         console.error('Error fetching user:', err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
 // ishi test
 // app.get('/', (req, res) => {
 //     res.render('logistics_foodprocess', {

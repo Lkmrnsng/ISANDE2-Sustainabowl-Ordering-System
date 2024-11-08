@@ -112,6 +112,10 @@
     margin: 0 5px;
 }
 
+.card-element .quantity-control i {
+    cursor: pointer; 
+}
+
 .details-top {
     display: flex;
     justify-content: space-between;
