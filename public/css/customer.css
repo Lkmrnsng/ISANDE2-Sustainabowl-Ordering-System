@@ -7,7 +7,7 @@ body, html {
 }
 
 .dashboard-container {
-  min-height: calc(100vh - 100px);
+  min-height: calc(100vh - 200px);
   position: relative;
   padding: 20px;
 }
@@ -72,6 +72,13 @@ body, html {
 .sidebar ul li a.active {
   color: #C4CF24;
   font-weight: 600;
+}
+
+.place-request {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  position: fixed;
+  bottom: 120px;
 }
 
 /* Header Section */
