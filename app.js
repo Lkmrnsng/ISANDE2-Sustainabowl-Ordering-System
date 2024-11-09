@@ -20,6 +20,7 @@ const chatRoutes = require('./routes/chatRoutes');
 const marketplaceRoutes = require('./routes/marketplaceRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const registerRoutes = require('./routes/registerRoutes');
+const cancelRoutes = require('./routes/cancelRoutes');
 
 // Import Models
 const User = require('./models/User');
@@ -78,6 +79,12 @@ const hbs = exphbs.create({
             return Array.prototype.every.call(arguments, (argument) => {
                 return argument ? true : false;
             });
+        },
+        toLowerCase: function(str) {
+            return str.toLowerCase();
+        },
+        not: function(value) {
+            return !value;
         },
         array: function() {
             return Array.from(arguments).slice(0, -1);
@@ -256,6 +263,7 @@ app.use('/chat', chatRoutes);
 app.use('/marketplace', marketplaceRoutes);
 app.use('/review', reviewRoutes);
 app.use('/register', registerRoutes);
+app.use('/cancel', cancelRoutes);
 
 // ishi test
 // app.get('/', (req, res) => {

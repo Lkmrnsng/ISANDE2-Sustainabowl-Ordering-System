@@ -3,7 +3,8 @@
         <div class="main-section">
             <div class="header-section">
                 <h1>My Orders</h1>
-                <p class="subtitle"><i class="info-icon">ℹ</i> Track your order status and delivery details here.</p>
+                <p class="subtitle">Track your order status and delivery details here.</p>
+                <p class="subtitle"><i class="info-icon">ℹ</i> Multiple orders could be linked to the same request.</p>
             </div>
 
             <div class="request-rows">
@@ -64,7 +65,7 @@
                                 {{/if}}
                                 <a href="/chat/customer" class="button-link">Contact Support</a>
                                 {{#if (eq this.status 'Preparing')}}
-                                    <button class="cancel-request">Cancel Order</button>
+                                    <button class="cancel-request" onclick="window.location.href = /cancel/">Cancel Order</button>
                                 {{/if}}
                             </div>
                         </div>

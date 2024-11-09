@@ -6,7 +6,8 @@
         <div class="main-section">
             <div class="header-section">
                 <h1>Track Your Requests</h1>
-                <p class="subtitle"><i class="info-icon">ℹ</i> Some requests are under review, click the request to view more details</p>
+                <p class="subtitle"> Some requests are under review, click the request to view more details</p>
+                <p class="subtitle"><i class="info-icon">ℹ</i> Once your requests are approved, they will be available in <a href="/customer/orders" class="word-link">My Orders</a></p>
             </div>
 
             <div class="request-rows">
@@ -44,7 +45,7 @@
 
                         <div class="request-actions">
                             <a href="/chat/customer" class="button-link">Contact Sales</a>
-                            <button class="cancel-request">Cancel Request</button>
+                            <button class="cancel-request" onclick="window.location.href = /cancel/">Cancel Request</button>
                             {{#if (eq this.status 'Approved')}}
                                 <a href="/review/my-reviews" class="give-feedback">View Reviews</a>
                             {{/if}}

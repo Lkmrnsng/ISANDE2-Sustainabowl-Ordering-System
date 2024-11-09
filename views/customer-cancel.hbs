@@ -1,0 +1,222 @@
+<div class="cancel-container">
+    <div class="header-section">
+        <h1>Cancel Request or Order</h1>
+        <p class="subtitle">Review and manage your cancellations here</p>
+    </div>
+
+    <div class="cancel-instructions">
+        <h3>Important Information About Cancellations</h3>
+        <ul>
+            <li>Requests can only be cancelled if they are in 'Received' or 'Negotiation' status</li>
+            <li>Orders can only be cancelled if they are in 'Preparing' status</li>
+            <li>Once an order is dispatched, it cannot be cancelled</li>
+            <li>Once a request is approved, it cannot be cancelled</li>
+            <li>A cancellation reason is required to help us improve our service</li>
+            <li>You will be notified once your cancellation is processed</li>
+        </ul>
+    </div>
+
+    <div class="success-message" id="successMessage"></div>
+    <div class="error-message" id="errorMessage"></div>
+
+    {{#if requests.length}}
+    <div class="cancel-section">
+        <h2>Cancellable Requests</h2>
+        <div class="cancellable-items">
+            {{#each requests}}
+            <div class="cancellable-item" data-request-id="{{this.requestID}}">
+                <div class="item-header">
+                    <span class="item-title">Request #{{this.requestID}}</span>
+                    <span class="item-status {{toLowerCase this.status}}">{{this.status}}</span>
+                </div>
+                <div class="item-detailsCancel">
+                    <div class="detail-group">
+                        <span class="detail-label">Date Requested</span>
+                        <span class="detail-value">{{formatDate this.requestDate}}</span>
+                    </div>
+                    <div class="detail-group">
+                        <span class="detail-label">Current Status</span>
+                        <span class="detail-value">{{this.status}}</span>
+                    </div>
+                </div>
+                <button class="toggle-cancel-btn" onclick="toggleCancelForm('request', '{{this.requestID}}')">
+                    Cancel This Request
+                </button>
+                <div class="cancel-form" id="request-form-{{this.requestID}}">
+                    <textarea 
+                        placeholder="Please provide a reason for cancellation (required)"
+                        id="request-reason-{{this.requestID}}"
+                        required
+                    ></textarea>
+                    <div class="form-actions">
+                        <button class="cancel-cancel-btn" onclick="toggleCancelForm('request', '{{this.requestID}}')">
+                            Never Mind
+                        </button>
+                        <button class="cancel-submit-btn" onclick="submitCancellation('request', '{{this.requestID}}')">
+                            Confirm Cancellation
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+    {{/if}}
+
+    {{#if orders.length}}
+    <div class="cancel-section">
+        <h2>Cancellable Orders</h2>
+        <div class="cancellable-items">
+            {{#each orders}}
+            <div class="cancellable-item" data-order-id="{{this.OrderID}}">
+                <div class="item-header">
+                    <span class="item-title">Order #{{this.OrderID}}</span>
+                    <span class="item-status preparing">{{this.status}}</span>
+                </div>
+                <div class="item-detailsCancel">
+                    <div class="detail-group">
+                        <span class="detail-label">Delivery Date</span>
+                        <span class="detail-value">{{formatDate this.deliveryDate}}</span>
+                    </div>
+                    <div class="detail-group">
+                        <span class="detail-label">Delivery Time</span>
+                        <span class="detail-value">{{this.deliveryTimeRange}}</span>
+                    </div>
+                    <div class="detail-group">
+                        <span class="detail-label">Delivery Address</span>
+                        <span class="detail-value">{{this.deliveryAddress}}</span>
+                    </div>
+                </div>
+                <button class="toggle-cancel-btn" onclick="toggleCancelForm('order', '{{this.OrderID}}')">
+                    Cancel This Order
+                </button>
+                <div class="cancel-form" id="order-form-{{this.OrderID}}">
+                    <textarea 
+                        placeholder="Please provide a reason for cancellation (required)"
+                        id="order-reason-{{this.OrderID}}"
+                        required
+                    ></textarea>
+                    <div class="form-actions">
+                        <button class="cancel-cancel-btn" onclick="toggleCancelForm('order', '{{this.OrderID}}')">
+                            Never Mind
+                        </button>
+                        <button class="cancel-submit-btn" onclick="submitCancellation('order', '{{this.OrderID}}')">
+                            Confirm Cancellation
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+    {{/if}}
+
+    {{#if (and (not requests.length) (not orders.length))}}
+    <div class="empty-state">
+        <p>You don't have any requests or orders that can be cancelled at this time.</p>
+        <a href="/customer/dashboard" class="button-link">Return to Dashboard</a>
+    </div>
+    {{/if}}
+</div>
+
+<!-- Confirmation Modal -->
+<div class="confirmation-modal" id="confirmationModal">
+    <div class="modal-content">
+        <div class="modal-header">Confirm Cancellation</div>
+        <div class="modal-body">
+            Are you sure you want to cancel this item? This action cannot be undone.
+        </div>
+        <div class="modal-actions">
+            <button class="cancel-cancel-btn" onclick="closeConfirmationModal()">No, Keep It</button>
+            <button class="cancel-submit-btn" onclick="proceedWithCancellation()">Yes, Cancel It</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentCancellation = null;
+
+function toggleCancelForm(type, id) {
+    const form = document.getElementById(`${type}-form-${id}`);
+    form.classList.toggle('active');
+}
+
+function showMessage(message, isError = false) {
+    const successMsg = document.getElementById('successMessage');
+    const errorMsg = document.getElementById('errorMessage');
+    
+    if (isError) {
+        errorMsg.textContent = message;
+        errorMsg.style.display = 'block';
+        successMsg.style.display = 'none';
+        setTimeout(() => errorMsg.style.display = 'none', 5000);
+    } else {
+        successMsg.textContent = message;
+        successMsg.style.display = 'block';
+        errorMsg.style.display = 'none';
+        setTimeout(() => successMsg.style.display = 'none', 5000);
+    }
+}
+
+function submitCancellation(type, id) {
+    const reason = document.getElementById(`${type}-reason-${id}`).value.trim();
+    
+    if (!reason) {
+        showMessage('Please provide a reason for cancellation.', true);
+        return;
+    }
+
+    // Store cancellation details for confirmation
+    currentCancellation = { type, id, reason };
+    
+    // Show confirmation modal
+    document.getElementById('confirmationModal').style.display = 'flex';
+}
+
+function closeConfirmationModal() {
+    document.getElementById('confirmationModal').style.display = 'none';
+    currentCancellation = null;
+}
+
+async function proceedWithCancellation() {
+    if (!currentCancellation) return;
+    
+    const { type, id, reason } = currentCancellation;
+    const endpoint = type === 'request' ? '/cancel/request' : '/cancel/order';
+    
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                [`${type}Id`]: id,
+                reason
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage(`${type.charAt(0).toUpperCase() + type.slice(1)} cancelled successfully.`);
+            // Remove the cancelled item from the UI
+            const item = document.querySelector(`[data-${type}-id="${id}"]`);
+            item.remove();
+            
+            // Check if any items remain
+            const items = document.querySelectorAll('.cancellable-item');
+            if (items.length === 0) {
+                location.reload(); // Reload to show empty state
+            }
+        } else {
+            showMessage(data.message || 'Failed to cancel item.', true);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showMessage('An error occurred while processing your request.', true);
+    }
+
+    closeConfirmationModal();
+}
+</script>

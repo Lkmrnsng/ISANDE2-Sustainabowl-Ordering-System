@@ -611,6 +611,18 @@ document.addEventListener('DOMContentLoaded', function() {
           animation: fadeInOut 3s ease-in-out;
       }
 
+    .error-message {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background-color: #f8d7da;
+          color: #721c24;
+          padding: 12px 24px;
+          border-radius: 4px;
+          z-index: 1000;
+          animation: fadeInOut 3s ease-in-out;
+      }
+
       @keyframes fadeInOut {
           0% { opacity: 0; transform: translateY(-20px); }
           10% { opacity: 1; transform: translateY(0); }

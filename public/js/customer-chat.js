@@ -340,9 +340,30 @@ if (elements.requestItems[0]) {
       setTimeout(() => errorDiv.remove(), 3000);
   }
 
+  function showSuccess(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.textContent = message;
+    document.querySelector('.chat-container').appendChild(successDiv);
+    setTimeout(() => successDiv.remove(), 3000);
+}
+
   // Add notification styles
   const style = document.createElement('style');
   style.textContent = `
+
+    .success-message {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background-color: #d4edda;
+          color: #155724;
+          padding: 12px 24px;
+          border-radius: 4px;
+          z-index: 1000;
+          animation: fadeInOut 3s ease-in-out;
+      }
+          
       .error-message {
           position: fixed;
           top: 20px;
