@@ -128,14 +128,25 @@
         </a>
         
         {{#if (eq session.userId review.reviewerID)}}
-            <a href="/review/edit/{{review.reviewID}}" class="edit-btn">
-                <i class="fas fa-edit"></i>
-                Edit Review
-            </a>
-            <button class="delete-btn" onclick="confirmDelete()">
-                <i class="fas fa-trash"></i>
-                Delete Review
-            </button>
+            {{#unless review.response}}
+            <div class="action-buttons">
+                <a href="/review/edit/{{this.reviewID}}" 
+                    class="edit-btn" 
+                    title="Edit review"
+                    aria-label="Edit review">
+                    <i class="fas fa-edit"></i>
+                    <span class="visually-hidden">Edit</span>
+                </a>
+                <button type="button"
+                        class="delete-btn"
+                        onclick="deleteReview({{this.reviewID}})"
+                        title="Delete review"
+                        aria-label="Delete review">
+                    <i class="fas fa-trash"></i>
+                    <span class="visually-hidden">Delete</span>
+                </button>
+            </div>
+            {{/unless}}
         {{/if}}
     </div>
 </div>

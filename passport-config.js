@@ -1,5 +1,3 @@
-// TODO: Implement verification status checking
-
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
 const User = require('./models/User.js');
@@ -22,7 +20,14 @@ function initialize(passport) {
 
             // If the user exists and is active, compare the password
             if (await bcrypt.compare(password, user.password)) {
-                return done(null, user);
+                // Store both MongoDB _id and userID
+                return done(null, {
+                    _id: user._id,
+                    userID: user.userID,
+                    name: user.name,
+                    email: user.email,
+                    usertype: user.usertype
+                });
             } else {
                 return done(null, false, { message: 'Password incorrect.' });
             }
@@ -40,14 +45,24 @@ function initialize(passport) {
     ));
 
     passport.serializeUser((user, done) => {
-        done(null, user._id);
+        // Serialize both _id and userID
+        done(null, { _id: user._id, userID: user.userID });
     });
 
-    passport.deserializeUser(async (id, done) => {
+    passport.deserializeUser(async (sessionUser, done) => {
         try {
-            // Find the user in the database
-            const user = await User.findOne({ _id: id });
-            return done(null, user);
+            const user = await User.findOne({ _id: sessionUser._id });
+            if (user) {
+                // Return user data with both _id and userID
+                return done(null, {
+                    _id: user._id,
+                    userID: user.userID,
+                    name: user.name,
+                    email: user.email,
+                    usertype: user.usertype
+                });
+            }
+            return done(null, false);
         } catch (err) {
             return done(err);
         }

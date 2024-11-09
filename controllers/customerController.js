@@ -1,21 +1,18 @@
-//Import Models
 const User = require('../models/User');
 const Request = require('../models/Request');
 const Order = require('../models/Order');
 const Item = require('../models/Item');
 const Review = require('../models/Review');
 
-//Define Functions
-
-/**
- * Get the customer dashboard which displays all their requests and its associated deliveries
- */
 async function getDashboard(req, res) {
     try {
-        const customerId = req.session.userId;
+        console.log('Session user ID:', req.session.userId); // Debug log
+        const customerId = parseInt(req.session.userId); // Convert to number since userID is stored as number
 
         // Fetch requests for this customer
         const originalRequests = await Request.find({ customerID: customerId }).sort({ requestID: -1 });
+        
+        console.log('Found requests:', originalRequests); // Debug log
 
         if (originalRequests.length === 0) {
             return res.render('customer_dashboard', {
@@ -40,7 +37,9 @@ async function getDashboard(req, res) {
             const requestOrders = orders.filter(order => order.requestID === request.requestID);
 
             for (const order of requestOrders) {
-                deliveryDates.push(order.deliveryDate);
+                if (order.deliveryDate) {
+                    deliveryDates.push(order.deliveryDate);
+                }
                 deliveriesCount++;
 
                 for (const item of order.items) {
@@ -50,10 +49,12 @@ async function getDashboard(req, res) {
                         totalItemsBreakdown.push({ 
                             itemID: item.itemID, 
                             quantity: item.quantity, 
-                            itemName: itemDetails.itemName,
-                            itemPrice: itemDetails.itemPrice
+                            itemName: itemDetails ? itemDetails.itemName : 'Unknown Item',
+                            itemPrice: itemDetails ? itemDetails.itemPrice : 0
                         });
-                        itemNames.push(itemDetails.itemName);
+                        if (itemDetails) {
+                            itemNames.push(itemDetails.itemName);
+                        }
                     } else {
                         totalItemsBreakdown[itemIndex].quantity += item.quantity;
                     }
@@ -69,11 +70,11 @@ async function getDashboard(req, res) {
                 deliveryDates,
                 totalItemsBreakdown,
                 itemNames: itemNames.join(', '),
-                pointPersonName: pointPerson.name
+                pointPersonName: pointPerson ? pointPerson.name : 'Unassigned'
             };
         }));
 
-        console.log('Processed requests:', processedRequests);
+        console.log('Processed requests:', processedRequests); // Debug log
 
         res.render('customer_dashboard', {
             title: 'Dashboard',
@@ -107,12 +108,11 @@ async function getBreakdown(req, res) {
             return {
                 itemID: item._id,
                 itemName: item.name,
-                quantity: quantity,  // The quantity of this item
+                quantity: quantity,
                 itemPrice: item.price
             };
         });
 
-        // Send the breakdown data as JSON
         res.json(breakdownData);
     } catch (error) {
         console.error('Error in getBreakdown:', error);
@@ -120,10 +120,9 @@ async function getBreakdown(req, res) {
     }
 }
 
-// GetOrders page
 async function getOrders(req, res) {
     try {
-        const customerId = req.session.userId;
+        const customerId = parseInt(req.session.userId);
         
         // Find requests for this customer
         let requests = await Request.find({ customerID: customerId }).sort({ requestID: -1 });
@@ -148,10 +147,10 @@ async function getOrders(req, res) {
                 const itemDetails = await Item.findOne({ itemID: item.itemID });
                 return {
                     ...item,
-                    name: itemDetails.itemName,
+                    name: itemDetails ? itemDetails.itemName : 'Unknown Item',
                     quantity: item.quantity,
-                    price: itemDetails.itemPrice,
-                    totalPrice: itemDetails.itemPrice * item.quantity
+                    price: itemDetails ? itemDetails.itemPrice : 0,
+                    totalPrice: (itemDetails ? itemDetails.itemPrice : 0) * item.quantity
                 };
             }));
 
@@ -184,9 +183,8 @@ async function getOrders(req, res) {
     }
 }
 
-
 module.exports = {
     getDashboard,
     getBreakdown,
     getOrders
-}; // Export the functions so it can be used in routes/customerRoutes.js
+};

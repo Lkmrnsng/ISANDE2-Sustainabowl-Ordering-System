@@ -236,9 +236,17 @@ app.use((req, res, next) => {
     next();
 });
 
-// Make user available in all views
+// Make user available in all views and set up session data
 app.use((req, res, next) => {
+    // Make user data available in templates
     res.locals.user = req.user || null;
+    
+    // Set up session data if user is authenticated
+    if (req.isAuthenticated()) {
+        req.session.userId = req.user.userID;
+        req.session.userType = req.user.usertype;
+    }
+    
     next();
 });
 
