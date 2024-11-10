@@ -3,204 +3,252 @@
     "OrderID": 40001,
     "requestID": 30001,
     "status": "Waiting Approval",
-    "OrderDate": "2024-09-24T10:00:00Z",
+    "OrderDate": "2024-11-19T09:30:00Z",
     "items": [
       {
         "itemID": 20001,
-        "quantity": 10
+        "quantity": 15
       },
       {
         "itemID": 20002,
-        "quantity": 5
-      },
-      {
-        "itemID": 20003,
-        "quantity": 8
+        "quantity": 10
       }
     ],
-    "customizations": "Sliced",
-    "deliveryDate": "2024-09-26T14:00:00Z",
-    "deliveryAddress": "123 Main St, Anytown, AN 12345",
-    "deliveryTimeRange": "Afternoon",
+    "customizations": "All tomatoes sliced, carrots julienned",
+    "deliveryDate": "2024-11-21T14:00:00Z",
+    "deliveryAddress": "Doe's Diner, 123 Main St, Makati City",
+    "deliveryTimeRange": "Morning",
     "pointPersonID": 10002,
     "paymentMethod": "Card"
   },
   {
     "OrderID": 40002,
     "requestID": 30002,
-    "status": "Preparing",
-    "OrderDate": "2024-09-24T11:30:00Z",
+    "status": "Waiting Approval",
+    "OrderDate": "2024-11-18T10:15:00Z",
     "items": [
       {
-        "itemID": 20002,
-        "quantity": 15
+        "itemID": 20001,
+        "quantity": 12
       },
       {
-        "itemID": 20003,
-        "quantity": 3
+        "itemID": 20004,
+        "quantity": 8
       }
     ],
-    "customizations": "Peeled",
-    "deliveryDate": "2024-09-25T10:00:00Z",
-    "deliveryAddress": "456 Elm St, Somewhere, SW 67890",
+    "customizations": "Bell peppers diced, tomatoes quartered",
+    "deliveryDate": "2024-11-22T10:00:00Z",
+    "deliveryAddress": "Doe's Diner, 123 Main St, Makati City",
     "deliveryTimeRange": "Morning",
     "pointPersonID": 10002,
-    "paymentMethod": "Cash on Delivery"
+    "paymentMethod": "Card"
   },
   {
     "OrderID": 40003,
+    "requestID": 30002,
+    "status": "Waiting Approval",
+    "OrderDate": "2024-11-18T10:15:00Z",
+    "items": [
+      {
+        "itemID": 20001,
+        "quantity": 12
+      },
+      {
+        "itemID": 20004,
+        "quantity": 8
+      }
+    ],
+    "customizations": "Bell peppers diced, tomatoes quartered",
+    "deliveryDate": "2024-11-23T10:00:00Z",
+    "deliveryAddress": "Doe's Diner, 123 Main St, Makati City",
+    "deliveryTimeRange": "Morning",
+    "pointPersonID": 10002,
+    "paymentMethod": "Card"
+  },
+  {
+    "OrderID": 40004,
     "requestID": 30003,
-    "status": "Dispatched",
-    "OrderDate": "2024-09-24T09:15:00Z",
+    "status": "Delivered",
+    "OrderDate": "2024-11-15T08:45:00Z",
     "items": [
       {
         "itemID": 20003,
         "quantity": 8
       },
       {
-        "itemID": 20004,
-        "quantity": 6
+        "itemID": 20005,
+        "quantity": 15
       }
     ],
-    "customizations": "Whole",
-    "deliveryDate": "2024-09-24T16:00:00Z",
-    "deliveryAddress": "789 Oak Rd, Elsewhere, EL 13579",
+    "customizations": "Spinach cleaned and sorted, cucumbers sliced",
+    "deliveryDate": "2024-11-17T16:00:00Z",
+    "deliveryAddress": "Doe's Diner, 123 Main St, Makati City",
     "deliveryTimeRange": "Evening",
     "pointPersonID": 10002,
-    "paymentMethod": "Mobile Money"
-  },
-  {
-    "OrderID": 40004,
-    "requestID": 30004,
-    "status": "Cancelled",
-    "OrderDate": "2024-09-24T14:45:00Z",
-    "items": [
-      {
-        "itemID": 20004,
-        "quantity": 5
-      },
-      {
-        "itemID": 20005,
-        "quantity": 2
-      }
-    ],
-    "customizations": "Diced",
-    "deliveryDate": null,
-    "deliveryAddress": "101 Pine Ln, Nowheresville, NW 24680",
-    "deliveryTimeRange": "Morning",
-    "pointPersonID": 10002,
-    "paymentMethod": "Card"
+    "paymentMethod": "Cash on Delivery"
   },
   {
     "OrderID": 40005,
-    "requestID": 30005,
+    "requestID": 30003,
     "status": "Delivered",
-    "OrderDate": "2024-09-24T08:00:00Z",
+    "OrderDate": "2024-11-15T08:45:00Z",
     "items": [
+      {
+        "itemID": 20003,
+        "quantity": 10
+      },
       {
         "itemID": 20005,
         "quantity": 12
       }
     ],
-    "customizations": "Thinly sliced",
-    "deliveryDate": "2024-09-24T13:30:00Z",
-    "deliveryAddress": "202 Maple Ave, Someplace, SP 97531",
-    "deliveryTimeRange": "Afternoon",
+    "customizations": "Spinach cleaned and sorted, cucumbers sliced",
+    "deliveryDate": "2024-11-18T16:00:00Z",
+    "deliveryAddress": "Doe's Diner, 123 Main St, Makati City",
+    "deliveryTimeRange": "Evening",
     "pointPersonID": 10002,
     "paymentMethod": "Cash on Delivery"
   },
   {
     "OrderID": 40006,
-    "requestID": 30001,
-    "status": "Waiting Approval",
-    "OrderDate": "2024-09-25T09:30:00Z",
+    "requestID": 30003,
+    "status": "Dispatched",
+    "OrderDate": "2024-11-15T08:45:00Z",
     "items": [
       {
-        "itemID": 20001,
-        "quantity": 7
+        "itemID": 20003,
+        "quantity": 8
       },
       {
-        "itemID": 20003,
-        "quantity": 4
+        "itemID": 20005,
+        "quantity": 15
       }
     ],
-    "customizations": "Cubed",
-    "deliveryDate": "2024-09-27T11:00:00Z",
-    "deliveryAddress": "303 Birch Blvd, Anyville, AV 35791",
-    "deliveryTimeRange": "Morning",
-    "pointPersonID": 10003,
-    "paymentMethod": "Mobile Money"
+    "customizations": "Spinach cleaned and sorted, cucumbers sliced",
+    "deliveryDate": "2024-11-20T16:00:00Z",
+    "deliveryAddress": "Doe's Diner, 123 Main St, Makati City",
+    "deliveryTimeRange": "Evening",
+    "pointPersonID": 10002,
+    "paymentMethod": "Cash on Delivery"
   },
   {
     "OrderID": 40007,
-    "requestID": 30001,
+    "requestID": 30003,
     "status": "Preparing",
-    "OrderDate": "2024-09-25T13:15:00Z",
+    "OrderDate": "2024-11-15T08:45:00Z",
+    "items": [
+      {
+        "itemID": 20003,
+        "quantity": 8
+      },
+      {
+        "itemID": 20005,
+        "quantity": 15
+      }
+    ],
+    "customizations": "Spinach cleaned and sorted, cucumbers sliced",
+    "deliveryDate": "2024-11-21T16:00:00Z",
+    "deliveryAddress": "Doe's Diner, 123 Main St, Makati City",
+    "deliveryTimeRange": "Evening",
+    "pointPersonID": 10002,
+    "paymentMethod": "Cash on Delivery"
+  },
+  {
+    "OrderID": 40008,
+    "requestID": 30004,
+    "status": "Delivered",
+    "OrderDate": "2024-09-24T08:00:00Z",
+    "items": [
+      {
+        "itemID": 20001,
+        "quantity": 18
+      },
+      {
+        "itemID": 20004,
+        "quantity": 10
+      }
+    ],
+    "customizations": "All vegetables sliced uniformly",
+    "deliveryDate": "2024-09-25T13:30:00Z",
+    "deliveryAddress": "Brown's Bistro, 456 Oak Ave, Pasig City",
+    "deliveryTimeRange": "Afternoon",
+    "pointPersonID": 10002,
+    "paymentMethod": "Card"
+  },
+  {
+    "OrderID": 40009,
+    "requestID": 30004,
+    "status": "Preparing",
+    "OrderDate": "2024-09-24T08:00:00Z",
+    "items": [
+      {
+        "itemID": 20001,
+        "quantity": 18
+      },
+      {
+        "itemID": 20004,
+        "quantity": 10
+      }
+    ],
+    "customizations": "All vegetables sliced uniformly",
+    "deliveryDate": "2024-09-27T13:30:00Z",
+    "deliveryAddress": "Brown's Bistro, 456 Oak Ave, Pasig City",
+    "deliveryTimeRange": "Afternoon",
+    "pointPersonID": 10002,
+    "paymentMethod": "Card"
+  },
+  {
+    "OrderID": 40010,
+    "requestID": 30005,
+    "status": "Waiting Approval",
+    "OrderDate": "2024-09-24T13:15:00Z",
     "items": [
       {
         "itemID": 20002,
         "quantity": 20
+      },
+      {
+        "itemID": 20003,
+        "quantity": 15
       }
     ],
-    "customizations": "Julienned",
-    "deliveryDate": "2024-09-26T16:30:00Z",
-    "deliveryAddress": "404 Cedar Ct, Sometown, ST 86420",
-    "deliveryTimeRange": "Evening",
-    "pointPersonID": 10003,
+    "customizations": "Carrots julienned, spinach trimmed",
+    "deliveryDate": "2024-09-27T09:00:00Z",
+    "deliveryAddress": "Brown's Bistro, 456 Oak Ave, Pasig City",
+    "deliveryTimeRange": "Morning",
+    "pointPersonID": 10002,
     "paymentMethod": "Card"
   },
   {
-    "OrderID": 40008,
-    "requestID": 30003,
-    "status": "Dispatched",
-    "OrderDate": "2024-09-25T10:45:00Z",
+    "OrderID": 40011,
+    "requestID": 30005,
+    "status": "Waiting Approval",
+    "OrderDate": "2024-09-24T13:15:00Z",
+    "items": [
+      {
+        "itemID": 20002,
+        "quantity": 20
+      },
+      {
+        "itemID": 20003,
+        "quantity": 15
+      }
+    ],
+    "customizations": "Carrots julienned, spinach trimmed",
+    "deliveryDate": "2024-09-28T09:00:00Z",
+    "deliveryAddress": "Brown's Bistro, 456 Oak Ave, Pasig City",
+    "deliveryTimeRange": "Morning",
+    "pointPersonID": 10002,
+    "paymentMethod": "Card"
+  },
+  {
+    "OrderID": 40012,
+    "requestID": 30006,
+    "status": "Waiting Approval",
+    "OrderDate": "2024-09-24T15:30:00Z",
     "items": [
       {
         "itemID": 20004,
-        "quantity": 9
-      },
-      {
-        "itemID": 20005,
-        "quantity": 6
-      }
-    ],
-    "customizations": "Quartered",
-    "deliveryDate": "2024-09-25T15:00:00Z",
-    "deliveryAddress": "505 Dogwood Dr, Elsewhere, EL 75319",
-    "deliveryTimeRange": "Afternoon",
-    "pointPersonID": 10004,
-    "paymentMethod": "Cash on Delivery"
-  },
-  {
-    "OrderID": 40009,
-    "requestID": 30003,
-    "status": "Delivered",
-    "OrderDate": "2024-09-25T08:00:00Z",
-    "items": [
-      {
-        "itemID": 20001,
-        "quantity": 15
-      },
-      {
-        "itemID": 20002,
-        "quantity": 10
-      }
-    ],
-    "customizations": "Minced",
-    "deliveryDate": "2024-09-25T12:45:00Z",
-    "deliveryAddress": "606 Elm Rd, Somewhere, SW 13579",
-    "deliveryTimeRange": "Morning",
-    "pointPersonID": 10004,
-    "paymentMethod": "Mobile Money"
-  },
-  {
-    "OrderID": 40010,
-    "requestID": 30003,
-    "status": "Waiting Approval",
-    "OrderDate": "2024-09-25T16:30:00Z",
-    "items": [
-      {
-        "itemID": 20003,
         "quantity": 12
       },
       {
@@ -208,11 +256,165 @@
         "quantity": 8
       }
     ],
-    "customizations": "Grated",
-    "deliveryDate": "2024-09-27T09:00:00Z",
-    "deliveryAddress": "707 Fir Ln, Anyplace, AP 24680",
+    "customizations": "Bell peppers and cucumbers sliced",
+    "deliveryDate": "2024-09-27T11:00:00Z",
+    "deliveryAddress": "Brown's Bistro, 456 Oak Ave, Pasig City",
     "deliveryTimeRange": "Morning",
-    "pointPersonID": 10005,
-    "paymentMethod": "Card"
+    "pointPersonID": 10002,
+    "paymentMethod": "GCash"
+  },
+  {
+    "OrderID": 40013,
+    "requestID": 30006,
+    "status": "Waiting Approval",
+    "OrderDate": "2024-09-24T15:30:00Z",
+    "items": [
+      {
+        "itemID": 20004,
+        "quantity": 12
+      },
+      {
+        "itemID": 20005,
+        "quantity": 8
+      }
+    ],
+    "customizations": "Bell peppers and cucumbers sliced",
+    "deliveryDate": "2024-09-28T11:00:00Z",
+    "deliveryAddress": "Brown's Bistro, 456 Oak Ave, Pasig City",
+    "deliveryTimeRange": "Morning",
+    "pointPersonID": 10002,
+    "paymentMethod": "GCash"
+  },
+  {
+    "OrderID": 40014,
+    "requestID": 30007,
+    "status": "Delivered",
+    "OrderDate": "2024-09-23T09:00:00Z",
+    "items": [
+      {
+        "itemID": 20001,
+        "quantity": 25
+      },
+      {
+        "itemID": 20002,
+        "quantity": 15
+      }
+    ],
+    "customizations": "Tomatoes and carrots diced",
+    "deliveryDate": "2024-09-25T10:00:00Z",
+    "deliveryAddress": "Garden Cafe, 789 Pine St, Quezon City",
+    "deliveryTimeRange": "Morning",
+    "pointPersonID": 10002,
+    "paymentMethod": "Bank Transfer"
+  },
+  {
+    "OrderID": 40015,
+    "requestID": 30007,
+    "status": "Preparing",
+    "OrderDate": "2024-09-23T09:00:00Z",
+    "items": [
+      {
+        "itemID": 20001,
+        "quantity": 25
+      },
+      {
+        "itemID": 20002,
+        "quantity": 15
+      }
+    ],
+    "customizations": "Tomatoes and carrots diced",
+    "deliveryDate": "2024-09-26T10:00:00Z",
+    "deliveryAddress": "Garden Cafe, 789 Pine St, Quezon City",
+    "deliveryTimeRange": "Morning",
+    "pointPersonID": 10002,
+    "paymentMethod": "Bank Transfer"
+  },
+  {
+    "OrderID": 40016,
+    "requestID": 30008,
+    "status": "Waiting Approval",
+    "OrderDate": "2024-09-24T11:45:00Z",
+    "items": [
+      {
+        "itemID": 20003,
+        "quantity": 18
+      },
+      {
+        "itemID": 20004,
+        "quantity": 22
+      }
+    ],
+    "customizations": "Spinach whole, bell peppers julienned",
+    "deliveryDate": "2024-09-27T14:00:00Z",
+    "deliveryAddress": "Garden Cafe, 789 Pine St, Quezon City",
+    "deliveryTimeRange": "Afternoon",
+    "pointPersonID": 10002,
+    "paymentMethod": "Bank Transfer"
+  },
+  {
+    "OrderID": 40017,
+    "requestID": 30008,
+    "status": "Waiting Approval",
+    "OrderDate": "2024-09-24T11:45:00Z",
+    "items": [
+      {
+        "itemID": 20003,
+        "quantity": 18
+      },
+      {
+        "itemID": 20004,
+        "quantity": 22
+      }
+    ],
+    "customizations": "Spinach whole, bell peppers julienned",
+    "deliveryDate": "2024-09-28T14:00:00Z",
+    "deliveryAddress": "Garden Cafe, 789 Pine St, Quezon City",
+    "deliveryTimeRange": "Afternoon",
+    "pointPersonID": 10002,
+    "paymentMethod": "Bank Transfer"
+  },
+  {
+    "OrderID": 40018,
+    "requestID": 30009,
+    "status": "Waiting Approval",
+    "OrderDate": "2024-09-24T14:20:00Z",
+    "items": [
+      {
+        "itemID": 20002,
+        "quantity": 15
+      },
+      {
+        "itemID": 20005,
+        "quantity": 20
+      }
+    ],
+    "customizations": "Carrots julienned, cucumbers thinly sliced",
+    "deliveryDate": "2024-09-27T15:00:00Z",
+    "deliveryAddress": "Garden Cafe, 789 Pine St, Quezon City",
+    "deliveryTimeRange": "Afternoon",
+    "pointPersonID": 10002,
+    "paymentMethod": "Bank Transfer"
+  },
+  {
+    "OrderID": 40019,
+    "requestID": 30009,
+    "status": "Waiting Approval",
+    "OrderDate": "2024-09-24T14:20:00Z",
+    "items": [
+      {
+        "itemID": 20002,
+        "quantity": 15
+      },
+      {
+        "itemID": 20005,
+        "quantity": 20
+      }
+    ],
+    "customizations": "Carrots julienned, cucumbers thinly sliced",
+    "deliveryDate": "2024-09-28T15:00:00Z",
+    "deliveryAddress": "Garden Cafe, 789 Pine St, Quezon City",
+    "deliveryTimeRange": "Afternoon",
+    "pointPersonID": 10002,
+    "paymentMethod": "Bank Transfer"
   }
 ]
