@@ -31,12 +31,9 @@ exports.createAlert = async (data) => {
         });
 
         // Create system message for chat notification
-        let messageText = `⚠️ Alert: ${data.concernType}\n Details:${data.details}`;
+        let messageText = `⚠️ System-generated Alert: ${data.concernType}\n Details:${data.details}`;
         if (data.orderID) {
-            messageText = `⚠️ Alert: ${data.concernType} - Order #${data.orderID}\n${data.details}`;
-        }
-        if (data.concernType === 'Cancellation') {
-            messageText = `🚫 ${data.byCustomer ? 'Customer' : 'System'} Cancellation Alert:\n${data.details}`;
+            messageText = `⚠️ System-generated Alert: ${data.concernType} - Order #${data.orderID}\n${data.details}`;
         }
 
         const message = new Message({
