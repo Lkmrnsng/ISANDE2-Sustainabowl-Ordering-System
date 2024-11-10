@@ -13,7 +13,7 @@ const OrderSchema = new mongoose.Schema({
     }],
     customizations: { type: String },
     pointPersonID: { type: Number },
-    paymentMethod: { type: String }, // Cash on Delivery, Card, Mobile Money
+    paymentMethod: { type: String }, // Card, Bank Transfer, GCash
 });
 
 const Order = mongoose.model('orders', OrderSchema);

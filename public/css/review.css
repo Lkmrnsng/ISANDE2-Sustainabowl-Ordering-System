@@ -183,6 +183,11 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  
+}
+
+.edit-btn{
+  margin-left: 10rem;
 }
 
 .back-btn {

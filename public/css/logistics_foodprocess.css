@@ -2,42 +2,6 @@
     display: flex;
 }
 
-/* Sidebar Styles */
-.sidebar {
-    width: 200px;
-    background-color: #f0f0f0;
-    padding: 20px;
-    height: calc(100vh - 60px); /* Subtracting navbar height */
-    position: fixed;
-    top: 60px; /* Adjust this based on the height of your navbar */
-    left: 0;
-    z-index: 10;
-    overflow-y: auto; /* To allow scrolling if sidebar content overflows */
-}
-
-.sidebar h2 {
-    font-size: 18px;
-    color: #018D9A;
-    margin-bottom: 10px;
-}
-
-.sidebar ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.sidebar ul li {
-    margin-bottom: 15px;
-}
-
-.sidebar ul li a {
-    text-decoration: none;
-    color: #333;
-}
-
-.sidebar ul li a:hover {
-    color: #018D9A;
-}
 
 .dashboard-container {
     display: flex;

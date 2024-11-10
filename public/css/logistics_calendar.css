@@ -15,35 +15,7 @@ body {
     background-color: #fff;
 }
 
-.sidebar {
-    width: 200px;
-    background-color: #f0f0f0;
-    padding: 20px;
-    height: calc(100vh - 60px); /* Adjust for navbar height */
-    position: fixed;
-    top: 60px; /* If you have a fixed navbar, adjust the top offset */
-    left: 0;
-    z-index: 10;
-    overflow-y: auto;
-}
 
-.sidebar ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.sidebar ul li {
-    margin-bottom: 15px;
-}
-
-.sidebar ul li a {
-    text-decoration: none;
-    color: #333;
-}
-
-.sidebar ul li a:hover {
-    color: #018D9A;
-}
 
 /* Adjust the main container to account for the sidebar */
 .dashboard-container {

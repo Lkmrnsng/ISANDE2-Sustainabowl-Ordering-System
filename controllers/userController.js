@@ -13,13 +13,26 @@ async function viewProfile(req, res) {
             });
         }
 
-        res.render('user/profile', {
-            title: 'My Account',
-            css: ['user.css', "customer.css"],
-            layout: 'customer',
-            user: user,
-            active: 'account'
-        });
+        //Set Layout based on user type lowercase characters
+        let layoutString = 'main';
+        if (user.usertype === 'Customer') {
+            layoutString = 'customer';
+        }
+        else if (user.usertype === 'Sales') {
+            layoutString = 'sales';
+        }
+        else if (user.usertype === 'Logistics') {
+            layoutString = 'logistics';
+        }
+
+            res.render('user/profile', {
+                title: 'My Account',
+                css: ['user.css', "customer.css"],
+                layout: layoutString,
+                user: user,
+                active: 'account'
+            });
+
     } catch (error) {
         console.error('Error viewing profile:', error);
         res.status(500).render('error', {

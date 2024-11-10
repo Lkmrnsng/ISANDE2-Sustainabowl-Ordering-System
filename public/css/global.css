@@ -206,3 +206,48 @@ footer img{
   border-radius: 50%;
   border: 2px solid var(--green);
 }
+
+/* Sidebar Styles */
+.sidebar {
+  width: 200px;
+  background-color: #f0f0f0;
+  padding: 20px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 70px;
+  bottom: 0;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  z-index: 5;
+}
+
+.sidebar h2 {
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  margin-bottom: 15px;
+}
+
+.sidebar ul li a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.sidebar ul li a:hover {
+  color: #C4CF24;
+}
+
+.sidebar ul li a.active {
+  color: #C4CF24;
+  font-weight: 600;
+}
