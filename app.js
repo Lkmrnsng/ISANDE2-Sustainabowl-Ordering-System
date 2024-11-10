@@ -24,6 +24,7 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const registerRoutes = require('./routes/registerRoutes');
 const cancelRoutes = require('./routes/cancelRoutes');
 const userRoutes = require('./routes/userRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 
 // Import Models
 const User = require('./models/User');
@@ -270,6 +271,7 @@ app.use('/review', reviewRoutes);
 app.use('/register', registerRoutes);
 app.use('/cancel', cancelRoutes);
 app.use('/user', userRoutes);
+app.use('/reports', reportRoutes);
 
 // ishi test
 // app.get('/', (req, res) => {

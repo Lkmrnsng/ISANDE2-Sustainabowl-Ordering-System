@@ -1,0 +1,107 @@
+<div class="report">
+    <div class="report-header">
+        <h1>SUSTAINABOWL</h1>
+        <h2>MONTHLY ORDER REPORT</h2>
+        <h3>FOR MONTH {{month}}</h3>
+    </div>
+
+    <div class="customer-info">
+        <h3>FOR {{customer.name}}</h3>
+        <p>TO {{customer.restaurantName}}</p>
+    </div>
+
+    <div class="summary-stats">
+        <div class="stat-group">
+            <div class="stat">
+                <label>NO. DELIVERIES</label>
+                <span>{{summary.totalDeliveries}}</span>
+            </div>
+            <div class="stat">
+                <label>NO. CANCELLED</label>
+                <span>{{summary.cancelledDeliveries}}</span>
+            </div>
+            <div class="stat">
+                <label>AVE. ORDER COST</label>
+                <span>₱{{formatNumber summary.averageOrderCost 2}}</span>
+            </div>
+            <div class="stat">
+                <label>AVE. WEEKLY DELIVERIES</label>
+                <span>{{summary.averageWeeklyDeliveries}}</span>
+            </div>
+        </div>
+        <div class="stat-group">
+            <div class="stat">
+                <label>COMMONLY BOUGHT</label>
+                <span>{{commonItems}}</span>
+            </div>
+            <div class="stat">
+                <label>COMMON SCHEDULE</label>
+                <span>{{commonSchedule}}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="order-history">
+        <h3>ORDER HISTORY</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>ORDER ID</th>
+                    <th>REQUESTED</th>
+                    <th>DELIVERED</th>
+                    <th>SCHEDULE</th>
+                    <th>PRODUCE ORDERED</th>
+                    <th>PAYMENT</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each orderSummary}}
+                <tr>
+                    <td>{{orderId}}</td>
+                    <td>{{formatDate requestDate}}</td>
+                    <td>{{formatDate deliveryDate}}</td>
+                    <td>{{schedule}}</td>
+                    <td>{{items}}</td>
+                    <td>{{payment}}</td>
+                    <td>₱{{formatNumber total 2}}</td>
+                </tr>
+                {{/each}}
+                <tr class="total-row">
+                    <td colspan="6">TOTAL</td>
+                    <td>₱{{formatNumber totalAmount 2}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="order-summary">
+        <h3>ORDER SUMMARY</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>PRODUCE</th>
+                    <th>KG ORDERED</th>
+                    <th>COST</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each produceSummary}}
+                <tr>
+                    <td>{{name}}</td>
+                    <td>{{quantity}}</td>
+                    <td>₱{{formatNumber cost 2}}</td>
+                </tr>
+                {{/each}}
+                <tr class="total-row">
+                    <td colspan="2">TOTAL</td>
+                    <td>₱{{formatNumber totalAmount 2}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="report-footer">
+        <p>Generated: {{generatedDate}}</p>
+    </div>
+</div>
