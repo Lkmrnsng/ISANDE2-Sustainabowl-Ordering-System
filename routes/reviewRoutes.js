@@ -5,15 +5,9 @@ const Review = require('../models/Review');
 
 // Authentication middleware
 const isAuthenticated = (req, res, next) => {
-    // if (!req.session.userId) {
-    //     if (req.xhr || req.headers.accept?.includes('json')) {
-    //         return res.status(401).json({ error: 'Authentication required' });
-    //     }
-    //     return res.redirect('/login');
-    // }
-    // next();
-
-    //No LOGIN YET
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
     next();
 };
 
@@ -25,7 +19,7 @@ const isSalesTeam = (req, res, next) => {
         }
         return res.status(403).render('error', {
             message: 'Access denied',
-            layout: 'main'
+            layout: 'bodyOnly'
         });
     }
     next();
