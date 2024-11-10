@@ -97,10 +97,11 @@ const cancelController = {
             const customerId = parseInt(req.session.userId);
             const { orderId, reason } = req.body;
 
+        console.log('Request body:', req.body);
+
             // Find and verify the order
             const order = await Order.findOne({
                 OrderID: orderId,
-                customerID: customerId,
                 status: 'Preparing'
             });
 
