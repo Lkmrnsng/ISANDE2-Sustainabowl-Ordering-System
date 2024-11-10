@@ -16,6 +16,7 @@ initializePassport(passport);
 
 /* Imported Routes */
 const customerRoutes = require('./routes/customerRoutes');
+const logisticsRoutes = require('./routes/logisticsRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const marketplaceRoutes = require('./routes/marketplaceRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
@@ -259,6 +260,7 @@ app.use((req, res, next) => {
 });
 
 // Routes
+app.use('/logistics', logisticsRoutes);
 app.use('/customer', customerRoutes);
 app.use('/chat', chatRoutes);
 app.use('/marketplace', marketplaceRoutes);

@@ -61,6 +61,12 @@
     left: 0;
 }
 
+.header-container a{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 h2{
     font-size: 36px;
 }
@@ -93,6 +99,7 @@ align-self: center;
 .user-dropdown {
   position: relative;
   align-self: center;
+  display: flex;
 }
 
 

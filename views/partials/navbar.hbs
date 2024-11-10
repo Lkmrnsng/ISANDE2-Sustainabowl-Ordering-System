@@ -5,39 +5,31 @@
             alt="Sustainabowl Logo" 
             class="logo"
         >
+        <p>Sustainabowl</p>
         </a>
+            {{#if user}}
             <ul class="nav-links">
-                <li><a href="/marketplace">Buy Produce</a></li>
-                <li><a href="/ride/driverhome">Notifications</a></li>
+                {{#if user.usertype}}
+                    {{#if (eq user.usertype "Customer")}}
+                        <li>Customer</li>
+                    {{else if (eq user.usertype "Logistics")}}
+                        <li>Logistics</li>
+                    {{else if (eq user.usertype "Sales")}}
+                        <li>Sales</li>
+                    {{/if}}
+                {{/if}}
+                                    
+
                 <li class="user-dropdown">
-                    {{#if user}}
                     <img id="user-icon" class="usericon-header" src={{user.profilePicture}}>
                     <ul class="dropdown-menu" id="dropdown-menu">
-                        {{#if user.isVerifiedPassenger}}
-                        <li class="name"> {{user.name}}</li>
-                        <li><a href="/booking/myBookings" class="dropdown-item">My Bookings</a></li>
-                            {{#if (eq user.isVerifiedDriver false)}}
-                            <li><a href="/user/newdriver" class="dropdown-item">Be a Driver</a></li>
-                            {{/if}}
-                        {{/if}}
-
-                        {{#if user.isVerifiedDriver}}
-                            <li><a href="/ride/myRides" class="dropdown-item">My Rides</a></li>
-                            <li><a href="/booking/dashboard" class="dropdown-item">Driver Dashboard</a></li>
-                        {{/if}}    
                         <li><a href="/user/profile" class="dropdown-item">View Account</a></li>
                         <li><a onclick="logoutUser()" class="dropdown-item">Logout</a></li>
                     </ul>
 
-                    {{else}}
-                    <a href="#" id="user-icon"><i class="fa-solid fa-user"></i></a>
-                    <ul class="dropdown-menu" id="dropdown-menu">
-                        <li><a href="/login" class="dropdown-item">Login</a></li>
-                        <li><a href="/register" class="dropdown-item">Register</a></li>
-                    </ul>
-                    {{/if}}
                 </li>     
             </ul>
+            {{/if}}
     </div>
 </header>
 
