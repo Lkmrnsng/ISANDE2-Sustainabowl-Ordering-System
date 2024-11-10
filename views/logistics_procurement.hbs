@@ -1,0 +1,160 @@
+<div class="main-layout">
+    <div class="procurement-container">
+        <div class="header-section">
+            <h2>Procurement Shipment</h2>
+            <button class="create-btn" onclick="showModal('addShipmentModal')">Create +</button>
+        </div>
+
+        <div class="procurement-table-container">
+            <table class="procurement-table">
+                <thead>
+                    <tr>
+                        <th>Quantity</th>
+                        <th>Items</th>
+                        <th>Farm</th>
+                        <th>Receive by Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each shipments as |shipment|}}
+                    <tr>
+                        <td>{{shipment.quantity}}</td>
+                        <td>{{shipment.items}}</td>
+                        <td>{{shipment.farm}}</td>
+                        <td>{{shipment.receiveDate}}</td>
+                        <td>{{shipment.status}}</td>
+                        <td class="action-buttons">
+                            <button class="book-btn" onclick="showModal('deliveryAgencyModal', {{shipment.id}})">Book Shipment</button>
+                            <button class="complete-btn" onclick="showModal('completeShipmentModal', {{shipment.id}})">Complete</button>
+                            <button class="contact-btn">Contact ></button>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+            <div class="pagination">
+                <span>Page {{currentPage}} of {{totalPages}}</span>
+                <div class="pagination-controls">
+                    <button class="prev-page-btn" {{#unless hasPrevPage}}disabled{{/unless}}><</button>
+                    <button class="next-page-btn" {{#unless hasNextPage}}disabled{{/unless}}>></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="recently-completed-section">
+            <div class="header-section">
+                <h2>Recently Completed</h2>
+                <button class="warehouse-btn" onclick="navigateToWarehouse()">Warehouse ></button>
+            </div>
+            <table class="completed-table">
+                <thead>
+                    <tr>
+                        <th>Quantity</th>
+                        <th>Items</th>
+                        <th>Farm</th>
+                        <th>Received Date</th>
+                        <th>Discarded Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each completedShipments as |shipment|}}
+                    <tr>
+                        <td>{{shipment.quantity}}</td>
+                        <td>{{shipment.items}}</td>
+                        <td>{{shipment.farm}}</td>
+                        <td>{{shipment.receivedDate}}</td>
+                        <td>{{shipment.discardedAmount}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add New Shipment Modal -->
+<div id="addShipmentModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add New Shipment</h3>
+            <span class="close" onclick="hideModal('addShipmentModal')">&times;</span>
+        </div>
+        <form id="addShipmentForm">
+            <div class="form-group">
+                <label>Quantity</label>
+                <input type="text" name="quantity" required>
+            </div>
+            <div class="form-group">
+                <label>Items</label>
+                <input type="text" name="items" required>
+            </div>
+            <div class="form-group">
+                <label>Farm</label>
+                <input type="text" name="farm" required>
+            </div>
+            <div class="form-group">
+                <label>Receive Date</label>
+                <input type="date" name="receiveDate" required>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="cancel-btn" onclick="hideModal('addShipmentModal')">Cancel</button>
+                <button type="submit" class="confirm-btn">Confirm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Select Delivery Agency Modal -->
+<div id="deliveryAgencyModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Select Delivery Agency</h3>
+            <span class="close" onclick="hideModal('deliveryAgencyModal')">&times;</span>
+        </div>
+        <form id="deliveryAgencyForm">
+            <div class="form-group">
+                <label>Agency</label>
+                <select name="agency" required>
+                    <option value="">--</option>
+                    {{#each agencies as |agency|}}
+                    <option value="{{agency.id}}">{{agency.name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="cancel-btn" onclick="hideModal('deliveryAgencyModal')">Cancel</button>
+                <button type="submit" class="confirm-btn">Confirm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Complete Shipment Modal -->
+<div id="completeShipmentModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Complete Shipment</h3>
+            <span class="close" onclick="hideModal('completeShipmentModal')">&times;</span>
+        </div>
+        <form id="completeShipmentForm">
+            <div class="form-group">
+                <label>Accepted Kg</label>
+                <input type="number" name="acceptedKg" required>
+            </div>
+            <div class="form-group">
+                <label>Discarded Kg</label>
+                <input type="number" name="discardedKg" required>
+            </div>
+            <div class="form-group">
+                <label>Reason</label>
+                <input type="text" name="reason" required>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="cancel-btn" onclick="hideModal('completeShipmentModal')">Cancel</button>
+                <button type="submit" class="confirm-btn">Confirm</button>
+            </div>
+        </form>
+    </div>
+</div>

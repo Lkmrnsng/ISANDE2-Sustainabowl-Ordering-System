@@ -72,55 +72,124 @@
         </div>
         </div>
 
-        <div class="procurement-section">
-            <h2>Procurement Shipments</h2>
-            <div class="shipment-grid">
-                <div class="shipment-header">
-                    <span>Quantity</span>
-                    <span>Items</span>
-                    <span>Farm</span>
-                    <span>Receive by Date</span>
-                    <span>Status</span>
-                </div>
-                {{#each shipments as |shipment|}}
-                    <div class="shipment-row">
-                        <span>{{shipment.quantity}}</span>
-                        <span>{{shipment.items}}</span>
-                        <span>{{shipment.farm}}</span>
-                        <span>{{shipment.date}}</span>
-                        <span>{{shipment.status}}</span>
-                    </div>
-                {{/each}}
-            </div>
-            <button class="create-shipment-btn">Create +</button>
+        
+    <div class="section">
+        <div class="section-header">
+            <h2 class="section-title">Procurement Shipments</h2>
+            <button class="create-button">Create +</button>
         </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Quantity</th>
+                    <th>Items</th>
+                    <th>Form</th>
+                    <th>Receive by Date</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td><button class="action-button">Book Shipment</button></td>
+                    <td>
+                        <span class="status-pill status-complete">Complete</span>
+                        <span style="margin-left: 10px;">Contact ›</span>
+                    </td>
+                </tr>
+                <!-- Repeat similar rows -->
+            </tbody>
+        </table>
+    </div>
 
-        <div class="delivery-tasks-section">
-            <h2>Delivery Tasks</h2>
-            <div class="delivery-table">
-                <div class="delivery-header">
-                    <span>Request ID</span>
-                    <span>Weight (kg)</span>
-                    <span>Delivery Status</span>
-                    <span>Payment Status</span>
-                    <span>Deliver By</span>
-                    <span>Actions</span>
-                </div>
-                {{#each deliveries as |delivery|}}
-                    <div class="delivery-row">
-                        <span>{{delivery.id}}</span>
-                        <span>{{delivery.weight}}</span>
-                        <span>{{delivery.deliveryStatus}}</span>
-                        <span>{{delivery.paymentStatus}}</span>
-                        <span>{{delivery.deliverBy}}</span>
-                        <span>
-                            <button class="book-delivery-btn">Book Delivery</button>
-                            <button class="complete-delivery-btn">Complete</button>
-                        </span>
-                    </div>
-                {{/each}}
+    <div class="section">
+        <div class="section-header">
+            <h2 class="section-title">Food Processing</h2>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Name</th>
+                    <th>To Process</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>---</td>
+                    <td>Lola Bautista</td>
+                    <td>20/20</td>
+                    <td>
+                        <span class="status-pill status-in-progress">In Progress</span>
+                        <span class="info-icon">ⓘ</span>
+                    </td>
+                </tr>
+                <!-- Repeat similar rows -->
+            </tbody>
+        </table>
+        <div class="pagination">
+            <span>Page 1 of 3</span>
+            <div class="navigation-buttons">
+                <button id="prevWeek" class="nav-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <button id="nextWeek" class="nav-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
             </div>
         </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 class="section-title">Delivery Tasks</h2>
+            <input type="search" class="search-bar" placeholder="Search...">
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Weight (kg)</th>
+                    <th>Delivery Status</th>
+                    <th>Payment Status</th>
+                    <th>Deliver By</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1000001</td>
+                    <td>55</td>
+                    <td>Not Booked</td>
+                    <td>Not Paid</td>
+                    <td>July 31, 2024</td>
+                    <td>
+                        <button class="action-button">Book Delivery</button>
+                        <span class="status-pill status-complete">Complete</span>
+                        <span class="info-icon">ⓘ</span>
+                    </td>
+                </tr>
+                <!-- Repeat similar rows -->
+            </tbody>
+        </table>
+        <div class="pagination">
+            <span>Page 1 of 3</span>
+            <div class="navigation-buttons">
+                <button id="prevWeek" class="nav-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <button id="nextWeek" class="nav-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
     </main>
 </div>
 
