@@ -1,0 +1,207 @@
+/* Main layout */
+.main-layout {
+    display: flex;
+}
+
+.procurement-container {
+    margin-left: 220px;
+    padding: 20px;
+    margin-top: 100px;
+    width: 100%;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Tables */
+.procurement-table-container, 
+.recently-completed-section {
+    background-color: #F5F5F5;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.procurement-table,
+.completed-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.procurement-table th,
+.procurement-table td,
+.completed-table th,
+.completed-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.procurement-table th,
+.completed-table th {
+    background-color: var(--turquoise);
+    color: white;
+    font-weight: bold;
+}
+
+/* Buttons */
+.create-btn {
+    background-color: var(--green);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.book-btn,
+.complete-btn,
+.contact-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.book-btn {
+    background-color: var(--green);
+    color: white;
+}
+
+.complete-btn {
+    background-color: var(--dark-magenta);
+    color: white;
+}
+
+.contact-btn {
+    background-color: transparent;
+    color: var(--dark-magenta);
+}
+
+.warehouse-btn {
+    background-color: transparent;
+    color: var(--dark-magenta);
+    border: none;
+    cursor: pointer;
+}
+
+/* Modals */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.close {
+    cursor: pointer;
+    font-size: 24px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.cancel-btn,
+.confirm-btn {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.cancel-btn {
+    background-color: #f5f5f5;
+}
+
+.confirm-btn {
+    background-color: var(--green);
+    color: white;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.prev-page-btn,
+.next-page-btn {
+    background-color: var(--green);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.prev-page-btn:disabled,
+.next-page-btn:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .procurement-container {
+        margin-left: 120px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+}

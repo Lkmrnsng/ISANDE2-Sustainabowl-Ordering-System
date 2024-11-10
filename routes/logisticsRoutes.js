@@ -9,6 +9,7 @@ router.get('/foodprocess', logisticsController.getFoodProcessView);
 router.get('/delivery', logisticsController.getDeliveryView);
 router.get('/warehouse', logisticsController.getWarehouseView);
 router.get('/partners', logisticsController.getPartnersView);
+router.get('/procurement',logisticsController.getProcurementView);
 router.get('/sendalert', logisticsController.getSendAlertView);
 
 
