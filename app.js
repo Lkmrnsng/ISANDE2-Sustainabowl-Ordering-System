@@ -309,7 +309,14 @@ app.post('/login',
         } else {
             req.session.cookie.expires = false; // Cookie expires at end of session
         }
-      res.redirect('/customer/dashboard'); // TODO: Redirect to appropriate user dashboard
+      // TODO: Redirect to appropriate user dashboard
+        if (req.user.usertype === 'Customer') {
+            res.redirect('/customer/dashboard');
+        } else if (req.user.usertype === 'Logistics') {
+            res.redirect('/logistics/dashboard');
+        } else if (req.user.usertype === 'Sales') {
+            res.redirect('/sales/dashboard');
+        }
     }
 );
 
