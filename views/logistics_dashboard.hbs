@@ -23,17 +23,53 @@
             </div>
         </div>
 
-        <div class="weekly-tasklist">
-            <h2>Weekly Tasklist</h2>
-            <div class="tasklist-grid">
-                {{!-- Render the weekly tasks dynamically --}}
-                {{#each tasks as |task|}}
-                    <div class="task-card">
-                        <h3>{{task.title}}</h3>
-                        <p>{{task.time}}</p>
+        {{!-- views/weekly-tasks.hbs --}}
+        <div class="task-list-container">
+        <div class="task-list-wrapper">
+            <div class="task-list-header">
+            <div class="header-content">
+                <h1>Weekly Tasklist</h1>
+                <div class="navigation-buttons">
+                <button id="prevWeek" class="nav-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <button id="nextWeek" class="nav-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+                </div>
+            </div>
+            </div>
+
+            <div class="calendar-header" id="calendarHeader">
+            {{#each weekDays}}
+                <div class="calendar-header-cell {{#if isToday}}today{{/if}}">
+                <div class="day-name">{{dayName}}</div>
+                <div class="day-number">{{dayNumber}}</div>
+                </div>
+            {{/each}}
+            </div>
+
+            <div class="calendar-body" id="calendarBody">
+            {{#each weekDays}}
+                <div class="calendar-day-column" data-date="{{date}}">
+                {{#each tasks}}
+                    <div class="task-card" data-task-id="{{id}}">
+                    <div class="task-content">
+                        <button class="status-button {{#if completed}}completed{{else}}pending{{/if}}" onclick="toggleTaskStatus('{{../date}}', {{id}})">
+                        {{#if completed}}
+                            <svg class="status-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        {{else}}
+                            <svg class="status-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        {{/if}}
+                        </button>
+                        <span class="task-text {{#if completed}}completed{{/if}}">{{text}}</span>
+                    </div>
                     </div>
                 {{/each}}
+                </div>
+            {{/each}}
             </div>
+        </div>
         </div>
 
         <div class="procurement-section">
@@ -87,3 +123,5 @@
         </div>
     </main>
 </div>
+
+<script src="/js/dashboard.js"></script>
