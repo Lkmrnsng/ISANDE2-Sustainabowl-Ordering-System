@@ -10,9 +10,9 @@ const User = require('../models/User');
 const authMiddleware = {
     validateSession: (req, res, next) => {
         if (!req.session.userId) {
-            return res.status(401).json({ error: 'Unauthorized' });
+            return res.redirect('/login');
         }
-        req.session.userType = req.session.userId === 10002 ? 'Sales' : 'Customer';
+
         next();
     },
 
@@ -41,6 +41,16 @@ const authMiddleware = {
         } catch (error) {
             next(error);
         }
+    },
+
+    salesOnly: (req, res, next) => {
+        if (req.session.userType !== 'Sales') {
+            return res.render('error', {
+                message: 'Access denied',
+                layout: 'bodyOnly'
+            });
+        }
+        next();
     }
 };
 
@@ -52,6 +62,7 @@ router.get('/customer',
 
 router.get('/sales', 
     authMiddleware.validateSession,
+    authMiddleware.salesOnly,
     chatController.getSalesChatView
 );
 
@@ -116,12 +127,14 @@ router.get('/api/order/:orderId', async (req, res) => {
 // Add this route in chatRoutes.js
 router.put('/api/request/:requestId/status', 
     authMiddleware.validateSession,
+    authMiddleware.salesOnly,
     authMiddleware.validateRequest,
     chatController.updateRequestStatus
 );
 
 // Update single order
 router.put('/api/order/:orderId',
+    authMiddleware.salesOnly,
     authMiddleware.validateSession,
     async (req, res) => {
         try {
@@ -155,6 +168,7 @@ router.put('/api/order/:orderId',
 
 // Update all orders for a request
 router.put('/api/request/:requestId/orders',
+    authMiddleware.salesOnly,
     authMiddleware.validateSession,
     authMiddleware.validateRequest,
     async (req, res) => {
