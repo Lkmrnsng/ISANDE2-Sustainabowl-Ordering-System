@@ -19,7 +19,7 @@ async function getDashboardView(req, res) {
         if (originalRequests.length === 0) {
             return res.render('logistics_dashboard', {
                 title: 'Dashboard',
-                css: ['logistics_dashboard.css'],
+                css: ['logisales_dashboard.css'],
                 layout: 'logistics',
                 requests: [],
                 active: 'dashboard'

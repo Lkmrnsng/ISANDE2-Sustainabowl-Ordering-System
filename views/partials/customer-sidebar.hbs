@@ -1,13 +1,15 @@
 <div class="sidebar">
-    <h2>Main Menu</h2>
-    <ul>
-        <li><a href="/customer/dashboard" class="{{#if (eq active 'requests')}}active{{/if}}">My Requests</a></li>
-        <li><a href="/customer/orders" class="{{#if (eq active 'orders')}}active{{/if}}">My Orders</a></li>
-        <li><a href="/chat/customer" class="{{#if (eq active 'chat')}}active{{/if}}">Chats</a></li>
-        <li><a href="/review/my-reviews" class="{{#if (eq active 'reviews')}}active{{/if}}">My Reviews</a></li>
-        <li><a href="/cancel/" class="{{#if (eq active 'cancel')}}active{{/if}}">Cancel Orders/Requests</a></li>
-        <li><a href="/user/profile" class="{{#if (eq active 'account')}}active{{/if}}">Account</a></li>
+    <div class="items-container">
+        <ul>
+            <li><a href="/customer/dashboard" class="{{#if (eq active 'requests')}}active{{/if}}">My Requests</a></li>
+            <li><a href="/customer/orders" class="{{#if (eq active 'orders')}}active{{/if}}">My Orders</a></li>
+            <li><a href="/chat/customer" class="{{#if (eq active 'chat')}}active{{/if}}">Chats</a></li>
+            <li><a href="/review/my-reviews" class="{{#if (eq active 'reviews')}}active{{/if}}">My Reviews</a></li>
+            <li><a href="/cancel/" class="{{#if (eq active 'cancel')}}active{{/if}}">Cancel Orders/Requests</a></li>
+            <li><a href="/user/profile" class="{{#if (eq active 'account')}}active{{/if}}">Account</a></li>
 
-        <div ><a href="/marketplace" class ="place-request button-link"> Place a Request </a></div>
-    </ul>
+            <div class="place-request"><a href="/marketplace" class ="button-link"> Place a Request </a></div>
+        </ul>
+
+    </div>
 </div>

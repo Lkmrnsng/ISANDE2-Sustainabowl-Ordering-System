@@ -1,0 +1,155 @@
+<div class="dashboard-container">
+
+    <div class="requests-container">
+        <!-- All Requests Section -->
+        <section class="all-requests">
+            <h2>All Requests</h2>
+            <div class="summary-cards">
+                <div class="card">Delivered This Week: <h1>3</h1></div>
+                <div class="card">Top Produce Sold: <h1>Onion</h1></div>
+                <div class="card">Pending Requests: <h1>5</h1> </div>
+                <div class="card">Average Order Value: <h1>₱6,704.20</h1></div>
+            </div>
+            <div class="controls">
+                <div class="filters">
+                    <select>
+                        <option>Status: Pending</option>
+                        <option>Status: Approved</option>
+                    </select>
+                    <select>
+                        <option>Filter by</option>
+                        <option>Partner</option>
+                    </select>
+                    <select>
+                        <option>Sort by</option>
+                        <option>Date Ascending</option>
+                    </select>
+
+                </div>
+                <button>Cancel Request/s</button>
+            </div>
+            <table>
+            <thead>
+                <tr>
+                <th><input type="checkbox"></th>
+                <th>Request ID</th>
+                <th>SustainaPartner</th>
+                <th>Status</th>
+                <th>Date/s</th>
+                <th>Items</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each requests}}
+                <tr>
+                <td><input type="checkbox"></td>
+                <td>{{this.requestId}}</td>
+                <td>{{this.partner}}</td>
+                <td>{{this.status}}</td>
+                <td>{{this.dates}}</td>
+                <td>{{this.items}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+            </table>
+            <div class="pagination">
+            <p>Click on a request to view its details</p>
+            <div class="navigation-buttons">
+            <span>Page 1 of 3</span>
+                    <button id="prevWeek" class="nav-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    <button id="nextWeek" class="nav-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Request Details Section -->
+        <aside class="request-details">
+            <h2>Request Details</h2>
+            <div class="item-list">
+            {{#each selectedRequest.items}}
+            <div class="item">
+                <div class="placeholder-image"></div>
+                <p>{{this.name}}</p>
+                <p>{{this.quantity}} kg</p>
+                <p>₱{{this.price}}</p>
+            </div>
+            {{/each}}
+            </div>
+
+            <div class="summary">
+                <div class="summary-details">
+                    <p>Request Total:</p>
+                    <p class="attribute">₱500</p>
+                </div>
+                <div class="summary-details">
+                    <p>Status:</p>
+                    <p class="attribute">Prepared</p>
+                </div>
+            <button>View In Chat</button>
+            </div>
+        </aside>
+
+    </div>
+
+  <!-- SustainaPartners Section -->
+  <section class="sustaina-partners">
+    <h2>SustainaPartners</h2>
+    <div class="controls">
+        <div class="filters">
+            <select>
+                <option>Filter by</option>
+                <option>Location</option>
+            </select>
+            <select>
+                <option>Sort by</option>
+                <option>Total Requests</option>
+            </select>
+        </div>
+      <input type="text" placeholder="Search" />
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Point Person</th>
+          <th>Location</th>
+          <th>Total Reqs</th>
+          <th>Avg. Weekly Reqs</th>
+          <th>Cancel Rate</th>
+          <th>Client Since</th>
+          <th>Contact</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each partners}}
+        <tr>
+          <td>{{this.name}}</td>
+          <td>{{this.pointPerson}}</td>
+          <td>{{this.location}}</td>
+          <td>{{this.totalReqs}}</td>
+          <td>{{this.avgWeeklyReqs}}</td>
+          <td>{{this.cancelRate}}</td>
+          <td>{{this.clientSince}}</td>
+          <td><button>Contact</button></td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <div class="pagination">
+        <p>Click on a partner to view its details</p>
+      <div class="navigation-buttons">
+      <span>Page 1 of 3</span>
+            <button id="prevWeek" class="nav-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <button id="nextWeek" class="nav-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+        </div>
+    </div>
+  </section>
+</div>

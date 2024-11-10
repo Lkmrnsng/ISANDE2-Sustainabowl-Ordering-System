@@ -1,0 +1,192 @@
+<div class="main-layout">
+
+    <main class="dashboard-container">
+        <div class="metrics-overview">
+            <div class="metric-card">
+                <h2>Monthly Expenses:</h2>
+                <p>₱95,000</p>
+                <span>↑ 2.1%</span>
+            </div>
+            <div class="metric-card">
+                <h2>Deliveries Completed:</h2>
+                <p>14 this month</p>
+                <span>↑ 0.8%</span>
+            </div>
+            <div class="metric-card">
+                <h2>Unpackaged Deliveries:</h2>
+                <p>4</p>
+            </div>
+            <div class="metric-card">
+                <h2>Active Shipments:</h2>
+                <p>24</p>
+                <span>↑ 42%</span>
+            </div>
+        </div>
+
+        {{!-- views/weekly-tasks.hbs --}}
+        <div class="task-list-container">
+        <div class="task-list-wrapper">
+            <div class="task-list-header">
+            <div class="header-content">
+                <h1>Weekly Tasklist</h1>
+                <div class="navigation-buttons">
+                <button id="prevWeek" class="nav-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <button id="nextWeek" class="nav-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+                </div>
+            </div>
+            </div>
+
+            <div class="calendar-header" id="calendarHeader">
+            {{#each weekDays}}
+                <div class="calendar-header-cell {{#if isToday}}today{{/if}}">
+                <div class="day-name">{{dayName}}</div>
+                <div class="day-number">{{dayNumber}}</div>
+                </div>
+            {{/each}}
+            </div>
+
+            <div class="calendar-body" id="calendarBody">
+            {{#each weekDays}}
+                <div class="calendar-day-column" data-date="{{date}}">
+                {{#each tasks}}
+                    <div class="task-card" data-task-id="{{id}}">
+                    <div class="task-content">
+                        <button class="status-button {{#if completed}}completed{{else}}pending{{/if}}" onclick="toggleTaskStatus('{{../date}}', {{id}})">
+                        {{#if completed}}
+                            <svg class="status-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        {{else}}
+                            <svg class="status-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        {{/if}}
+                        </button>
+                        <span class="task-text {{#if completed}}completed{{/if}}">{{text}}</span>
+                    </div>
+                    </div>
+                {{/each}}
+                </div>
+            {{/each}}
+            </div>
+        </div>
+        </div>
+
+        <div class="details-container">
+        <!-- Requests Section -->
+        <section class="requests">
+            <h2>Requests</h2>
+            <div class="controls">
+            <select>
+                <option>Status: Pending</option>
+                <option>Status: Approved</option>
+                <option>Status: Declined</option>
+            </select>
+            <select>
+                <option>Filter by</option>
+                <option>Partner</option>
+                <option>Date</option>
+            </select>
+            <select>
+                <option>Sort by</option>
+                <option>Date Ascending</option>
+                <option>Date Descending</option>
+            </select>
+            <input type="text" placeholder="Search" />
+            </div>
+
+            <table>
+            <thead>
+                <tr>
+                <th>Request ID</th>
+                <th>SustainaPartner</th>
+                <th>Status</th>
+                <th>Date/s</th>
+                <th>Items</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each requests}}
+                <tr>
+                <td>{{this.requestId}}</td>
+                <td>{{this.partner}}</td>
+                <td>{{this.status}}</td>
+                <td>{{this.date}}</td>
+                <td>{{this.items}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+            </table>
+            <div class="pagination">
+            <span>Page 1 of 3</span>
+            <div class="navigation-buttons">
+                <button id="prevWeek" class="nav-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <button id="nextWeek" class="nav-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+            </div>
+        </section>
+
+        <!-- Warehouse Inventory Section -->
+        <section class="inventory">
+            <h2>Warehouse Inventory</h2>
+            <div class="data-container">
+
+                <table>
+                <thead>
+                    <tr>
+                    <th>Particular</th>
+                    <th>Available (kg)</th>
+                    <th>Reserved (kg)</th>
+                    <th>Total (kg)</th>
+                    <th>Incoming (kg)</th>
+                    <th>Incoming Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {{#each inventory}}
+                    <tr>
+                    <td>{{this.particular}}</td>
+                    <td>{{this.available}}</td>
+                    <td>{{this.reserved}}</td>
+                    <td>{{this.total}}</td>
+                    <td>{{this.incoming}}</td>
+                    <td>{{this.incomingDate}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+                </table>
+                <div class="stats">
+                    <div class="total-stock">
+                        <h3>342kg</h3>
+                        <p>Total Warehouse Stock</p>
+                    </div>
+                    <div class="reserved">
+                        <h3>17%</h3>
+                        <p>Warehouse Storage Reserved</p>
+                    </div>
+                </div>
+            </div>
+            <div class="pagination">
+                <span>Page 1 of 4</span>
+                <div class="navigation-buttons">
+                    <button id="prevWeek" class="nav-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    <button id="nextWeek" class="nav-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+        </div>
+
+
+        
+    </main>
+</div>
+
+<script src="/js/dashboard.js"></script>

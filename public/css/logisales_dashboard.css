@@ -174,6 +174,10 @@
     display: flex;
     gap: 0.5rem;
   }
+
+  .navigation-buttons svg{
+    display: flex;
+  }
   
   .nav-button {
     padding: 0.5rem;
@@ -319,3 +323,99 @@
       font-size: 0.75rem;
     }
   }
+
+  .details-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+    font-family: Arial, sans-serif;
+    color: #333;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .requests, .inventory {
+    background: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .controls select, .controls input[type="text"] {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+  
+  table th, table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .data-container {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+  }
+  
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    font-size: 0.9rem;
+    gap: 0.5rem;
+  }
+  
+  .pagination button {
+    padding: 0.5rem 0.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .pagination button:hover {
+    background: var(--green);
+  }
+  
+  .stats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .stats .total-stock, .stats .reserved {
+    background: #e9ecef;
+    padding: 1rem;
+    border-radius: 4px;
+    text-align: center;
+  }
+  
+  .stats h3 {
+    margin: 0;
+    font-size: 2rem;
+  }
+
+  .stats p {
+    margin: 0;
+    font-size: .7rem;
+  }
+  
