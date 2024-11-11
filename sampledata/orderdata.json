@@ -3,7 +3,6 @@
     "OrderID": 40001,
     "requestID": 30001,
     "status": "Waiting Approval",
-    "OrderDate": "2024-11-19T09:30:00Z",
     "items": [
       {
         "itemID": 20001,
@@ -25,7 +24,6 @@
     "OrderID": 40002,
     "requestID": 30002,
     "status": "Waiting Approval",
-    "OrderDate": "2024-11-18T10:15:00Z",
     "items": [
       {
         "itemID": 20001,
@@ -47,7 +45,6 @@
     "OrderID": 40003,
     "requestID": 30002,
     "status": "Waiting Approval",
-    "OrderDate": "2024-11-18T10:15:00Z",
     "items": [
       {
         "itemID": 20001,
@@ -69,7 +66,6 @@
     "OrderID": 40004,
     "requestID": 30003,
     "status": "Delivered",
-    "OrderDate": "2024-11-15T08:45:00Z",
     "items": [
       {
         "itemID": 20003,
@@ -85,13 +81,12 @@
     "deliveryAddress": "Doe's Diner, 123 Main St, Makati City",
     "deliveryTimeRange": "Evening",
     "pointPersonID": 10002,
-    "paymentMethod": "Cash on Delivery"
+    "paymentMethod": "GCash"
   },
   {
     "OrderID": 40005,
     "requestID": 30003,
     "status": "Delivered",
-    "OrderDate": "2024-11-15T08:45:00Z",
     "items": [
       {
         "itemID": 20003,
@@ -107,13 +102,12 @@
     "deliveryAddress": "Doe's Diner, 123 Main St, Makati City",
     "deliveryTimeRange": "Evening",
     "pointPersonID": 10002,
-    "paymentMethod": "Cash on Delivery"
+    "paymentMethod": "GCash"
   },
   {
     "OrderID": 40006,
     "requestID": 30003,
     "status": "Dispatched",
-    "OrderDate": "2024-11-15T08:45:00Z",
     "items": [
       {
         "itemID": 20003,
@@ -129,13 +123,12 @@
     "deliveryAddress": "Doe's Diner, 123 Main St, Makati City",
     "deliveryTimeRange": "Evening",
     "pointPersonID": 10002,
-    "paymentMethod": "Cash on Delivery"
+    "paymentMethod": "GCash"
   },
   {
     "OrderID": 40007,
     "requestID": 30003,
     "status": "Preparing",
-    "OrderDate": "2024-11-15T08:45:00Z",
     "items": [
       {
         "itemID": 20003,
@@ -151,13 +144,12 @@
     "deliveryAddress": "Doe's Diner, 123 Main St, Makati City",
     "deliveryTimeRange": "Evening",
     "pointPersonID": 10002,
-    "paymentMethod": "Cash on Delivery"
+    "paymentMethod": "GCash"
   },
   {
     "OrderID": 40008,
     "requestID": 30004,
     "status": "Delivered",
-    "OrderDate": "2024-09-24T08:00:00Z",
     "items": [
       {
         "itemID": 20001,
@@ -179,7 +171,6 @@
     "OrderID": 40009,
     "requestID": 30004,
     "status": "Preparing",
-    "OrderDate": "2024-09-24T08:00:00Z",
     "items": [
       {
         "itemID": 20001,
@@ -201,7 +192,6 @@
     "OrderID": 40010,
     "requestID": 30005,
     "status": "Waiting Approval",
-    "OrderDate": "2024-09-24T13:15:00Z",
     "items": [
       {
         "itemID": 20002,
@@ -223,7 +213,6 @@
     "OrderID": 40011,
     "requestID": 30005,
     "status": "Waiting Approval",
-    "OrderDate": "2024-09-24T13:15:00Z",
     "items": [
       {
         "itemID": 20002,
@@ -245,7 +234,6 @@
     "OrderID": 40012,
     "requestID": 30006,
     "status": "Waiting Approval",
-    "OrderDate": "2024-09-24T15:30:00Z",
     "items": [
       {
         "itemID": 20004,
@@ -267,7 +255,6 @@
     "OrderID": 40013,
     "requestID": 30006,
     "status": "Waiting Approval",
-    "OrderDate": "2024-09-24T15:30:00Z",
     "items": [
       {
         "itemID": 20004,
@@ -289,7 +276,6 @@
     "OrderID": 40014,
     "requestID": 30007,
     "status": "Delivered",
-    "OrderDate": "2024-09-23T09:00:00Z",
     "items": [
       {
         "itemID": 20001,
@@ -311,7 +297,6 @@
     "OrderID": 40015,
     "requestID": 30007,
     "status": "Preparing",
-    "OrderDate": "2024-09-23T09:00:00Z",
     "items": [
       {
         "itemID": 20001,
@@ -333,7 +318,6 @@
     "OrderID": 40016,
     "requestID": 30008,
     "status": "Waiting Approval",
-    "OrderDate": "2024-09-24T11:45:00Z",
     "items": [
       {
         "itemID": 20003,
@@ -355,7 +339,6 @@
     "OrderID": 40017,
     "requestID": 30008,
     "status": "Waiting Approval",
-    "OrderDate": "2024-09-24T11:45:00Z",
     "items": [
       {
         "itemID": 20003,
@@ -377,7 +360,6 @@
     "OrderID": 40018,
     "requestID": 30009,
     "status": "Waiting Approval",
-    "OrderDate": "2024-09-24T14:20:00Z",
     "items": [
       {
         "itemID": 20002,
@@ -399,7 +381,6 @@
     "OrderID": 40019,
     "requestID": 30009,
     "status": "Waiting Approval",
-    "OrderDate": "2024-09-24T14:20:00Z",
     "items": [
       {
         "itemID": 20002,

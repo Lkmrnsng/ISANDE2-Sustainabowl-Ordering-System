@@ -45,7 +45,9 @@
 
                         <div class="request-actions">
                             <a href="/chat/customer" class="button-link">Contact Sales</a>
+                            {{#unless (eq this.status 'Approved')}}
                             <button class="cancel-request" onclick="window.location.href = /cancel/">Cancel Request</button>
+                            {{/unless}}
                             {{#if (eq this.status 'Approved')}}
                                 <a href="/review/my-reviews" class="give-feedback">View Reviews</a>
                             {{/if}}

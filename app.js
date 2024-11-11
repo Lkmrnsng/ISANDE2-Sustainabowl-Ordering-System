@@ -24,6 +24,7 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const registerRoutes = require('./routes/registerRoutes');
 const cancelRoutes = require('./routes/cancelRoutes');
 const userRoutes = require('./routes/userRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 
 // Import Models
 const User = require('./models/User');
@@ -212,7 +213,9 @@ const hbs = exphbs.create({
             const d = new Date(date);
             if (isNaN(d.getTime())) return '';
             return d.toISOString().split('T')[0];
-        },
+        }, formatReportNumbers: function (number) {
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
     },
     runtimeOptions: {
         allowProtoPropertiesByDefault: true,
@@ -276,6 +279,7 @@ app.use('/review', reviewRoutes);
 app.use('/register', registerRoutes);
 app.use('/cancel', cancelRoutes);
 app.use('/user', userRoutes);
+app.use('/reports', reportRoutes);
 
 app.get('/', (req, res) => {
     // If user is authenticated, redirect to homepage

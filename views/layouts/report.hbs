@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {{> head}}
+    {{#if css}}
+        {{#each css}}
+            <link rel="stylesheet" href="/css/{{this}}">
+        {{/each}}
+    {{/if}}
+    <title>{{title}}</title>
+</head>
+<body class="report-body">
+    <div class="report-container">
+        <div class="report-actions">
+            <a href="javascript:history.back()" class="back-btn">← Back</a>
+            <a href="{{downloadUrl}}" class="download-btn">Download PDF</a>
+        </div>
+        {{{body}}}
+    </div>
+</body>
+</html>
