@@ -178,6 +178,12 @@ const hbs = exphbs.create({
         formatAmount: function (amount) {
             return amount.toLocaleString('en-US', { style: 'currency', currency: 'PHP' });
         },
+        format_number: function(number) {
+            return new Intl.NumberFormat('en-PH', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(number);
+        },
         toString: function (value) {
             return value ? value.toString() : '';
         },
@@ -271,19 +277,10 @@ app.use('/register', registerRoutes);
 app.use('/cancel', cancelRoutes);
 app.use('/user', userRoutes);
 
-// ishi test
-// app.get('/', (req, res) => {
-//     res.render('logistics_foodprocess', {
-//         title: "Home",
-//         css: ["logistics_foodprocess.css"],
-//         layout: "main"
-//     });
-// });
-
 app.get('/', (req, res) => {
     // If user is authenticated, redirect to homepage
     if (req.isAuthenticated()) {
-        res.redirect('/customer/dashboard'); // TODO: Redirect to appropriate user dashboard
+        res.redirect('/customer/dashboard');
     } else {
         // If user is not authenticated, redirect to login page
         res.redirect('/login');
@@ -311,7 +308,7 @@ app.post('/login',
         } else {
             req.session.cookie.expires = false; // Cookie expires at end of session
         }
-      // TODO: Redirect to appropriate user dashboard
+
         if (req.user.usertype === 'Customer') {
             res.redirect('/customer/dashboard');
         } else if (req.user.usertype === 'Logistics') {

@@ -3,23 +3,23 @@
     <main class="dashboard-container">
         <div class="metrics-overview">
             <div class="metric-card">
-                <h2>Monthly Expenses:</h2>
-                <p>₱95,000</p>
-                <span>↑ 2.1%</span>
+                <h2>Monthly Revenue:</h2>
+                <p>₱{{format_number stats.monthlyRevenue}}</p>
+                {{!-- <span>↑ 2.1%</span> --}}
             </div>
             <div class="metric-card">
-                <h2>Deliveries Completed:</h2>
-                <p>14 this month</p>
-                <span>↑ 0.8%</span>
+                <h2>Requests Completed:</h2>
+                <p>{{stats.monthlyRequests}} this month</p>
+                {{!-- <span>↑ 0.8%</span> --}}
             </div>
             <div class="metric-card">
-                <h2>Unpackaged Deliveries:</h2>
-                <p>4</p>
+                <h2>Pending Requests:</h2>
+                <p>{{stats.pendingRequests}}</p>
             </div>
             <div class="metric-card">
-                <h2>Active Shipments:</h2>
-                <p>24</p>
-                <span>↑ 42%</span>
+                <h2>Active Partners:</h2>
+                <p>{{stats.activePartners}}</p>
+                {{!-- <span>↑ 42%</span> --}}
             </div>
         </div>
 
@@ -77,55 +77,52 @@
         <section class="requests">
             <h2>Requests</h2>
             <div class="controls">
-            <select>
-                <option>Status: Pending</option>
-                <option>Status: Approved</option>
-                <option>Status: Declined</option>
-            </select>
-            <select>
-                <option>Filter by</option>
-                <option>Partner</option>
-                <option>Date</option>
-            </select>
-            <select>
-                <option>Sort by</option>
-                <option>Date Ascending</option>
-                <option>Date Descending</option>
-            </select>
-            <input type="text" placeholder="Search" />
+                <select id="statusFilter" onchange="filterRequests()">
+                    <option value="all">All Status</option>
+                    <option value="Received">Status: Received</option>
+                    <option value="Negotiation">Status: Negotiation</option>
+                    <option value="Approved">Status: Approved</option>
+                </select>
+                <select id="sortBy" onchange="sortRequests()">
+                    <option value="none">Sort by</option>
+                    <option value="idAsc">ID Ascending</option>
+                    <option value="idDesc">ID Descending</option>
+                    <option value="dateAsc">Date Ascending</option>
+                    <option value="dateDesc">Date Descending</option>
+                </select>
             </div>
 
-            <table>
-            <thead>
-                <tr>
-                <th>Request ID</th>
-                <th>SustainaPartner</th>
-                <th>Status</th>
-                <th>Date/s</th>
-                <th>Items</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each requests}}
-                <tr>
-                <td>{{this.requestId}}</td>
-                <td>{{this.partner}}</td>
-                <td>{{this.status}}</td>
-                <td>{{this.date}}</td>
-                <td>{{this.items}}</td>
-                </tr>
-                {{/each}}
-            </tbody>
+            <table id="requestsTable">
+                <thead>
+                    <tr>
+                        <th>Request ID</th>
+                        <th>SustainaPartner</th>
+                        <th>Status</th>
+                        <th>Date/s</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each requests}}
+                    <tr>
+                        <td>{{this.requestID}}</td>
+                        <td>{{this.partner}}</td>
+                        <td>{{this.status}}</td>
+                        <td>{{this.date}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
             </table>
+            
             <div class="pagination">
-            <span>Page 1 of 3</span>
-            <div class="navigation-buttons">
-                <button id="prevWeek" class="nav-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                </button>
-                <button id="nextWeek" class="nav-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                </button>
+                <span>Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+                <div class="navigation-buttons">
+                    <button id="prevRequest" class="nav-button" onclick="changePage(-1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    <button id="nextRequest" class="nav-button" onclick="changePage(1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </div>
             </div>
         </section>
 
@@ -133,60 +130,53 @@
         <section class="inventory">
             <h2>Warehouse Inventory</h2>
             <div class="data-container">
-
                 <table>
-                <thead>
-                    <tr>
-                    <th>Particular</th>
-                    <th>Available (kg)</th>
-                    <th>Reserved (kg)</th>
-                    <th>Total (kg)</th>
-                    <th>Incoming (kg)</th>
-                    <th>Incoming Date</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {{#each inventory}}
-                    <tr>
-                    <td>{{this.particular}}</td>
-                    <td>{{this.available}}</td>
-                    <td>{{this.reserved}}</td>
-                    <td>{{this.total}}</td>
-                    <td>{{this.incoming}}</td>
-                    <td>{{this.incomingDate}}</td>
-                    </tr>
-                    {{/each}}
-                </tbody>
+                    <thead>
+                        <tr>
+                            <th>Particular</th>
+                            <th>Available (kg)</th>
+                            <th>Reserved (kg)</th>
+                            <th>Total (kg)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each inventory}}
+                        <tr>
+                            <td>{{particular}}</td>
+                            <td>{{available}}</td>
+                            <td>{{reserved}}</td>
+                            <td>{{total}}</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
                 </table>
                 <div class="stats">
                     <div class="total-stock">
-                        <h3>342kg</h3>
+                        <h3>{{warehouseStats.totalStock}}kg</h3>
                         <p>Total Warehouse Stock</p>
                     </div>
                     <div class="reserved">
-                        <h3>17%</h3>
+                        <h3>{{warehouseStats.reservedPercentage}}%</h3>
                         <p>Warehouse Storage Reserved</p>
                     </div>
                 </div>
             </div>
-            <div class="pagination">
-                <span>Page 1 of 4</span>
-                <div class="navigation-buttons">
-                    <button id="prevWeek" class="nav-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                    </button>
-                    <button id="nextWeek" class="nav-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                    </button>
-                </div>
-            </div>
         </section>
+        <div class="pagination">
+            <span>Page <span id="currentInventoryPage">1</span> of <span id="totalInventoryPages">1</span></span>
+            <div class="navigation-buttons">
+                <button id="prevInventory" class="nav-button" onclick="changeInventoryPage(-1)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <button id="nextInventory" class="nav-button" onclick="changeInventoryPage(1)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+            </div>
         </div>
-
-
-        
+        </section>
+        </div>     
     </main>
 </div>
 
 <script src="/js/dashboard.js"></script>
+<script src="/js/sales-dashboard.js"></script>
