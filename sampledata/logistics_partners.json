@@ -1,0 +1,62 @@
+{
+    "agencies": [
+      {
+        "id": 1,
+        "name": "Agency 1",
+        "contactNo": "09171234567",
+        "location": "Makati",
+        "price": 9500,
+        "maxWeight": 3800,
+        "perUnitComputation": 2.63,
+        "latestShipmentDate": "April 19, 2024"
+      },
+      {
+        "id": 2,
+        "name": "Agency 2",
+        "contactNo": ["09171234567", "09171234567"],
+        "location": "Makati",
+        "price": 9500,
+        "maxWeight": 3800,
+        "perUnitComputation": 4,
+        "latestShipmentDate": "April 19, 2024"
+      },
+      {
+        "id": 3,
+        "name": "Agency 3",
+        "contactNo": "09171234567",
+        "location": "Makati",
+        "price": 9500,
+        "maxWeight": 3800,
+        "perUnitComputation": 4,
+        "latestShipmentDate": "April 19, 2024"
+      },
+      {
+        "id": 4,
+        "name": "Agency 4",
+        "contactNo": "09171234567",
+        "location": "Makati",
+        "price": 9500,
+        "maxWeight": 3800,
+        "perUnitComputation": 2.63,
+        "latestShipmentDate": "April 19, 2024"
+      },
+      {
+        "id": 5,
+        "name": "Agency 5",
+        "contactNo": ["09171234567", "09171234567"],
+        "location": "Makati",
+        "price": 9500,
+        "maxWeight": 3800,
+        "perUnitComputation": 4,
+        "latestShipmentDate": "April 19, 2024"
+      }
+    ],
+    "shipmentMetrics": {
+      "weeklyShipments": 3,
+      "totalExpectedKg": 50,
+      "onTimeRate": 70,
+      "unbookedShipments": 5,
+      "completedShipments": 3,
+      "averageAmountSpent": 20704.00
+    }
+  }

@@ -1,110 +1,165 @@
-/* Layout the sidebar and dashboard side by side */
 .main-layout {
     display: flex;
-}
-
-
-
-/* Dashboard container */
-.dashboard-container {
+    background-color: #f8f8f8;
+  }
+  
+  .dashboard-container {
     margin-left: 220px;
     padding: 40px;
+    width: 100%;
     font-family: 'Onest', sans-serif;
-}
-
-/* Logistics Partners Section */
-.partners-section h2 {
+  }
+  
+  .partners-section h2 {
     font-size: 24px;
     margin-bottom: 20px;
-}
-
-.table-filters {
+    color: #333;
+  }
+  
+  .table-controls {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
-}
-
-.filter-sort {
+  }
+  
+  .filter-sort {
     display: flex;
     gap: 10px;
-}
-
-.filter-btn,
-.sort-btn {
+  }
+  
+  .filter-btn,
+  .sort-btn {
     padding: 8px 15px;
-    background-color: #ECE10E;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .search-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-bar input {
+    padding: 8px 12px;
+    width: 250px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .search-icon {
+    position: absolute;
+    right: 10px;
+    background: none;
     border: none;
     cursor: pointer;
-    border-radius: 5px;
-}
-
-.search-bar input {
-    padding: 8px;
-    width: 200px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-
-/* Table Styles */
-.logistics-partners-table {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
+  }
+  
+  .logistics-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
     margin-bottom: 40px;
-}
-
-.table-header,
-.table-row {
-    display: contents;
-}
-
-.table-header span {
-    font-weight: bold;
-    padding: 10px;
+  }
+  
+  .logistics-table th {
+    text-align: left;
+    padding: 15px;
     background-color: #018D9A;
-    color: #fff;
-}
-
-.table-row span {
-    padding: 10px;
+    color: white;
+    font-weight: 500;
+  }
+  
+  .logistics-table th:first-child {
+    border-radius: 4px 0 0 4px;
+  }
+  
+  .logistics-table th:last-child {
+    border-radius: 0 4px 4px 0;
+  }
+  
+  .logistics-table tr {
+    background-color: white;
+  }
+  
+  .logistics-table tr.highlighted {
     background-color: #f5f5f5;
-    border-radius: 5px;
-}
-
-.contact-btn {
-    padding: 8px 15px;
-    background-color: #C4CF24;
+  }
+  
+  .logistics-table td {
+    padding: 15px;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .logistics-table td:first-child {
+    border-left: 1px solid #eee;
+    border-radius: 4px 0 0 4px;
+  }
+  
+  .logistics-table td:last-child {
+    border-right: 1px solid #eee;
+    border-radius: 0 4px 4px 0;
+    text-align: right;
+  }
+  
+  .more-options {
+    background: none;
     border: none;
-    color: #fff;
-    border-radius: 5px;
     cursor: pointer;
-}
-
-/* Agency Shipments Section */
-.agency-shipments {
-    margin-top: 40px;
-}
-
-.shipment-metrics {
+    margin-right: 10px;
+  }
+  
+  .contact-btn {
+    padding: 6px 12px;
+    background-color: #C4CF24;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .metrics-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 20px;
-}
-
-.shipment-metrics div {
-    background-color: #f5f5f5;
-    padding: 15px;
-    border-radius: 5px;
+    margin-top: 20px;
+  }
+  
+  .metric-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     text-align: center;
-}
-
-.shipment-metrics div p {
-    margin-bottom: 5px;
-    color: #333;
-}
-
-.shipment-metrics div span {
-    font-weight: bold;
+  }
+  
+  .metric-card h3 {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+    font-weight: normal;
+  }
+  
+  .metric-card p {
     font-size: 20px;
-    color: #018D9A;
-}
+    color: #333;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .procurement-btn {
+    margin-top: 10px;
+    padding: 4px 8px;
+    background-color: #018D9A;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }

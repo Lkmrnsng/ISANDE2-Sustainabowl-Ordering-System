@@ -1,129 +1,94 @@
-<div class="main-layout"> 
+<div class="main-layout">
+  <main class="dashboard-container">
+    <div class="partners-section">
+      <h2>Logistics Partners</h2>
+      <div class="table-controls">
+        <div class="filter-sort">
+          <div class="dropdown">
+            <button class="filter-btn">Filter by</button>
+          </div>
+          <div class="dropdown">
+            <button class="sort-btn">Sort by</button>
+          </div>
+        </div>
+        <div class="search-bar">
+          <input type="text" placeholder="Search" />
+          <button class="search-icon">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </div>
 
-    <!-- Main Content -->
-    <main class="dashboard-container">
-        <div class="partners-section">
-            <h2>Logistics Partners</h2>
-            <div class="table-filters">
-                <div class="filter-sort">
-                    <button class="filter-btn">Filter by</button>
-                    <button class="sort-btn">Sort by</button>
-                </div>
-                <div class="search-bar">
-                    <input type="text" placeholder="Search" />
-                </div>
-            </div>
-            <div class="logistics-partners-table">
-                <div class="table-header">
-                    <span>Name</span>
-                    <span>Contact No.</span>
-                    <span>Location</span>
-                    <span>Price</span>
-                    <span>Max Weight</span>
-                    <span>Per Unit Computation</span>
-                    <span>Latest Shipment Date</span>
-                </div>
-                {{!-- {{#each partners as |partner|}}
-                <div class="table-row">
-                    <span>{{partner.name}}</span>
-                    <span>{{partner.contact}}</span>
-                    <span>{{partner.location}}</span>
-                    <span>₱{{partner.price}}</span>
-                    <span>{{partner.maxWeight}} kg</span>
-                    <span>{{partner.unitComputation}}</span>
-                    <span>{{partner.latestShipment}}</span>
-                    <button class="contact-btn">Contact</button>
-                </div>
+      <table class="logistics-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Contact No.</th>
+            <th>Location</th>
+            <th>Price</th>
+            <th>Max. Weight</th>
+            <th>Per Unit Computation</th>
+            <th>Latest Shipment Date</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each agencies}}
+          <tr {{#if @first}}class="highlighted"{{/if}}>
+            <td>{{name}}</td>
+            <td>
+              {{#if (isArray contactNo)}}
+                {{#each contactNo}}
+                  {{this}}<br>
                 {{/each}}
-            </div>
+              {{else}}
+                {{contactNo}}
+              {{/if}}
+            </td>
+            <td>{{location}}</td>
+            <td>₱{{price}}</td>
+            <td>{{maxWeight}} kg</td>
+            <td>{{perUnitComputation}}</td>
+            <td>{{latestShipmentDate}}</td>
+            <td>
+              <button class="more-options">...</button>
+              <button class="contact-btn">Contact</button>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
 
-            <!-- Agency Shipments Section -->
-            <div class="agency-shipments">
-                <h2>Agency Shipments</h2>
-                <div class="shipment-metrics">
-                    <div>
-                        <p>Shipment For This Week:</p>
-                        <span>{{shipmentData.weeklyShipments}}</span>
-                    </div>
-                    <div>
-                        <p>Total Expected KG:</p>
-                        <span>{{shipmentData.totalKg}} Kg</span>
-                    </div>
-                    <div>
-                        <p>On-Time Rate:</p>
-                        <span>{{shipmentData.onTimeRate}}%</span>
-                    </div>
-                    <div>
-                        <p>Unbooked Shipments:</p>
-                        <span>{{shipmentData.unbookedShipments}}</span>
-                    </div>
-                    <div>
-                        <p>Completed Shipments:</p>
-                        <span>{{shipmentData.completedShipments}}</span>
-                    </div>
-                    <div>
-                        <p>Average Amount Spent:</p>
-                        <span>₱{{shipmentData.averageSpent}}</span>
-                    </div> --}}
-                            {{#each partners}}
-            <div class="partner-row">
-                <span>{{name}}</span>
-                <span>{{contact}}</span>
-                <span>{{location}}</span>
-                <span>{{price}}</span>
-                <span>{{maxWeight}}</span>
-                <span>{{unitComputation}}</span>
-                <span>{{latestShipment}}</span>
-            </div>
-            {{/each}}
-
-            <!-- Inline data as sample for testing -->
-            {{!-- You can loop over manually inputted sample data like this --}}
-            {{#each (array
-                (object "name" "Agency 1" "contact" "09171234567" "location" "Makati" "price" "₱9,500" "maxWeight" "3,800kg" "unitComputation" "2.63" "latestShipment" "April 19, 2024")
-                (object "name" "Agency 2" "contact" "09171234567" "location" "Quezon City" "price" "₱7,800" "maxWeight" "4,000kg" "unitComputation" "4.00" "latestShipment" "April 20, 2024")
-                (object "name" "Agency 3" "contact" "09171234567" "location" "Pasig" "price" "₱9,200" "maxWeight" "3,900kg" "unitComputation" "3.50" "latestShipment" "April 21, 2024")
-            )}}
-            <div class="partner-row">
-                <span>{{name}}</span>
-                <span>{{contact}}</span>
-                <span>{{location}}</span>
-                <span>{{price}}</span>
-                <span>{{maxWeight}}</span>
-                <span>{{unitComputation}}</span>
-                <span>{{latestShipment}}</span>
-            </div>
-            {{/each}}
-        </div>
-
+      <section class="agency-shipments">
         <h2>Agency Shipments</h2>
-        <div class="shipment-metrics">
-            <div class="shipment-metric">
-                <h3>Shipments This Week</h3>
-                <p>3</p>
-            </div>
-            <div class="shipment-metric">
-                <h3>Total Expected KG</h3>
-                <p>50 Kg</p>
-            </div>
-            <div class="shipment-metric">
-                <h3>On-Time Rate</h3>
-                <p>70%</p>
-            </div>
-            <div class="shipment-metric">
-                <h3>Unbooked Shipments</h3>
-                <p>5</p>
-            </div>
-            <div class="shipment-metric">
-                <h3>Completed Shipments</h3>
-                <p>3</p>
-            </div>
-            <div class="shipment-metric">
-                <h3>Average Amount Spent</h3>
-                <p>₱20,704.00</p>
-            </div>
-                </div>
-            </div>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <h3>Shipment For This Week:</h3>
+            <p>{{shipmentMetrics.weeklyShipments}}</p>
+          </div>
+          <div class="metric-card">
+            <h3>Total Expected KG:</h3>
+            <p>{{shipmentMetrics.totalExpectedKg}} Kg</p>
+          </div>
+          <div class="metric-card">
+            <h3>On-Time Rate:</h3>
+            <p>{{shipmentMetrics.onTimeRate}}%</p>
+          </div>
+          <div class="metric-card">
+            <h3>Unbooked Shipments:</h3>
+            <p>{{shipmentMetrics.unbookedShipments}}</p>
+            <button class="procurement-btn">Procurement</button>
+          </div>
+          <div class="metric-card">
+            <h3>Completed Shipments:</h3>
+            <p>{{shipmentMetrics.completedShipments}}</p>
+          </div>
+          <div class="metric-card">
+            <h3>Average Amount Spent:</h3>
+            <p>₱{{shipmentMetrics.averageAmountSpent}}</p>
+          </div>
         </div>
-    </main>
+      </section>
+    </div>
+  </main>
 </div>
