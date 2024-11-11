@@ -2,11 +2,8 @@ const User = require('../models/User');
 const Request = require('../models/Request');
 const Order = require('../models/Order');
 const Item = require('../models/Item');
-const Review = require('../models/Review');
-const { get } = require('express/lib/response');
 
-
-// Fetch the sales dashboard
+// Render the sales dashboard
 async function getDashboard(req, res) {
     try{
         const stats = (await getStats())[0];
@@ -31,6 +28,7 @@ async function getDashboard(req, res) {
     }
 }
 
+// Call the methods to compute the Sales Dashboard statistics
 async function getStats() {
     const statsArray = [];
     const monthlyRevenue = await getMonthlyRevenue();
@@ -48,6 +46,7 @@ async function getStats() {
     return statsArray;
 }
 
+// Calculate the total amount of sales for the current month
 async function getMonthlyRevenue() {
     const currentYear = new Date().getUTCFullYear();
     const currentMonth = new Date().getUTCMonth() + 1;
@@ -81,6 +80,7 @@ async function getMonthlyRevenue() {
     }
 }
 
+// Calculate the number of Orders delivered this month
 async function getMonthlyRequests() {
     const currentYear = new Date().getUTCFullYear();
     const currentMonth = new Date().getUTCMonth() + 1;
@@ -101,6 +101,7 @@ async function getMonthlyRequests() {
     }
 }
 
+// Calculate the number of Requests that are pending (Received or Negotiation) for the current month
 async function getPendingRequests() {
     const currentYear = new Date().getUTCFullYear();
     const currentMonth = new Date().getUTCMonth() + 1;
@@ -121,6 +122,7 @@ async function getPendingRequests() {
     }
 }
 
+// Calculate the total count of Sustainapartners
 async function getActivePartners() {
     try {
         const users = await User.find({});
@@ -131,6 +133,7 @@ async function getActivePartners() {
     }
 }
 
+// Fetch the data needed for the Sales Dashboard - Requests table
 async function getRequests() {
     try {
         const requests = await Request.find({})
@@ -162,6 +165,7 @@ async function getRequests() {
     }
 }
 
+// Fetch the data needed for the Sales Dashboard - Warehouse Inventory table
 async function getInventory() {
     try {
         const items = await Item.find({});
@@ -202,6 +206,7 @@ async function getInventory() {
     }
 }
 
+// Fetch the data needed for the Sales Dashboard warehouse statistics
 async function getWarehouseStats() {
     try {
         const items = await Item.find({});
@@ -297,19 +302,197 @@ async function getWarehouseStats() {
 //     }
 // }
 
+// Render the Review Requests page
 async function getReviewRequests(req, res) {
-    try{
-        const requests = await Request.find({});
-
+    try {
+        const stats = await getRequestStats();
+        const requests = await getDetailedRequests();
+        const partners = await getPartnersData();
+        
         res.render('sales_requests', {
             title: 'Requests',
             css: ['sales_requests.css'],
             layout: 'sales',
             active: 'requests',
-            requests: requests
+            stats: stats,
+            requests: requests,
+            partners: partners,
+            selectedRequest: null // Will be populated when a request is selected
         });
-    }catch(err){
-        console.error('Error fetching items:', err);
+    } catch(err) {
+        console.error('Error in getReviewRequests:', err);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+// Calculate the statistics for the Review Requests page
+async function getRequestStats() {
+    try {
+        const currentDate = new Date();
+        const startOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
+        
+        // Get delivered orders this week
+        const deliveredThisWeek = await Order.countDocuments({
+            status: 'Delivered',
+            deliveryDate: { $gte: startOfWeek }
+        });
+
+        // Get top produce sold
+        const topProduce = await Order.aggregate([
+            { $unwind: '$items' },
+            { $group: { 
+                _id: '$items.itemID',
+                totalQuantity: { $sum: '$items.quantity' }
+            }},
+            { $sort: { totalQuantity: -1 }},
+            { $limit: 1 }
+        ]);
+
+        const topProduceName = topProduce.length > 0 
+            ? (await Item.findOne({ itemID: topProduce[0]._id }))?.itemName 
+            : 'N/A';
+
+        // Get pending requests
+        const pendingRequests = await Request.countDocuments({
+            status: { $in: ['Received', 'Negotiation'] }
+        });
+
+        // Calculate average order value
+        const orders = await Order.find({ status: 'Delivered' });
+        let totalValue = 0;
+        for (const order of orders) {
+            if (order.items && Array.isArray(order.items)) {
+                for (const orderItem of order.items) {
+                    const item = await Item.findOne({ itemID: orderItem.itemID });
+                    if (item) {
+                        totalValue += item.itemPrice * orderItem.quantity;
+                    }
+                }
+            }
+        }
+        const averageOrder = orders.length > 0 ? totalValue / orders.length : 0;
+
+        return {
+            delivered: deliveredThisWeek,
+            topProduce: topProduceName,
+            pendingRequests: pendingRequests,
+            averageOrder: averageOrder
+        };
+    } catch (err) {
+        console.error('Error in getRequestStats:', err);
+        throw err;
+    }
+}
+
+// Fetch the data needed for the Review Requests - Requests table
+async function getDetailedRequests() {
+    try {
+        const requests = await Request.find({})
+            .sort({ requestDate: -1 });
+
+        const customerIDs = requests.map(req => req.customerID);
+        const customers = await User.find({
+            userID: { $in: customerIDs },
+            usertype: 'Customer'
+        });
+
+        const customerMap = {};
+        customers.forEach(customer => {
+            customerMap[customer.userID] = customer.restaurantName || customer.name;
+        });
+
+        return requests.map(request => ({
+            requestID: request.requestID,
+            partner: customerMap[request.customerID] || 'Unknown Partner',
+            status: request.status || 'Pending',
+            dates: request.requestDate ? request.requestDate.toLocaleDateString() : 'N/A',
+            items: [] // Will be populated when request details are opened
+        }));
+    } catch (err) {
+        console.error('Error in getDetailedRequests:', err);
+        return [];
+    }
+}
+
+// Fetch the data needed for the Review Requests - expanded details sidebar
+async function getRequestDetails(requestID) {
+    try {
+        const request = await Request.findOne({ requestID: requestID });
+        if (!request) return null;
+
+        const order = await Order.findOne({ requestID: requestID });
+        if (!order) return null;
+
+        const items = [];
+        for (const orderItem of order.items) {
+            const item = await Item.findOne({ itemID: orderItem.itemID });
+            if (item) {
+                items.push({
+                    name: item.itemName,
+                    quantity: orderItem.quantity,
+                    price: item.itemPrice * orderItem.quantity
+                });
+            }
+        }
+
+        return {
+            items: items,
+            total: items.reduce((sum, item) => sum + item.price, 0),
+            status: request.status
+        };
+    } catch (err) {
+        console.error('Error in getRequestDetails:', err);
+        return null;
+    }
+}
+
+// Fetch the data needed for the Review Request - Sustainapartners table
+async function getPartnersData() {
+    try {
+        const customers = await User.find({ usertype: 'Customer' });
+        const partnerStats = [];
+
+        for (const customer of customers) {
+            // Get total requests
+            const totalReqs = await Request.countDocuments({ customerID: customer.userID });
+
+            // Calculate weekly average
+            const weeklyReqs = await Request.aggregate([
+                { $match: { customerID: customer.userID }},
+                { $group: {
+                    _id: { 
+                        year: { $year: '$requestDate' },
+                        week: { $week: '$requestDate' }
+                    },
+                    count: { $sum: 1 }
+                }},
+                { $group: {
+                    _id: null,
+                    avgWeeklyReqs: { $avg: '$count' }
+                }}
+            ]);
+
+            // Calculate cancel rate
+            const cancelledReqs = await Request.countDocuments({
+                customerID: customer.userID,
+                status: 'Cancelled'
+            });
+
+            partnerStats.push({
+                name: customer.restaurantName || customer.name,
+                pointPerson: customer.name,
+                location: customer.address || 'N/A',
+                totalReqs: totalReqs,
+                avgWeeklyReqs: weeklyReqs[0]?.avgWeeklyReqs.toFixed(1) || '0.0',
+                cancelRate: totalReqs > 0 ? ((cancelledReqs / totalReqs) * 100).toFixed(1) + '%' : '0%',
+                clientSince: customer.createdAt ? customer.createdAt.toLocaleDateString() : 'N/A'
+            });
+        }
+
+        return partnerStats;
+    } catch (err) {
+        console.error('Error in getPartnersData:', err);
+        return [];
     }
 }
 
@@ -318,5 +501,8 @@ module.exports = {
     getReviewRequests,
     getRequests,
     getInventory,
-    getWarehouseStats
+    getWarehouseStats,
+    getReviewRequests,
+    getRequestDetails,
+    getPartnersData
 };
