@@ -9,6 +9,7 @@ const reportController = {
     try {
         const customerId = parseInt(req.session.userId);
         const month = req.params.month || new Date().toLocaleString('en-US', { month: 'short' });
+        const year = new Date().getFullYear();
         
         // Get customer details
         const customer = await User.findOne({ userID: customerId });
@@ -98,6 +99,7 @@ const reportController = {
             css: ['report.css'],
             layout: 'report',
             month,
+            year,
             customer,
             summary,
             commonItems: commonItems.join(', '),
@@ -118,6 +120,7 @@ async downloadCustomerReport(req, res) {
   try {
       const customerId = parseInt(req.session.userId);
       const month = req.params.month || new Date().toLocaleString('en-US', { month: 'short' });
+      const year = new Date().getFullYear();
       
       // Get customer details
       const customer = await User.findOne({ userID: customerId });
@@ -226,6 +229,7 @@ async downloadCustomerReport(req, res) {
       // Generate the PDF content
       await generatePDF(doc, {
           month,
+          year,
           customer,
           summary,
           commonItems: commonItems.join(', '),
@@ -266,7 +270,6 @@ function getCommonSchedule(orders) {
         .sort(([,a], [,b]) => b - a)[0]?.[0] || 'N/A';
 }
 
-// Add these utility functions after the existing helper functions but before module.exports
 
 async function generatePDF(doc, data) {
   // A4 size = 595.28 x 841.89 points
@@ -279,9 +282,9 @@ async function generatePDF(doc, data) {
   doc.font('Helvetica');
   
   // Header
-  doc.fontSize(16).text('SUSTAINABOWL', { align: 'center' });
+  doc.fontSize(12).text('Sustainabowl', { align: 'center' });
   doc.fontSize(14).text('MONTHLY ORDER REPORT', { align: 'center' });
-  doc.fontSize(12).text(`FOR MONTH ${data.month}`, { align: 'center' });
+  doc.fontSize(12).text(`For the Month of ${data.month} ${data.year}`, { align: 'center' });
   doc.moveDown(2);
 
   // Customer Info
@@ -298,7 +301,7 @@ async function generatePDF(doc, data) {
   // Draw summary headers
   summaryHeaders.forEach((header, i) => {
       doc.rect(currentX, currentY, summaryColumnWidths[i], 20).stroke();
-      doc.text(header, currentX + 5, currentY + 5, {
+      doc.fontSize(10).text(header, currentX + 5, currentY + 5, {
           width: summaryColumnWidths[i] - 10,
           height: 20
       });
@@ -309,11 +312,11 @@ async function generatePDF(doc, data) {
   currentX = margin;
   currentY += 20;
   const summaryData = [
-      data.summary.totalDeliveries.toString(),
-      data.summary.cancelledDeliveries.toString(),
-      `P${data.summary.averageOrderCost.toFixed(2)}`,
-      data.summary.averageWeeklyDeliveries.toString()
-  ];
+    formatNumber(data.summary.totalDeliveries),
+    formatNumber(data.summary.cancelledDeliveries),
+    `P${formatNumber(data.summary.averageOrderCost.toFixed(2))}`,
+    formatNumber(data.summary.averageWeeklyDeliveries)
+    ];
 
   summaryData.forEach((cell, i) => {
       doc.rect(currentX, currentY, summaryColumnWidths[i], 20).stroke();
@@ -339,15 +342,15 @@ async function generatePDF(doc, data) {
   doc.moveDown();
 
   // Order History table
-  const orderHeaders = ['ID', 'Requested', 'Delivered', 'Sched', 'Produce', 'Payment', 'Total'];
+  const orderHeaders = ['ID', 'REQUESTED', 'DELIVERED', 'SCHED', 'PRODUCE ORDERED', 'PAYMENT', 'TOTAL'];
   const orderColumnWidths = [
       usableWidth * 0.1,  // ORDER ID
       usableWidth * 0.15, // REQUESTED
       usableWidth * 0.15, // DELIVERED
       usableWidth * 0.11,  // SCHEDULE
-      usableWidth * 0.25, // PRODUCE
+      usableWidth * 0.24, // PRODUCE
       usableWidth * 0.12, // PAYMENT
-      usableWidth * 0.12   // TOTAL
+      usableWidth * 0.13   // TOTAL
   ];
 
   // Draw order headers
@@ -355,7 +358,7 @@ async function generatePDF(doc, data) {
   currentY = doc.y;
   orderHeaders.forEach((header, i) => {
       doc.rect(currentX, currentY, orderColumnWidths[i], 20).stroke();
-      doc.text(header, currentX + 5, currentY + 5, {
+      doc.fontSize(10).text(header, currentX + 5, currentY + 5, {
           width: orderColumnWidths[i] - 10,
           height: 20
       });
@@ -373,14 +376,14 @@ async function generatePDF(doc, data) {
       }
 
       const rowData = [
-          order.orderId,
-          formatDate(order.requestDate),
-          formatDate(order.deliveryDate),
-          order.schedule,
-          order.items,
-          order.payment,
-          `P${order.total.toFixed(2)}`
-      ];
+        order.orderId,
+        formatDate(order.requestDate),
+        formatDate(order.deliveryDate),
+        order.schedule,
+        order.items,
+        order.payment,
+        `P${formatNumber(order.total.toFixed(2))}`
+        ];
 
       rowData.forEach((cell, i) => {
           doc.rect(currentX, currentY, orderColumnWidths[i], 20).stroke();
@@ -394,8 +397,8 @@ async function generatePDF(doc, data) {
 
   // Order History Total
   currentY += 30;
-  doc.text(`TOTAL:`, usableWidth - 120 + margin, currentY);
-  doc.text(`P${data.totalAmount.toFixed(2)}`, usableWidth - 90 + margin, currentY, { align: 'right' });
+    doc.text(`TOTAL:`, usableWidth - 120 + margin, currentY);
+    doc.text(`P${formatNumber(data.totalAmount.toFixed(2))}`, usableWidth - 90 + margin, currentY, { align: 'right' });
 
   // Add new page if needed
   if (currentY > doc.page.height - 200) {
@@ -407,14 +410,13 @@ async function generatePDF(doc, data) {
 
   // Order Summary
   doc.text('ORDER SUMMARY', margin, currentY);
-  doc.moveDown();
+  currentY += doc.currentLineHeight() + 10;
 
   // Summary table
   summaryHeaders = ['PRODUCE', 'KG ORDERED', 'COST'];
   const produceSummaryWidths = [usableWidth * 0.5, usableWidth * 0.25, usableWidth * 0.25];
   
   currentX = margin;
-  currentY = doc.y;
 
   // Draw summary headers
   summaryHeaders.forEach((header, i) => {
@@ -431,10 +433,16 @@ async function generatePDF(doc, data) {
       currentX = margin;
       currentY += 20;
       
+      // Check if we need a new page
+      if (currentY > doc.page.height - 100) {
+          doc.addPage();
+          currentY = margin;
+      }
+
       const rowData = [
           item.name,
-          item.quantity.toString(),
-          `P${item.cost.toFixed(2)}`
+          formatNumber(item.quantity),
+          `P${formatNumber(item.cost.toFixed(2))}`
       ];
 
       rowData.forEach((cell, i) => {
@@ -447,13 +455,30 @@ async function generatePDF(doc, data) {
       });
   });
 
-  // Final Total
-  currentY += 30;
+  // Final Total (with position tracking)
+  currentY += 40;
+  if (currentY > doc.page.height - 100) {
+      doc.addPage();
+      currentY = margin;
+  }
   doc.text(`TOTAL:`, usableWidth - 120 + margin, currentY);
-  doc.text(`P${data.totalAmount.toFixed(2)}`, usableWidth - 90 + margin, currentY, { align: 'right' });
+  doc.text(`P${formatNumber(data.totalAmount.toFixed(2))}`, usableWidth - 90 + margin, currentY, { align: 'right' });
 
-  // Footer
-  doc.fontSize(10).text(`Generated: ${new Date().toLocaleDateString()}`, margin, doc.page.height - 50);
+  // Footer (with proper positioning)
+  const footerText = `Generated: ${new Date().toLocaleDateString()}`;
+  const footerHeight = 20;
+  
+  // If there isn't enough space for both total and footer on current page
+  if (currentY > doc.page.height - 100) {
+      doc.addPage();
+  }
+  
+  // Position footer at the bottom of the current page
+  doc.fontSize(10)
+     .text(footerText, 
+           margin,
+           doc.page.height - margin - footerHeight,
+           { align: 'left' });
 }
 
 function formatDate(date) {

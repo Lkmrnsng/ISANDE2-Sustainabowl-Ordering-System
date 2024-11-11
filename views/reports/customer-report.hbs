@@ -1,13 +1,13 @@
 <div class="report">
     <div class="report-header">
-        <h1>SUSTAINABOWL</h1>
+        <h1>Sustainabowl</h1>
         <h2>MONTHLY ORDER REPORT</h2>
-        <h3>FOR MONTH {{month}}</h3>
+        <h3>For the Month of {{month}} {{year}}</h3>
     </div>
 
     <div class="customer-info">
-        <h3>FOR {{customer.name}}</h3>
-        <p>TO {{customer.restaurantName}}</p>
+        <h3>For {{customer.name}}</h3>
+        <p>of {{customer.restaurantName}}</p>
     </div>
 
     <div class="summary-stats">
@@ -22,7 +22,7 @@
             </div>
             <div class="stat">
                 <label>AVE. ORDER COST</label>
-                <span>₱{{formatNumber summary.averageOrderCost 2}}</span>
+                <span>₱{{formatReportNumbers (formatNumber summary.averageOrderCost 2)}}</span>
             </div>
             <div class="stat">
                 <label>AVE. WEEKLY DELIVERIES</label>
@@ -64,12 +64,12 @@
                     <td>{{schedule}}</td>
                     <td>{{items}}</td>
                     <td>{{payment}}</td>
-                    <td>₱{{formatNumber total 2}}</td>
+                    <td>₱{{formatReportNumbers (formatNumber total 2)}}</td>
                 </tr>
                 {{/each}}
                 <tr class="total-row">
                     <td colspan="6">TOTAL</td>
-                    <td>₱{{formatNumber totalAmount 2}}</td>
+                    <td>₱{{formatReportNumbers (formatNumber totalAmount 2)}}</td>
                 </tr>
             </tbody>
         </table>
@@ -90,12 +90,12 @@
                 <tr>
                     <td>{{name}}</td>
                     <td>{{quantity}}</td>
-                    <td>₱{{formatNumber cost 2}}</td>
+                    <td>₱{{formatReportNumbers (formatNumber cost 2)}}</td>
                 </tr>
                 {{/each}}
                 <tr class="total-row">
                     <td colspan="2">TOTAL</td>
-                    <td>₱{{formatNumber totalAmount 2}}</td>
+                    <td>₱{{formatReportNumbers (formatNumber totalAmount 2)}}</td>
                 </tr>
             </tbody>
         </table>

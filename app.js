@@ -207,7 +207,9 @@ const hbs = exphbs.create({
             const d = new Date(date);
             if (isNaN(d.getTime())) return '';
             return d.toISOString().split('T')[0];
-        },
+        }, formatReportNumbers: function (number) {
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
     },
     runtimeOptions: {
         allowProtoPropertiesByDefault: true,
