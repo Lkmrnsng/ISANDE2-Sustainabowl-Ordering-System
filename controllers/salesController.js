@@ -388,14 +388,17 @@ async function getRequestStats() {
 async function getDetailedRequests() {
     try {
         const requests = await Request.find({})
-            .sort({ requestDate: -1 });
+            .sort({ requestDate: -1 })
+            .limit(10);
 
+        // Get all customer IDs from requests
         const customerIDs = requests.map(req => req.customerID);
         const customers = await User.find({
             userID: { $in: customerIDs },
             usertype: 'Customer'
         });
 
+        // Create a map of customerID to restaurantName
         const customerMap = {};
         customers.forEach(customer => {
             customerMap[customer.userID] = customer.restaurantName || customer.name;
@@ -414,35 +417,168 @@ async function getDetailedRequests() {
     }
 }
 
-// Fetch the data needed for the Review Requests - expanded details sidebar
-async function getRequestDetails(requestID) {
+// Get request details for the Review Requests mini sidebar
+// async function getRequestDetailsApi(req, res) {
+    
+//     try {
+//         const requestID = req.params.requestID;
+//         const details = await getRequestDetails(requestID);
+//         console.log(details);
+        
+//         if (!details) {
+//             return res.status(404).json({ error: 'Request not found' });
+//         }
+        
+//         res.json(details);
+//     } catch (err) {
+//         console.error('Error in getRequestDetailsApi:', err);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// }
+
+async function getRequestDetailsApi(req, res) {
+    console.log("=== Request Details API Debug Log ===");
+    console.log("1. API Endpoint Hit");
+    console.log("Request params:", req.params);
+    
     try {
+        const requestID = req.params.requestID;
+        console.log("2. Looking for requestID:", requestID);
+        
+        // Check if request exists
         const request = await Request.findOne({ requestID: requestID });
-        if (!request) return null;
+        console.log("3. Request from DB:", request);
 
+        if (!request) {
+            console.log("4a. Request not found in database");
+            return res.status(404).json({ error: 'Request not found' });
+        }
+
+        console.log("4b. Request found, fetching details");
         const order = await Order.findOne({ requestID: requestID });
-        if (!order) return null;
+        console.log("5. Related order:", order);
 
+        if (!order) {
+            console.log("6a. No order found for request");
+            return res.status(404).json({ error: 'Order not found for request' });
+        }
+
+        console.log("6b. Order found, processing items");
         const items = [];
+        let total = 0;
+
         for (const orderItem of order.items) {
+            console.log("7. Processing order item:", orderItem);
             const item = await Item.findOne({ itemID: orderItem.itemID });
+            console.log("8. Found item details:", item);
+            
             if (item) {
+                const itemTotal = item.itemPrice * orderItem.quantity;
                 items.push({
                     name: item.itemName,
                     quantity: orderItem.quantity,
-                    price: item.itemPrice * orderItem.quantity
+                    price: itemTotal,
+                    imageUrl: item.imageUrl || null
                 });
+                total += itemTotal;
             }
         }
 
-        return {
+        const details = {
+            requestID: request.requestID,
             items: items,
-            total: items.reduce((sum, item) => sum + item.price, 0),
-            status: request.status
+            total: total,
+            status: request.status,
+            customerID: request.customerID,
+            requestDate: request.requestDate
         };
+        
+        console.log("9. Final details object:", details);
+        res.json(details);
+        
     } catch (err) {
-        console.error('Error in getRequestDetails:', err);
-        return null;
+        console.error("=== Error in getRequestDetailsApi ===");
+        console.error("Full error:", err);
+        console.error("Error stack:", err.stack);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+// Fetch the data needed for the Review Requests - expanded details sidebar
+// async function getRequestDetails(requestID) {
+//     try {
+//         const request = await Request.findOne({ requestID: requestID });
+//         if (!request) {
+//             console.log('Request not found:', requestID);
+//             return null;
+//         }
+
+//         const order = await Order.findOne({ requestID: requestID });
+//         if (!order) return null;
+
+//         const items = [];
+//         let total = 0;
+
+//         console.log(request, order, items);
+
+//         for (const orderItem of order.items) {
+//             const item = await Item.findOne({ itemID: orderItem.itemID });
+//             if (item) {
+//                 const itemTotal = item.itemPrice * orderItem.quantity;
+//                 items.push({
+//                     name: item.itemName,
+//                     quantity: orderItem.quantity,
+//                     price: itemTotal,
+//                     // Add image URL if available
+//                     imageUrl: item.imageUrl || null
+//                 });
+//                 total += itemTotal;
+//             }
+//         }
+
+//         return {
+//             requestID: request.requestID,
+//             items: items,
+//             total: total,
+//             status: request.status,
+//             customerID: request.customerID,
+//             requestDate: request.requestDate
+//         };
+//     } catch (err) {
+//         console.error('Error in getRequestDetails:', err);
+//         return null;
+//     }
+// }
+
+async function getRequestDetails(requestID) {
+    console.log("=== Frontend Debug Log ===");
+    console.log("1. Starting request load for ID:", requestID);
+    
+    try {
+        console.log("2. Making fetch request to:", `/sales/api/requests/${requestID}/details`);
+        const response = await fetch(`/sales/api/requests/${requestID}/details`);
+        console.log("3. Fetch response:", response);
+        
+        if (!response.ok) {
+            console.log("4a. Response not OK. Status:", response.status);
+            const errorText = await response.text();
+            console.log("Error response body:", errorText);
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        console.log("4b. Response OK, parsing JSON");
+        const data = await response.json();
+        console.log("5. Parsed data:", data);
+        
+        console.log("6. Updating UI with data");
+        updateRequestDetailsPanel(data);
+        
+    } catch (error) {
+        console.error("=== Frontend Error Log ===");
+        console.error("Error in loadRequestDetails:");
+        console.error("Error message:", error.message);
+        console.error("Full error:", error);
+        console.error("Stack trace:", error.stack);
     }
 }
 
@@ -457,20 +593,20 @@ async function getPartnersData() {
             const totalReqs = await Request.countDocuments({ customerID: customer.userID });
 
             // Calculate weekly average
-            const weeklyReqs = await Request.aggregate([
-                { $match: { customerID: customer.userID }},
-                { $group: {
-                    _id: { 
-                        year: { $year: '$requestDate' },
-                        week: { $week: '$requestDate' }
-                    },
-                    count: { $sum: 1 }
-                }},
-                { $group: {
-                    _id: null,
-                    avgWeeklyReqs: { $avg: '$count' }
-                }}
-            ]);
+            // const weeklyReqs = await Request.aggregate([
+            //     { $match: { customerID: customer.userID }},
+            //     { $group: {
+            //         _id: { 
+            //             year: { $year: '$requestDate' },
+            //             week: { $week: '$requestDate' }
+            //         },
+            //         count: { $sum: 1 }
+            //     }},
+            //     { $group: {
+            //         _id: null,
+            //         avgWeeklyReqs: { $avg: '$count' }
+            //     }}
+            // ]);
 
             // Calculate cancel rate
             const cancelledReqs = await Request.countDocuments({
@@ -479,13 +615,12 @@ async function getPartnersData() {
             });
 
             partnerStats.push({
+                userID: customer.userID,
                 name: customer.restaurantName || customer.name,
                 pointPerson: customer.name,
                 location: customer.address || 'N/A',
                 totalReqs: totalReqs,
-                avgWeeklyReqs: weeklyReqs[0]?.avgWeeklyReqs.toFixed(1) || '0.0',
-                cancelRate: totalReqs > 0 ? ((cancelledReqs / totalReqs) * 100).toFixed(1) + '%' : '0%',
-                clientSince: customer.createdAt ? customer.createdAt.toLocaleDateString() : 'N/A'
+                cancelRate: totalReqs > 0 ? ((cancelledReqs / totalReqs) * 100).toFixed(1) + '%' : '0.0%',
             });
         }
 
@@ -504,5 +639,6 @@ module.exports = {
     getWarehouseStats,
     getReviewRequests,
     getRequestDetails,
-    getPartnersData
+    getPartnersData,
+    getRequestDetailsApi
 };

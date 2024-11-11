@@ -122,6 +122,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Filter requests
+    window.filterRequests = function() {
+        const statusFilter = document.getElementById('statusFilter').value;
+
+        
+        filteredRequests = allRequests.filter(request => {
+            if (statusFilter !== 'all' && request.status !== statusFilter) {
+                return false;
+            }
+            return true;
+        });
+
+        currentPage = 1;
+        updateRequestsTable();
+    };
+
     // Sort requests
     window.sortRequests = function() {
         const sortBy = document.getElementById('sortBy').value;

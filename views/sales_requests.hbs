@@ -25,16 +25,15 @@
                     <option value="dateDesc">Date Descending</option>
                 </select>
             </div>
-            <button>Cancel Request/s</button>
+            <button>Cancel Request/s</button> <!-- TODO: Set the request status to Cancelled when this button is clicked -->
             <table id="requestsTable">
             <thead>
                 <tr>
-                <th><input type="checkbox"></th>
+                <th><input type="checkbox" id="hidden-checkbox"></th>
                 <th>Request ID</th>
                 <th>SustainaPartner</th>
                 <th>Status</th>
                 <th>Date/s</th>
-                <th>Items</th>
                 </tr>
             </thead>
             <tbody>
@@ -80,16 +79,15 @@
             <div class="summary">
                 <div class="summary-details">
                     <p>Request Total:</p>
-                    <p class="attribute">₱500</p>
+                    <p class="attribute">₱0.00</p>
                 </div>
                 <div class="summary-details">
                     <p>Status:</p>
-                    <p class="attribute">Prepared</p>
+                    <p class="attribute">Unknown</p>
                 </div>
-            <button>View In Chat</button>
+            <button>View In Chat</button> <!-- TODO: Need help making this button redirect to the specific customer -->
             </div>
         </aside>
-
     </div>
 
   <!-- SustainaPartners Section -->
@@ -113,9 +111,9 @@
           <th>Point Person</th>
           <th>Location</th>
           <th>Total Reqs</th>
-          <th>Avg. Weekly Reqs</th>
+          {{!-- <th>Avg. Weekly Reqs</th> --}}
           <th>Cancel Rate</th>
-          <th>Client Since</th>
+          {{!-- <th>Client Since</th> --}}
           <th>Contact</th>
         </tr>
       </thead>
@@ -126,10 +124,10 @@
           <td>{{this.pointPerson}}</td>
           <td>{{this.location}}</td>
           <td>{{this.totalReqs}}</td>
-          <td>{{this.avgWeeklyReqs}}</td>
+          {{!-- <td>{{this.avgWeeklyReqs}}</td> --}}
           <td>{{this.cancelRate}}</td>
-          <td>{{this.clientSince}}</td>
-          <td><button>Contact</button></td>
+          {{!-- <td>{{this.clientSince}}</td> --}}
+          <td><button>Contact</button></td> <!-- TODO: Need help making this button redirect to the specific customer. this.userID should give you their uid -->
         </tr>
         {{/each}}
       </tbody>

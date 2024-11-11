@@ -116,6 +116,9 @@
     display: flex;
   }
   
+  #hidden-checkbox {
+    visibility: hidden;
+  }
   
   .pagination {
     display: flex;
