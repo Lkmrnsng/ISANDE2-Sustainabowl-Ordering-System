@@ -571,6 +571,27 @@ async function setRequestStatus (req, res) {
     }
 };
 
+async function getWarehouseInventory(req, res) {
+    try {
+        const items = await Item.find({});
+        const inventory = await getInventory();
+
+        res.render('sales_warehouseInventory', {
+            title: 'Warehouse Inventory',
+            css: ['logisales_dashboard.css'],
+            layout: 'sales',
+            active: 'warehouseinventory',
+            items: items,
+            inventory: inventory
+        });
+
+
+    } catch (err) {
+        console.error('Error fetching warehouse inventory:', err);
+        res.status(500).json({ error: 'Failed to fetch warehouse inventory' });
+    }
+}
+
 module.exports = {
     getDashboard,
     getRequests,
@@ -582,5 +603,6 @@ module.exports = {
     getRequestDetails,
     getPartnersData,
     getRequestDetailsApi,
-    setRequestStatus
+    setRequestStatus,
+    getWarehouseInventory
 };

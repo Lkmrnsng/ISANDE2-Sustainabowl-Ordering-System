@@ -1,0 +1,39 @@
+<!-- Warehouse Inventory Section -->
+
+
+        <section class="inventory" style="display: flex; flex-direction: column; width: 1000px;">
+            <h2>Warehouse Inventory</h2>
+            <div class="data-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Particular</th>
+                            <th>Available (kg)</th>
+                            <th>Reserved (kg)</th>
+                            <th>Total (kg)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each inventory}}
+                        <tr>
+                            <td>{{particular}}</td>
+                            <td>{{available}}</td>
+                            <td>{{reserved}}</td>
+                            <td>{{total}}</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <span>Page <span id="currentInventoryPage">1</span> of <span id="totalInventoryPages">1</span></span>
+                <div class="navigation-buttons">
+                    <button id="prevInventory" class="nav-button" onclick="changeInventoryPage(-1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    <button id="nextInventory" class="nav-button" onclick="changeInventoryPage(1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
