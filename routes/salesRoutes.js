@@ -4,6 +4,8 @@ const salesController = require('../controllers/salesController');
 
 router.get('/dashboard', salesController.getDashboard);
 router.get('/requests', salesController.getReviewRequests);
-router.get('/api/requests/:requestID/details', salesController.getRequestDetailsApi);
+router.get('/api/:requestID/details', salesController.getRequestDetailsApi);
+router.put('/api/:requestID/status', salesController.setRequestStatus);
+router.get('/api/requests', salesController.getRequests);
 
 module.exports = router;

@@ -9,15 +9,25 @@ document.addEventListener('DOMContentLoaded', function() {
     async function initializeTables() {
         const requestsTable = document.getElementById('requestsTable');
         if (requestsTable) {
-            const rows = Array.from(requestsTable.getElementsByTagName('tr'));
-            allRequests = rows.slice(1).map(row => ({
-                requestID: row.cells[1].textContent.trim(),
-                partner: row.cells[2].textContent.trim(),
-                status: row.cells[3].textContent.trim(),
-                date: row.cells[4].textContent.trim()
+            await refreshRequestsData();
+            updateRequestsTable();
+        }
+    }
+
+    async function refreshRequestsData() {
+        try {
+            const response = await fetch('/sales/api/requests');
+            if (!response.ok) throw new Error('Failed to fetch requests');
+            const data = await response.json();
+            allRequests = data.map(row => ({
+                requestID: row.requestID,
+                partner: row.partner,
+                status: row.status,
+                date: row.date
             }));
             filteredRequests = [...allRequests];
-            updateRequestsTable();
+        } catch (error) {
+            console.error('Error refreshing requests data:', error);
         }
     }
 
@@ -75,14 +85,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fetch and display request details
     async function loadRequestDetails(requestID) {
         try {
-            const response = await fetch(`/api/requests/${requestID}/details`);
+            const response = await fetch(`/sales/api/${requestID}/details`);
             if (!response.ok) throw new Error('Failed to fetch request details');
-            
             const details = await response.json();
             updateRequestDetailsPanel(details);
         } catch (error) {
             console.error('Error loading request details:', error);
-            // Show error state in the details panel
             updateRequestDetailsPanel(null);
         }
     }
@@ -90,8 +98,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update the details panel with request information
     function updateRequestDetailsPanel(details) {
         const detailsContainer = document.querySelector('.request-details .item-list');
-        const totalElement = document.querySelector('.summary-details .attribute:first-child');
-        const statusElement = document.querySelector('.summary-details .attribute:last-child');
+        const totalElement = document.getElementById('request-total');
+        const statusElement = document.getElementById('request-status');
 
         if (!details) {
             // Show error or empty state
@@ -104,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update items list
         detailsContainer.innerHTML = details.items.map(item => `
             <div class="item">
-                <div class="placeholder-image"></div>
+                <div class="placeholder-image"><img class="request-image" src="${item.itemImage}" alt="Product Image" ></div>
                 <p>${item.name}</p>
                 <p>${item.quantity} kg</p>
                 <p>₱${item.price.toFixed(2)}</p>
@@ -176,6 +184,83 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    window.changePartnerPage = function(delta) {
+        const partnerRows = document.querySelectorAll('.sustaina-partners tbody tr');
+        const totalPages = Math.ceil(partnerRows.length / partnersPerPage);
+        const newPage = currentPartnerPage + delta;
+        
+        if (newPage >= 1 && newPage <= totalPages) {
+            currentPartnerPage = newPage;
+            updatePartnerTable();
+        }
+    };
+
+    function updateRequestDetails(details) {
+        const detailsContainer = document.querySelector('.request-details .item-list');
+        detailsContainer.innerHTML = details.items.map(item => `
+            <div class="item">
+                <div class="placeholder-image"></div>
+                <p>${item.name}</p>
+                <p>${item.quantity} kg</p>
+                <p>₱${item.price}</p>
+            </div>
+        `).join('');
+    
+        // Update summary
+        document.querySelector('.summary-details .attribute:first-child').textContent = `₱${details.total}`;
+        document.querySelector('.summary-details .attribute:last-child').textContent = details.status;
+    }
+
+    // For every selected request, set its status to 'Cancelled'
+    window.cancelRequests = async function() {
+        const requestsTable = document.getElementById('requestsTable');
+        if (requestsTable) {
+            const checkedBoxes = requestsTable.querySelectorAll('.request-checkbox:checked');
+            const confirmMessage = checkedBoxes.length === 1 
+                ? 'Are you sure you want to cancel this request?' 
+                : `Are you sure you want to cancel these ${checkedBoxes.length} requests?`;
+            if (!confirm(confirmMessage)) return;
+
+            // Get all selected requests
+            const cancelPromises = Array.from(checkedBoxes).map(async checkbox => {
+                const row = checkbox.closest('tr');
+                const requestID = row.cells[1].textContent.trim();
+                return setRequestStatus(requestID, "Cancelled");
+            });
+
+            try {
+                await Promise.all(cancelPromises);
+                await refreshRequestsData();
+                updateRequestsTable();
+                
+                // Clear all checkboxes
+                checkedBoxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+            } catch (error) {
+                console.error('Error cancelling requests:', error);
+                alert('Failed to cancel one or more requests. Please try again.');
+            }
+        }
+    };
+
+    // Modify the MongoDB to set the request status
+    async function setRequestStatus(requestID, status) {
+        try {
+            const response = await fetch(`/sales/api/${requestID}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status })
+            });
+            if (!response.ok) throw new Error(`Failed to update status for request ${requestID}`);
+        } catch (error) {
+            console.error('Failed to update request status:', error);
+            throw error;
+        }
+    }
+
     // Sort partners
     window.sortPartners = function() {
         const sortBy = document.getElementById('sortByPartner').value;
@@ -204,33 +289,6 @@ document.addEventListener('DOMContentLoaded', function() {
         currentPartnerPage = 1;
         updatePartnerTable();
     };
-
-    window.changePartnerPage = function(delta) {
-        const partnerRows = document.querySelectorAll('.sustaina-partners tbody tr');
-        const totalPages = Math.ceil(partnerRows.length / partnersPerPage);
-        const newPage = currentPartnerPage + delta;
-        
-        if (newPage >= 1 && newPage <= totalPages) {
-            currentPartnerPage = newPage;
-            updatePartnerTable();
-        }
-    };
-
-    function updateRequestDetails(details) {
-        const detailsContainer = document.querySelector('.request-details .item-list');
-        detailsContainer.innerHTML = details.items.map(item => `
-            <div class="item">
-                <div class="placeholder-image"></div>
-                <p>${item.name}</p>
-                <p>${item.quantity} kg</p>
-                <p>₱${item.price}</p>
-            </div>
-        `).join('');
-    
-        // Update summary
-        document.querySelector('.summary-details .attribute:first-child').textContent = `₱${details.total}`;
-        document.querySelector('.summary-details .attribute:last-child').textContent = details.status;
-    }
 
     async function updatePartnerTable() {
         try {
@@ -281,14 +339,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 partnerStats.push({
                     name: customer.restaurantName || customer.name,
                     pointPerson: customer.name,
-                    location: customer.address || 'N/A',
+                    // location: customer.address || 'N/A',
                     totalReqs: totalReqs,
                     // avgWeeklyReqs: weeklyReqs[0]?.avgWeeklyReqs?.toFixed(1) || '0.0',
                     cancelRate: totalReqs > 0 ? ((cancelledReqs / totalReqs) * 100).toFixed(1) + '%' : '0.0%',
                     // clientSince: createdAtDate || 'N/A'
                 });
             }
-            console.log(partnerStats);
             return partnerStats;
         } catch (err) {
             console.error('Error in getPartnersData:', err);
@@ -298,3 +355,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initializeTables();
 });
+
