@@ -45,87 +45,86 @@
 </div>
 
         <div class="chat-content">
-<div class="chat-messages" id="chatMessages">
-    {{log "Current userId:" userId}}
-    {{#each messages}}
-        
-        <div class="message-wrapper {{#if (eq (toString senderID) (toString ../userId))}}current-user{{else}}other-user{{/if}}">
-            <div class="message {{#if (eq (toString senderID) (toString ../userId))}}current-user{{else}}other-user{{/if}}">
-                <div class="message-content">{{message}}</div>
-                <div class="message-time">{{formatDate2 date}}</div>
-            </div>
-        </div>
-    {{/each}}
-</div>
-
-
-        {{!-- sales-chat.hbs order details section --}}
-        <div class="order-details">
-            <h4>Order Details</h4>
-            <select id="orderDateSelect">
-                {{#each activeRequest.orders}}
-                <option value="{{OrderID}}" {{#if (eq ../selectedOrder.OrderID OrderID)}}selected{{/if}}>
-                    Delivery: {{formatDate2 deliveryDate}}
-                </option>
+            <div class="chat-messages" id="chatMessages">
+                {{log "Current userId:" userId}}
+                {{#each messages}}
+                    <div class="message-wrapper {{#if (eq (toString senderID) (toString ../userId))}}current-user{{else}}other-user{{/if}}">
+                        <div class="message {{#if (eq (toString senderID) (toString ../userId))}}current-user{{else}}other-user{{/if}}">
+                            <div class="message-content">{{message}}</div>
+                            <div class="message-time">{{formatDate2 date}}</div>
+                        </div>
+                    </div>
                 {{/each}}
-            </select>
+            </div>
 
-            <div class="order-form">
-                <div class="form-group">
-                    <label>Delivery Date</label>
-                    <input type="date" id="deliveryDate" value="{{formatDate3 selectedOrder.deliveryDate}}">
-                </div>
-                <div class="form-group">
-                    <label>Time Range</label>
-                    <select id="timeRange">
-                        <option value="Morning" {{#if (eq selectedOrder.deliveryTimeRange "Morning")}}selected{{/if}}>Morning</option>
-                        <option value="Afternoon" {{#if (eq selectedOrder.deliveryTimeRange "Afternoon")}}selected{{/if}}>Afternoon</option>
-                        <option value="Evening" {{#if (eq selectedOrder.deliveryTimeRange "Evening")}}selected{{/if}}>Evening</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Status</label>
-                    <select id="orderStatus">
-                        <option value="Waiting Approval" {{#if (eq selectedOrder.status "Waiting Approval")}}selected{{/if}}>Waiting Approval</option>
-                        <option value="Preparing" {{#if (eq selectedOrder.status "Preparing")}}selected{{/if}}>Preparing</option>
-                        <option value="Dispatched" {{#if (eq selectedOrder.status "Dispatched")}}selected{{/if}}>Dispatched</option>
-                        <option value="Delivered" {{#if (eq selectedOrder.status "Delivered")}}selected{{/if}}>Delivered</option>
-                        <option value="Cancelled" {{#if (eq selectedOrder.status "Cancelled")}}selected{{/if}}>Cancelled</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Address</label>
-                    <textarea id="deliveryAddress">{{selectedOrder.deliveryAddress}}</textarea>
-                </div>
-                <div class="form-group">
-                    <label>Customizations</label>
-                    <textarea id="customizations">{{selectedOrder.customizations}}</textarea>
-                </div>
-<div class="form-group">
-    <label>Items</label>
-<div class="items-list">
-    {{#each selectedOrder.items}}
-    <div class="item">
-        <div class="item-name">{{itemName}}</div>
-        <div class="item-details">
-            <span class="item-quantity quantity-input">x{{quantity}}</span>
-            <span class="item-price-detail">₱{{itemPrice}}</span>
-        </div>
-        <div class="item-subtotal">₱{{totalPrice}}</div>
-    </div>
-    {{/each}}
-    <div class="total-line">
-        <span>Total Amount:</span>
-        <span class="total-amount">₱{{selectedOrder.totalAmount}}</span>
-    </div>
-</div>
-</div>
-                <div class="button-group">
-                    <button id="saveCurrentOrder">Save for this order</button>
-                    <button id="saveAllOrders">Save for all orders</button>
+
+            {{!-- sales-chat.hbs order details section --}}
+            <div class="order-details">
+                <h4>Order Details</h4>
+                <select id="orderDateSelect">
+                    {{#each activeRequest.orders}}
+                        <option value="{{OrderID}}" {{#if (eq ../selectedOrder.OrderID OrderID)}}selected{{/if}}>
+                            Delivery: {{formatDate2 deliveryDate}}
+                        </option>
+                    {{/each}}
+                </select>
+
+                <div class="order-form">
+                    <div class="form-group">
+                        <label>Delivery Date</label>
+                        <input type="date" id="deliveryDate" value="{{formatDate3 selectedOrder.deliveryDate}}">
+                    </div>
+                    <div class="form-group">
+                        <label>Time Range</label>
+                        <select id="timeRange">
+                            <option value="Morning" {{#if (eq selectedOrder.deliveryTimeRange "Morning")}}selected{{/if}}>Morning</option>
+                            <option value="Afternoon" {{#if (eq selectedOrder.deliveryTimeRange "Afternoon")}}selected{{/if}}>Afternoon</option>
+                            <option value="Evening" {{#if (eq selectedOrder.deliveryTimeRange "Evening")}}selected{{/if}}>Evening</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="orderStatus">
+                            <option value="Waiting Approval" {{#if (eq selectedOrder.status "Waiting Approval")}}selected{{/if}}>Waiting Approval</option>
+                            <option value="Preparing" {{#if (eq selectedOrder.status "Preparing")}}selected{{/if}}>Preparing</option>
+                            <option value="Dispatched" {{#if (eq selectedOrder.status "Dispatched")}}selected{{/if}}>Dispatched</option>
+                            <option value="Delivered" {{#if (eq selectedOrder.status "Delivered")}}selected{{/if}}>Delivered</option>
+                            <option value="Cancelled" {{#if (eq selectedOrder.status "Cancelled")}}selected{{/if}}>Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea id="deliveryAddress">{{selectedOrder.deliveryAddress}}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Customizations</label>
+                        <textarea id="customizations">{{selectedOrder.customizations}}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Items</label>
+                            <div class="items-list">
+                                {{#each selectedOrder.items}}
+                                <div class="item">
+                                    <div class="item-name">{{itemName}}</div>
+                                    <div class="item-details">
+                                        <span class="item-quantity quantity-input">x{{quantity}}</span>
+                                        <span class="item-price-detail">₱{{itemPrice}}</span>
+                                    </div>
+                                    <div class="item-subtotal">₱{{totalPrice}}</div>
+                                </div>
+                                {{/each}}
+                                <div class="total-line">
+                                    <span>Total Amount:</span>
+                                    <span class="total-amount">₱{{selectedOrder.totalAmount}}</span>
+                                </div>
+                            </div>
+                    </div>
+                    <div class="button-group">
+                        <button id="saveCurrentOrder">Save for this order</button>
+                        <button id="saveAllOrders">Save for all orders</button>
+                    </div>
                 </div>
             </div>
-        </div>
         </div>
 
         <div class="chat-input">
