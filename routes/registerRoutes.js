@@ -20,8 +20,8 @@ const upload = multer({ storage: storage });
 router.get('/', (req, res) => {
     res.render('../views/register.hbs', {
         layout: 'landing.hbs', // Layout file to use
-        title: 'Account Registration', // Title of the page
-        css: ['register.css'], // Array of CSS files to include
+        title: 'Be a SustainaPartner', // Title of the page
+        css: ['index.css'], // Array of CSS files to include
         view: 'register' // View file to use
     })
 });
