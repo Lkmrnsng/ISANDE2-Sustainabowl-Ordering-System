@@ -1,6 +1,7 @@
 
 <div class="chat-container sales-view">
-    <div class="sidebar">
+
+    <div class="chat-sidebar">
         <h2>Active Requests</h2>
         <div class="request-list">
             {{#each requests}}
@@ -17,32 +18,31 @@
             {{/each}}
         </div>
     </div>
-
     <div class="chat-main sales-view">
-<div class="chat-header">
-    {{#if activeRequest}}
-    <div class="customer-info">
-        <h3>Chat with {{activeRequest.customerName}}</h3>
-        <div class="request-info">
-            <span>Request #{{activeRequest.requestID}}</span>
-            <div class="status-control">
-                <label for="requestStatus">Request Status:</label>
-                <select id="requestStatus" class="request-status-select">
-                    <option value="Received" {{#if (eq activeRequest.status "Received")}}selected{{/if}}>Received</option>
-                    <option value="Negotiation" {{#if (eq activeRequest.status "Negotiation")}}selected{{/if}}>Negotiation</option>
-                    <option value="Approved" {{#if (eq activeRequest.status "Approved")}}selected{{/if}}>Approved</option>
-                    <option value="Cancelled" {{#if (eq activeRequest.status "Cancelled")}}selected{{/if}}>Cancelled</option>
-                </select>
+        <div class="chat-header">
+            {{#if activeRequest}}
+            <div class="customer-info">
+                <h3>Chat with {{activeRequest.customerName}}</h3>
+                <div class="request-info">
+                    <span>Request #{{activeRequest.requestID}}</span>
+                    <div class="status-control">
+                        <label for="requestStatus">Request Status:</label>
+                        <select id="requestStatus" class="request-status-select">
+                            <option value="Received" {{#if (eq activeRequest.status "Received")}}selected{{/if}}>Received</option>
+                            <option value="Negotiation" {{#if (eq activeRequest.status "Negotiation")}}selected{{/if}}>Negotiation</option>
+                            <option value="Approved" {{#if (eq activeRequest.status "Approved")}}selected{{/if}}>Approved</option>
+                            <option value="Cancelled" {{#if (eq activeRequest.status "Cancelled")}}selected{{/if}}>Cancelled</option>
+                        </select>
+                    </div>
+                </div>
             </div>
+            {{else}}
+            <div class="customer-info">
+                <h3>Customer Support Chat</h3>
+                <span>Select a request to start chatting</span>
+            </div>
+            {{/if}}
         </div>
-    </div>
-    {{else}}
-    <div class="customer-info">
-        <h3>Customer Support Chat</h3>
-        <span>Select a request to start chatting</span>
-    </div>
-    {{/if}}
-</div>
 
         <div class="chat-content">
             <div class="chat-messages" id="chatMessages">

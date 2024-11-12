@@ -1,16 +1,18 @@
 .dashboard-container {
     display: flex;
     gap: 2rem;
-    padding: 2rem;
+    /* padding: 2rem; */
     flex-direction: column;
     align-items: center;
-    margin-left: 240px;
+    margin-left: 150px;
+    width: 100%;
   }
 
   .requests-container {
     display: flex;
     flex-direction: row;
     gap: 2rem;
+    width: 100%;
   }
   
   .all-requests, .sustaina-partners {
