@@ -1,11 +1,21 @@
 ===========DEFAULT USER============
+FOR CUSTOMER
+user: megan@gmail.com
+pass: 1234
 
+FOR SALES
+user: kenneth_vidal@dlsu.edu.ph
+pass: 123
+
+FOR LOGISTICS
+user: 
+pass: 
 
 ========MONGODB LOGIN CREDS========
-username: 
-password: 
-database name: 
-connection string:
+username: dbuser1
+password: PioneeringParagons2024
+database name: isande2
+connection string: mongodb+srv://dbuser1:PioneeringParagons2024@isande2.zq1ez.mongodb.net/ISANDE2
 
 ===========DEPENDENCIES===========
 npm install express
@@ -24,4 +34,4 @@ npm install bcrypt
 node app.js
 
 ============GITHUB LINK============
-https://github.com/megan-ryleneryl/ITISDEV.git
+https://github.com/Lkmrnsng/ISANDE2.git
