@@ -592,6 +592,20 @@ async function getWarehouseInventory(req, res) {
     }
 }
 
+async function getCalendar(req, res) {
+    try {
+        res.render('sales_calendar', {
+            title: 'Calendar',
+            css: ['sales_calendar.css'],
+            layout: 'sales',
+            active: 'calendar'
+        });
+    } catch (err) {
+        console.error('Error fetching calendar data:', err);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
 module.exports = {
     getDashboard,
     getRequests,
@@ -604,5 +618,6 @@ module.exports = {
     getPartnersData,
     getRequestDetailsApi,
     setRequestStatus,
-    getWarehouseInventory
+    getWarehouseInventory,
+    getCalendar
 };

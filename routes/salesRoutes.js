@@ -10,4 +10,6 @@ router.get('/api/requests', salesController.getRequests);
 
 router.get('/warehouse', salesController.getWarehouseInventory);
 
+router.get('/calendar', salesController.getCalendar);
+
 module.exports = router;

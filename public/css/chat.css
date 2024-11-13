@@ -282,7 +282,7 @@ select, input[type="date"], textarea {
   padding: 12px 15px;
   border-bottom: 1px solid #e0e0e0;
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: 2fr 3fr;
   align-items: center;
   gap: 10px;
 }
@@ -303,7 +303,6 @@ select, input[type="date"], textarea {
 .item-name {
   font-weight: 500;
   color: #333;
-  width: 65px;
 }
 
 .item-details {
@@ -319,8 +318,8 @@ select, input[type="date"], textarea {
 }
 
 .quantity-input {
-  width: 70px;
-  padding: 4px 8px;
+  width: 60px;
+  padding: 4px 4px;
   border: 1px solid #ddd;
   border-radius: 4px;
   text-align: right;
@@ -345,6 +344,7 @@ select, input[type="date"], textarea {
   border-top: 2px solid #e0e0e0;
   font-weight: 600;
   font-size: 1.1em;
+  align-items: center;
 }
 
 .total-amount {

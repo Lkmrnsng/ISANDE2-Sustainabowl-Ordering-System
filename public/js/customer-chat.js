@@ -170,7 +170,7 @@ if (elements.requestItems[0]) {
               <div class="item">
                   <span class="item-name">${item.itemName || 'Unknown Item'}</span>
                   <span class="item-details">
-                      <span class="item-quantity">x${item.quantity || 0}</span>
+                      <span class="item-quantity">x${item.quantity || 0} kg</span>
                       <span class="item-price">₱${(item.itemPrice || 0).toFixed(2)}</span>
                       <span class="item-total">₱${(item.totalPrice || 0).toFixed(2)}</span>
                   </span>

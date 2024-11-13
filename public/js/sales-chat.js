@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const itemsList = document.querySelector('.items-list');
       if (itemsList && Array.isArray(order.items)) {
           let itemsHTML = order.items.map(item => `
-              <div class="item" data-item-id="${item.itemID}">
+              <div class="salesitems" data-item-id="${item.itemID}">
                   <div class="item-name">${item.itemName || 'Unknown Item'}</div>
                   <div class="item-details">
                       <div class="quantity-control">
@@ -354,7 +354,8 @@ document.addEventListener('DOMContentLoaded', function() {
                               value="${item.quantity}" 
                               min="1" 
                               data-previous-value="${item.quantity}"
-                              onchange="handleItemQuantityChange(event)">
+                              onchange="handleItemQuantityChange(event)"> 
+                              kg
                       </div>
                       <span class="item-price-detail" data-price="${item.itemPrice}">₱${item.itemPrice.toFixed(2)}</span>
                   </div>
