@@ -6,14 +6,11 @@ const Review = require('../models/Review');
 
 async function getDashboard(req, res) {
     try {
-        console.log('Session user ID:', req.session.userId); // Debug log
         const customerId = parseInt(req.session.userId); // Convert to number since userID is stored as number
 
         // Fetch requests for this customer
         const originalRequests = await Request.find({ customerID: customerId }).sort({ requestID: -1 });
         
-        console.log('Found requests:', originalRequests); // Debug log
-
         if (originalRequests.length === 0) {
             return res.render('customer_dashboard', {
                 title: 'Dashboard',
@@ -73,8 +70,6 @@ async function getDashboard(req, res) {
                 pointPersonName: pointPerson ? pointPerson.name : 'Unassigned'
             };
         }));
-
-        console.log('Processed requests:', processedRequests); // Debug log
 
         res.render('customer_dashboard', {
             title: 'Dashboard',

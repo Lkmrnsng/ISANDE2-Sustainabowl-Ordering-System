@@ -34,7 +34,13 @@
                                     <p id="quantity-{{this.itemID}}">1 kg</p> 
                                     <i class="fa-regular fa-square-plus" data-item-id="{{this.itemID}}" data-delta="1"></i>
                                 </div>
-                                <button onclick="addToCart()">Add to Request</button>
+                                <button class="add-to-cart-btn" 
+                                        data-item-id="{{this.itemID}}"
+                                        data-name="{{this.itemName}}"
+                                        data-price="{{this.itemPrice}}"
+                                        data-image="{{this.itemImage}}">
+                                    Add to Request
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -51,7 +57,6 @@
                     <img id="overlay-image" src="" alt="Product Image" >
                     <div class="details-desc">
                         <p id="overlay-price"></p>
-                        <button onclick="addToCart()">Add to Request</button>
                         <h3>Product Description:</h3>
                         <p id="overlay-description"></p>
                     </div>
@@ -62,3 +67,4 @@
 </main>
 
 <script src="/js/marketplace_catalog.js"></script>
+<script src="/js/marketplace_cart.js"></script>
