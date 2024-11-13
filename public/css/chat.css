@@ -185,7 +185,7 @@
 
 /* Order Details Panel */
 .order-details {
-  flex: 0 0 350px;
+  flex: 0 0 450px;
   padding: 20px;
   border-left: 1px solid #e0e0e0;
   background: #f8f9fa;
@@ -279,6 +279,15 @@ select, input[type="date"], textarea {
 }
 
 .item {
+  padding: 12px 15px;
+  border-bottom: 1px solid #e0e0e0;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.salesitems {
   padding: 12px 15px;
   border-bottom: 1px solid #e0e0e0;
   display: grid;
