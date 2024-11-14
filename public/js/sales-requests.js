@@ -5,18 +5,21 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentPartnerPage = 1;
     let filteredRequests = [];
     let allRequests = [];
+    let partnersData = [];
 
     // Load the page for the first time
     async function initializeTables() {
         const requestsTable = document.getElementById('requestsTable');
         if (requestsTable) {
-            await refreshRequestsData();
+            await getRequestsJson();
             updateRequestsTable();
+            await getPartnersJson();
+            updatePartnersTable();
         }
     }
 
     // Fetch the json requests data from the server
-    async function refreshRequestsData() {
+    async function getRequestsJson() {
         try {
             const response = await fetch('/sales/api/requests');
             if (!response.ok) throw new Error('Failed to fetch requests');
@@ -30,6 +33,38 @@ document.addEventListener('DOMContentLoaded', function() {
             filteredRequests = [...allRequests];
         } catch (error) {
             console.error('Error refreshing requests data:', error);
+        }
+    }
+
+    // Fetch and display request details as json
+    async function getRequestSidebarJson(requestID) {
+        try {
+            const response = await fetch(`/sales/api/${requestID}/details`);
+            if (!response.ok) throw new Error('Failed to fetch request details');
+            const details = await response.json();
+            updateRequestDetailsPanel(details);
+        } catch (error) {
+            console.error('Error loading request details:', error);
+            updateRequestDetailsPanel(null);
+        }
+    }
+
+    // Fetch and display the partner details as json
+    async function getPartnersJson() {
+        try {
+            const response = await fetch(`/sales/api/partners`);
+            if (!response.ok) throw new Error('Failed to fetch partner details');
+            const details = await response.json();
+            allPartners = details.map(row => ({
+                name: row.name,
+                customerName: row.customerName,
+                totalReqs: row.totalReqs,
+                cancelRate: row.cancelRate
+            }));
+            partnersData = [...allPartners];
+        } catch (error) {
+            console.error('Error loading partner details:', error);
+            updatePartnersTable(null);
         }
     }
 
@@ -49,14 +84,14 @@ document.addEventListener('DOMContentLoaded', function() {
     window.sortRequests = function() {
         const sortBy = document.getElementById('sortByRequest').value;
         
-        filteredRequests = [...filteredRequests];
+        // filteredRequests = [...filteredRequests];
         
         switch(sortBy) {
             case 'idAsc':
-                filteredRequests.sort((a, b) => a.requestID.localeCompare(b.requestID, undefined, {numeric: true}));
+                filteredRequests.sort((a, b) => parseInt(a.requestID) - parseInt(b.requestID));
                 break;
             case 'idDesc':
-                filteredRequests.sort((a, b) => b.requestID.localeCompare(a.requestID, undefined, {numeric: true}));
+                filteredRequests.sort((a, b) => parseInt(b.requestID) - parseInt(a.requestID));
                 break;
             case 'dateAsc':
                 filteredRequests.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -64,13 +99,33 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'dateDesc':
                 filteredRequests.sort((a, b) => new Date(b.date) - new Date(a.date));
                 break;
-            case 'none':
-                filteredRequests = [...allRequests];
-                break;
         }
         
         currentPage = 1;
         updateRequestsTable();
+    };
+
+    // Sort partners
+    window.sortPartners = function() {
+        const sortBy = document.getElementById('sortByPartner').value;
+        
+        switch(sortBy) {
+            case 'totalAsc':
+                partnersData.sort((a, b) => parseInt(a.totalReqs) - parseInt(b.totalReqs));
+                break;
+            case 'totalDesc':
+                partnersData.sort((a, b) => parseInt(b.totalReqs) - parseInt(a.totalReqs));
+                break;
+            case 'cancelAsc':
+                partnersData.sort((a, b) => parseFloat(a.cancelRate) - parseFloat(b.cancelRate));
+                break;
+            case 'cancelDesc':
+                partnersData.sort((a, b) => parseFloat(b.cancelRate) - parseFloat(a.cancelRate));
+                break;
+        }
+
+        currentPartnerPage = 1;
+        updatePartnersTable();
     };
 
     // Update functions and pagination handlers (existing implementation)
@@ -81,6 +136,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (newPage >= 1 && newPage <= totalPages) {
             currentPage = newPage;
             updateRequestsTable();
+        }
+    };
+
+    // Function to change page on the sustainapartner table
+    window.changePartnerPage = function(delta) {
+        const totalPages = Math.ceil(partnersData.length / partnersPerPage);
+        const newPage = currentPartnerPage + delta;
+        
+        if (newPage >= 1 && newPage <= totalPages) {
+            currentPartnerPage = newPage;
+            updatePartnersTable();
         }
     };
 
@@ -116,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (checkbox.checked) {
                     // Load details for the selected request
                     selectedRequest = request.requestID;
-                    loadRequestDetails(request.requestID);
+                    getRequestSidebarJson(request.requestID);
                 } else {
                     // Clear the details panel
                     selectedRequest = null;
@@ -141,20 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
             tbody.appendChild(emptyRow);
         }
     }
-
-    // Fetch and display request details
-    async function loadRequestDetails(requestID) {
-        try {
-            const response = await fetch(`/sales/api/${requestID}/details`);
-            if (!response.ok) throw new Error('Failed to fetch request details');
-            const details = await response.json();
-            updateRequestDetailsPanel(details);
-        } catch (error) {
-            console.error('Error loading request details:', error);
-            updateRequestDetailsPanel(null);
-        }
-    }
-
+    
     // Update the details panel with request information
     function updateRequestDetailsPanel(details) {
         const detailsContainer = document.querySelector('.request-details .item-list');
@@ -187,33 +240,45 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('.request-details').style.display = 'block';
     }
 
-    // Function to change page on the sustainapartner table
-    window.changePartnerPage = function(delta) {
-        const partnerRows = document.querySelectorAll('.sustaina-partners tbody tr');
-        const totalPages = Math.ceil(partnerRows.length / partnersPerPage);
-        const newPage = currentPartnerPage + delta;
-        
-        if (newPage >= 1 && newPage <= totalPages) {
-            currentPartnerPage = newPage;
-            updatePartnerTable();
-        }
-    };
+    // Update the partners table with given information
+    async function updatePartnersTable() {
+        const tbody = document.getElementById('partnersTable').querySelector('tbody');
+        const startIndex = (currentPartnerPage - 1) * partnersPerPage;
+        const endIndex = Math.min(startIndex + partnersPerPage, partnersData.length);
+        const pageData = partnersData.slice(startIndex, endIndex);
 
-    // 
-    function updateRequestDetails(details) {
-        const detailsContainer = document.querySelector('.request-details .item-list');
-        detailsContainer.innerHTML = details.items.map(item => `
-            <div class="item">
-                <div class="placeholder-image"></div>
-                <p>${item.name}</p>
-                <p>${item.quantity} kg</p>
-                <p>₱${item.price}</p>
-            </div>
-        `).join('');
-    
-        // Update summary
-        document.querySelector('.summary-details .attribute:first-child').textContent = `₱${details.total}`;
-        document.querySelector('.summary-details .attribute:last-child').textContent = details.status;
+        tbody.innerHTML = '';
+
+        pageData.forEach(partner => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${partner.name}</td>
+                <td>${partner.customerName}</td>
+                <td>${partner.totalReqs}</td>
+                <td>${partner.cancelRate}</td>
+                <td><button class="contact-button">Contact</button></td>
+            `;
+
+            const contactButton = row.querySelector('.contact-button');
+            contactButton.addEventListener('click', function() {
+                console.log("Contact button clicked.");
+                // TODO: Link to corresponding chat
+            });
+            
+            tbody.appendChild(row);
+        });
+
+        const totalPartnerPages = Math.ceil(partnersData.length / partnersPerPage);
+        document.getElementById('currentPartnerPage').textContent = currentPartnerPage;
+        document.getElementById('totalPartnerPages').textContent = totalPartnerPages;
+        document.getElementById('prevPartner').disabled = currentPartnerPage === 1;
+        document.getElementById('nextPartner').disabled = currentPartnerPage === totalPartnerPages || partnersData.length === 0;
+
+        if (partnersData.length === 0) {
+            const emptyRow = document.createElement('tr');
+            emptyRow.innerHTML = '<td colspan="5" class="text-center">No partners found</td>';
+            tbody.appendChild(emptyRow);
+        }
     }
 
     // For every selected request, set its status to 'Cancelled'
@@ -235,9 +300,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
             try {
                 await Promise.all(cancelPromises);
-                await refreshRequestsData();
+                await getRequestsJson();
                 updateRequestsTable();
-                updatePartnerTable();
+                await getPartnersJson();
+                updatePartnersTable();
                 
                 // Clear all checkboxes
                 checkedBoxes.forEach(checkbox => {
@@ -267,99 +333,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Sort partners
-    window.sortPartners = function() {
-        const sortBy = document.getElementById('sortByPartner').value;
-        const table = document.querySelector('.sustaina-partners table');
-        const rows = Array.from(table.querySelectorAll('tbody tr'));
-        
-        switch(sortBy) {
-            case 'idAsc':
-                rows.sort((a, b) => a.cells[0].textContent.localeCompare(b.cells[0].textContent));
-                break;
-            case 'idDesc':
-                rows.sort((a, b) => b.cells[0].textContent.localeCompare(a.cells[0].textContent));
-                break;
-            case 'totalAsc':
-                rows.sort((a, b) => parseInt(a.cells[3].textContent) - parseInt(b.cells[3].textContent));
-                break;
-            case 'totalDesc':
-                rows.sort((a, b) => parseInt(b.cells[3].textContent) - parseInt(a.cells[3].textContent));
-                break;
-        }
-        
-        const tbody = table.querySelector('tbody');
-        tbody.innerHTML = '';
-        rows.forEach(row => tbody.appendChild(row));
-        
-        currentPartnerPage = 1;
-        updatePartnerTable();
-    };
-
-    // Fetch newest partner data and refresh the table
-    async function updatePartnerTable() {
-        try {
-            const customers = await User.find({ usertype: 'Customer' });
-            const partnerStats = [];
-    
-            for (const customer of customers) {
-                // Get total requests
-                const totalReqs = await Request.countDocuments({ customerID: customer.userID });
-    
-                // Calculate weekly average 
-                // const weeklyReqs = await Request.aggregate([
-                //     { 
-                //         $match: { 
-                //             customerID: customer.userID,
-                //             requestDate: { 
-                //                 $type: "date"  // Only match valid date fields
-                //             }
-                //         }
-                //     },
-                //     { 
-                //         $group: {
-                //             _id: { 
-                //                 year: { $year: "$requestDate" },
-                //                 week: { $week: "$requestDate" }
-                //             },
-                //             count: { $sum: 1 }
-                //         }
-                //     },
-                //     { 
-                //         $group: {
-                //             _id: null,
-                //             avgWeeklyReqs: { $avg: "$count" }
-                //         }
-                //     }
-                // ]).catch(err => []);
-    
-                // Calculate cancel rate
-                const cancelledReqs = await Request.countDocuments({
-                    customerID: customer.userID,
-                    status: 'Cancelled'
-                });
-    
-                // const createdAtDate = customer.createdAt instanceof Date ? 
-                //     customer.createdAt.toLocaleDateString() : 
-                //     new Date(customer.createdAt).toLocaleDateString();
-    
-                partnerStats.push({
-                    name: customer.restaurantName || customer.name,
-                    pointPerson: customer.name,
-                    // location: customer.address || 'N/A',
-                    totalReqs: totalReqs,
-                    // avgWeeklyReqs: weeklyReqs[0]?.avgWeeklyReqs?.toFixed(1) || '0.0',
-                    cancelRate: totalReqs > 0 ? ((cancelledReqs / totalReqs) * 100).toFixed(1) + '%' : '0.0%',
-                    // clientSince: createdAtDate || 'N/A'
-                });
-            }
-            return partnerStats;
-        } catch (err) {
-            console.error('Error in getPartnersData:', err);
-            return [];
-        }
-    }
-
     initializeTables();
 });
-

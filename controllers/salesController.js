@@ -32,8 +32,6 @@ async function getDashboardPage(req, res) {
 async function getRequestsPage(req, res) {
     try {
         const stats = await getRequestStats();
-        const requests = await getRequestData();
-        const partners = await getPartnersData();
         
         res.render('sales_requests', {
             title: 'Requests',
@@ -41,9 +39,6 @@ async function getRequestsPage(req, res) {
             layout: 'sales',
             active: 'requests',
             stats: stats,
-            requests: requests,
-            partners: partners,
-            selectedRequest: null // Will be populated when a request is selected
         });
     } catch(err) {
         console.error('Error in getRequestsPage:', err);
@@ -367,31 +362,26 @@ async function getInventoryData() {
     }
 }
 
+// Get the partners data and return as a JSON
+async function getPartnerJson(req, res) {
+    try {
+        const requests = await getPartnersData();
+        res.json(requests);
+    } catch (err) {
+        console.error('Error fetching partners:', err);
+        res.status(500).json({ error: 'Failed to fetch partners' });
+    }
+}
+
 // Fetch the data needed for the Review Request - Sustainapartners table
 async function getPartnersData() {
     try {
-        const customers = await User.find({ usertype: 'Customer' });
+        const customers = await User.find({ usertype: 'Customer' }).sort({ userID: 1 }).limit(10);
         const partnerStats = [];
 
         for (const customer of customers) {
             // Get total requests
             const totalReqs = await Request.countDocuments({ customerID: customer.userID });
-
-            // Calculate weekly average
-            // const weeklyReqs = await Request.aggregate([
-            //     { $match: { customerID: customer.userID }},
-            //     { $group: {
-            //         _id: { 
-            //             year: { $year: '$requestDate' },
-            //             week: { $week: '$requestDate' }
-            //         },
-            //         count: { $sum: 1 }
-            //     }},
-            //     { $group: {
-            //         _id: null,
-            //         avgWeeklyReqs: { $avg: '$count' }
-            //     }}
-            // ]);
 
             // Calculate cancel rate
             const cancelledReqs = await Request.countDocuments({
@@ -402,7 +392,7 @@ async function getPartnersData() {
             partnerStats.push({
                 userID: customer.userID,
                 name: customer.restaurantName || customer.name,
-                pointPerson: customer.name,
+                customerName: customer.name || customer.userID,
                 // location: customer.address || 'N/A',
                 totalReqs: totalReqs,
                 cancelRate: totalReqs > 0 ? ((cancelledReqs / totalReqs) * 100).toFixed(1) + '%' : '0.0%',
@@ -482,18 +472,17 @@ async function getPartnersData() {
 // }
 
 // Get request details for the Review Requests mini sidebar
-async function getRequestSidebar(req, res) {
+async function getRequestSidebarJson(req, res) {
     try {
         const requestID = req.params.requestID;
         const details = await getRequestSidebarHelper(requestID);
         if (!details) {
-            console.log("4a. Request not found in database");
             return res.status(404).json({ error: 'Request not found' });
         }
         
         res.json(details);
     } catch (err) {
-        console.error('Error in getRequestSidebar:', err);
+        console.error('Error in getRequestSidebarJson:', err);
         res.status(500).json({ error: 'Internal server error' });
     }
 }
@@ -587,8 +576,9 @@ module.exports = {
     getRequestJson,
     getRequestData,
     getInventoryData,
+    getPartnerJson,
     getPartnersData,
-    getRequestSidebar,
+    getRequestSidebarJson,
     getRequestSidebarHelper,
     setRequestStatus
 };

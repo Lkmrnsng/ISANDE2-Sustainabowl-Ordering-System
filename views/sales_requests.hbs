@@ -36,15 +36,7 @@
                 </tr>
             </thead>
             <tbody>
-                {{#each requests}}
-                <tr>
-                <td><input type="checkbox"></td>
-                <td>{{this.requestID}}</td>
-                <td>{{this.partner}}</td>
-                <td>{{this.status}}</td>
-                <td>{{this.dates}}</td>
-                </tr>
-                {{/each}}
+                {{!-- This will be populated by sales-request.js upon initialization --}}
             </tbody>
             </table>
             <div class="pagination">
@@ -65,14 +57,7 @@
         <aside class="request-details">
             <h2>Request Details</h2>
             <div class="item-list">
-            {{#each selectedRequest.items}}
-            <div class="item">
-                <div class="placeholder-image"></div>
-                <p>{{this.name}}</p>
-                <p>{{this.quantity}} kg</p>
-                <p>₱{{this.price}}</p>
-            </div>
-            {{/each}}
+                {{!-- This will be populated by sales-request.js when an item is selected --}}
             </div>
 
             <div class="summary">
@@ -96,43 +81,29 @@
         <div class="filters">
             <select id="sortByPartner" onchange="sortPartners()">
                 <option value="none">Sort by</option>
-                <option value="idAsc">ID Ascending</option>
-                <option value="idDesc">ID Descending</option>
                 <option value="totalAsc">Total Ascending</option>
                 <option value="totalDesc">Total Descending</option>
+                <option value="cancelAsc">Cancel Rate Ascending</option>
+                <option value="cancelDesc">Cancel Rate Descending</option>
             </select>
         </div>
     </div>
-    <table>
+    <table id="partnersTable">
       <thead>
         <tr>
+          <th>Restaurant</th>
           <th>Name</th>
-          <th>Point Person</th>
           {{!-- <th>Location</th> --}}
           <th>Total Reqs</th>
-          {{!-- <th>Avg. Weekly Reqs</th> --}}
           <th>Cancel Rate</th>
-          {{!-- <th>Client Since</th> --}}
           <th>Contact</th>
         </tr>
       </thead>
       <tbody>
-        {{#each partners}}
-        <tr>
-          <td>{{this.name}}</td>
-          <td>{{this.pointPerson}}</td>
-          {{!-- <td>{{this.location}}</td> --}}
-          <td>{{this.totalReqs}}</td>
-          {{!-- <td>{{this.avgWeeklyReqs}}</td> --}}
-          <td>{{this.cancelRate}}</td>
-          {{!-- <td>{{this.clientSince}}</td> --}}
-          <td><button>Contact</button></td> <!-- TODO: Need help making this button redirect to the specific customer. this.userID should give you their uid -->
-        </tr>
-        {{/each}}
+        {{!-- This will be populated by sales-request.js upon initialization --}}
       </tbody>
     </table>
     <div class="pagination">
-        <p>Click on a partner to view its details</p>
         <span>Page <span id="currentPartnerPage">1</span> of <span id="totalPartnerPages">1</span></span>
         <div class="navigation-buttons">
             <button id="prevPartner" class="nav-button" onclick="changePartnerPage(-1)">
