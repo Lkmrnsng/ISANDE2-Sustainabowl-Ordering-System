@@ -4,11 +4,11 @@ const Order = require('../models/Order');
 const Item = require('../models/Item');
 
 // Render the sales dashboard
-async function getDashboard(req, res) {
+async function getDashboardPage(req, res) {
     try{
-        const stats = (await getStats())[0];
-        const requests = await getRequests();
-        const inventory = await getInventory();
+        const stats = (await getDashboardStats())[0];
+        const requests = await getRequestData();
+        const inventory = await getInventoryData();
         // const weekDays = await getWeekDays();
         
         res.render('sales_dashboard', {
@@ -28,19 +28,53 @@ async function getDashboard(req, res) {
     }
 }
 
-// Get the newest requests data
-async function getRequests(req, res) {
+// Render the review requests page
+async function getRequestsPage(req, res) {
     try {
-        const requests = await getDetailedRequests();
-        res.json(requests);
+        const stats = await getRequestStats();
+        const requests = await getRequestData();
+        const partners = await getPartnersData();
+        
+        res.render('sales_requests', {
+            title: 'Requests',
+            css: ['sales_requests.css'],
+            layout: 'sales',
+            active: 'requests',
+            stats: stats,
+            requests: requests,
+            partners: partners,
+            selectedRequest: null // Will be populated when a request is selected
+        });
+    } catch(err) {
+        console.error('Error in getRequestsPage:', err);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+// Render the warehouse inventory page
+async function getWarehousePage(req, res) {
+    try {
+        const items = await Item.find({});
+        const inventory = await getInventoryData();
+
+        res.render('sales_warehouseInventory', {
+            title: 'Warehouse Inventory',
+            css: ['logisales_dashboard.css'],
+            layout: 'sales',
+            active: 'warehouseinventory',
+            items: items,
+            inventory: inventory
+        });
+
+
     } catch (err) {
-        console.error('Error fetching requests:', err);
-        res.status(500).json({ error: 'Failed to fetch requests' });
+        console.error('Error fetching warehouse inventory:', err);
+        res.status(500).json({ error: 'Failed to fetch warehouse inventory' });
     }
 }
 
 // Call the methods to compute the Sales Dashboard statistics
-async function getStats() {
+async function getDashboardStats() {
     const statsArray = [];
     const monthlyRevenue = await getMonthlyRevenue();
     const monthlyRequests = await getMonthlyRequests();
@@ -55,6 +89,96 @@ async function getStats() {
     })
 
     return statsArray;
+}
+
+// Calculate the statistics for the Review Requests page
+async function getRequestStats() {
+    try {
+        const currentDate = new Date();
+        const startOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
+        
+        // Get delivered orders this week
+        const deliveredThisWeek = await Order.countDocuments({
+            status: 'Delivered',
+            deliveryDate: { $gte: startOfWeek }
+        });
+
+        // Get top produce sold
+        const topProduce = await Order.aggregate([
+            { $unwind: '$items' },
+            { $group: { 
+                _id: '$items.itemID',
+                totalQuantity: { $sum: '$items.quantity' }
+            }},
+            { $sort: { totalQuantity: -1 }},
+            { $limit: 1 }
+        ]);
+
+        const topProduceName = topProduce.length > 0 
+            ? (await Item.findOne({ itemID: topProduce[0]._id }))?.itemName 
+            : 'N/A';
+
+        // Get pending requests
+        const pendingRequests = await Request.countDocuments({
+            status: { $in: ['Received', 'Negotiation'] }
+        });
+
+        // Calculate average order value
+        const orders = await Order.find({ status: 'Delivered' });
+        let totalValue = 0;
+        for (const order of orders) {
+            if (order.items && Array.isArray(order.items)) {
+                for (const orderItem of order.items) {
+                    const item = await Item.findOne({ itemID: orderItem.itemID });
+                    if (item) {
+                        totalValue += item.itemPrice * orderItem.quantity;
+                    }
+                }
+            }
+        }
+        const averageOrder = orders.length > 0 ? totalValue / orders.length : 0;
+
+        return {
+            delivered: deliveredThisWeek,
+            topProduce: topProduceName,
+            pendingRequests: pendingRequests,
+            averageOrder: averageOrder
+        };
+    } catch (err) {
+        console.error('Error in getRequestStats:', err);
+        throw err;
+    }
+}
+
+// Fetch the data needed for the Sales Dashboard warehouse statistics
+async function getWarehouseStats() {
+    try {
+        const items = await Item.find({});
+        const totalStock = items.reduce((sum, item) => sum + (item.itemStock || 0), 0);
+        const warehouseCapacity = 2000; // I just set a random capacity
+        
+        // Calculate reserved stock from pending orders
+        const pendingOrders = await Order.find({ 
+            status: { $in: ['Waiting Approval', 'Preparing'] }
+        });
+        
+        let reservedStock = 0;
+        for (const order of pendingOrders) {
+            if (order.items && Array.isArray(order.items)) {
+                reservedStock += order.items.reduce((sum, item) => sum + (item.quantity || 0), 0);
+            }
+        }
+
+        const reservedPercentage = Math.round((reservedStock / warehouseCapacity) * 100);
+
+        return {
+            totalStock: totalStock,
+            reservedPercentage: reservedPercentage
+        };
+    } catch (err) {
+        console.error('Error calculating warehouse stats:', err);
+        return { totalStock: 0, reservedPercentage: 0 };
+    }
 }
 
 // Calculate the total amount of sales for the current month
@@ -143,8 +267,19 @@ async function getActivePartners() {
     }
 }
 
-// Fetch the data needed for the Sales Dashboard - Requests table
-async function getRequests() {
+// Get the requests data and return as a JSON
+async function getRequestJson(req, res) {
+    try {
+        const requests = await getRequestData();
+        res.json(requests);
+    } catch (err) {
+        console.error('Error fetching requests:', err);
+        res.status(500).json({ error: 'Failed to fetch requests' });
+    }
+}
+
+// Fetch requests data by mapping across models
+async function getRequestData() {
     try {
         const requests = await Request.find({})
             .sort({ requestDate: -1 })
@@ -167,16 +302,17 @@ async function getRequests() {
             requestID: request.requestID,
             partner: customerMap[request.customerID] || 'Unknown Partner',
             status: request.status || 'Pending',
-            date: request.requestDate ? request.requestDate.toLocaleDateString() : 'N/A' // TODO: Consider multi-date requests
+            dates: request.requestDate ? request.requestDate.toLocaleDateString() : 'N/A',
+            items: [] // Will be populated when request details are opened
         }));
     } catch (err) {
-        console.error('Error fetching requests:', err);
+        console.error('Error in getRequestData:', err);
         return [];
     }
 }
 
 // Fetch the data needed for the Sales Dashboard - Warehouse Inventory table
-async function getInventory() {
+async function getInventoryData() {
     try {
         const items = await Item.find({});
         
@@ -216,34 +352,52 @@ async function getInventory() {
     }
 }
 
-// Fetch the data needed for the Sales Dashboard warehouse statistics
-async function getWarehouseStats() {
+// Fetch the data needed for the Review Request - Sustainapartners table
+async function getPartnersData() {
     try {
-        const items = await Item.find({});
-        const totalStock = items.reduce((sum, item) => sum + (item.itemStock || 0), 0);
-        const warehouseCapacity = 2000; // I just set a random capacity
-        
-        // Calculate reserved stock from pending orders
-        const pendingOrders = await Order.find({ 
-            status: { $in: ['Waiting Approval', 'Preparing'] }
-        });
-        
-        let reservedStock = 0;
-        for (const order of pendingOrders) {
-            if (order.items && Array.isArray(order.items)) {
-                reservedStock += order.items.reduce((sum, item) => sum + (item.quantity || 0), 0);
-            }
+        const customers = await User.find({ usertype: 'Customer' });
+        const partnerStats = [];
+
+        for (const customer of customers) {
+            // Get total requests
+            const totalReqs = await Request.countDocuments({ customerID: customer.userID });
+
+            // Calculate weekly average
+            // const weeklyReqs = await Request.aggregate([
+            //     { $match: { customerID: customer.userID }},
+            //     { $group: {
+            //         _id: { 
+            //             year: { $year: '$requestDate' },
+            //             week: { $week: '$requestDate' }
+            //         },
+            //         count: { $sum: 1 }
+            //     }},
+            //     { $group: {
+            //         _id: null,
+            //         avgWeeklyReqs: { $avg: '$count' }
+            //     }}
+            // ]);
+
+            // Calculate cancel rate
+            const cancelledReqs = await Request.countDocuments({
+                customerID: customer.userID,
+                status: 'Cancelled'
+            });
+
+            partnerStats.push({
+                userID: customer.userID,
+                name: customer.restaurantName || customer.name,
+                pointPerson: customer.name,
+                // location: customer.address || 'N/A',
+                totalReqs: totalReqs,
+                cancelRate: totalReqs > 0 ? ((cancelledReqs / totalReqs) * 100).toFixed(1) + '%' : '0.0%',
+            });
         }
 
-        const reservedPercentage = Math.round((reservedStock / warehouseCapacity) * 100);
-
-        return {
-            totalStock: totalStock,
-            reservedPercentage: reservedPercentage
-        };
+        return partnerStats;
     } catch (err) {
-        console.error('Error calculating warehouse stats:', err);
-        return { totalStock: 0, reservedPercentage: 0 };
+        console.error('Error in getPartnersData:', err);
+        return [];
     }
 }
 
@@ -312,140 +466,25 @@ async function getWarehouseStats() {
 //     }
 // }
 
-// Render the Review Requests page
-async function getReviewRequests(req, res) {
-    try {
-        const stats = await getRequestStats();
-        const requests = await getDetailedRequests();
-        const partners = await getPartnersData();
-        
-        res.render('sales_requests', {
-            title: 'Requests',
-            css: ['sales_requests.css'],
-            layout: 'sales',
-            active: 'requests',
-            stats: stats,
-            requests: requests,
-            partners: partners,
-            selectedRequest: null // Will be populated when a request is selected
-        });
-    } catch(err) {
-        console.error('Error in getReviewRequests:', err);
-        res.status(500).send('Internal Server Error');
-    }
-}
-
-// Calculate the statistics for the Review Requests page
-async function getRequestStats() {
-    try {
-        const currentDate = new Date();
-        const startOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
-        
-        // Get delivered orders this week
-        const deliveredThisWeek = await Order.countDocuments({
-            status: 'Delivered',
-            deliveryDate: { $gte: startOfWeek }
-        });
-
-        // Get top produce sold
-        const topProduce = await Order.aggregate([
-            { $unwind: '$items' },
-            { $group: { 
-                _id: '$items.itemID',
-                totalQuantity: { $sum: '$items.quantity' }
-            }},
-            { $sort: { totalQuantity: -1 }},
-            { $limit: 1 }
-        ]);
-
-        const topProduceName = topProduce.length > 0 
-            ? (await Item.findOne({ itemID: topProduce[0]._id }))?.itemName 
-            : 'N/A';
-
-        // Get pending requests
-        const pendingRequests = await Request.countDocuments({
-            status: { $in: ['Received', 'Negotiation'] }
-        });
-
-        // Calculate average order value
-        const orders = await Order.find({ status: 'Delivered' });
-        let totalValue = 0;
-        for (const order of orders) {
-            if (order.items && Array.isArray(order.items)) {
-                for (const orderItem of order.items) {
-                    const item = await Item.findOne({ itemID: orderItem.itemID });
-                    if (item) {
-                        totalValue += item.itemPrice * orderItem.quantity;
-                    }
-                }
-            }
-        }
-        const averageOrder = orders.length > 0 ? totalValue / orders.length : 0;
-
-        return {
-            delivered: deliveredThisWeek,
-            topProduce: topProduceName,
-            pendingRequests: pendingRequests,
-            averageOrder: averageOrder
-        };
-    } catch (err) {
-        console.error('Error in getRequestStats:', err);
-        throw err;
-    }
-}
-
-// Fetch the data needed for the Review Requests - Requests table
-async function getDetailedRequests() {
-    try {
-        const requests = await Request.find({})
-            .sort({ requestDate: -1 })
-            .limit(10);
-
-        // Get all customer IDs from requests
-        const customerIDs = requests.map(req => req.customerID);
-        const customers = await User.find({
-            userID: { $in: customerIDs },
-            usertype: 'Customer'
-        });
-
-        // Create a map of customerID to restaurantName
-        const customerMap = {};
-        customers.forEach(customer => {
-            customerMap[customer.userID] = customer.restaurantName || customer.name;
-        });
-
-        return requests.map(request => ({
-            requestID: request.requestID,
-            partner: customerMap[request.customerID] || 'Unknown Partner',
-            status: request.status || 'Pending',
-            dates: request.requestDate ? request.requestDate.toLocaleDateString() : 'N/A',
-            items: [] // Will be populated when request details are opened
-        }));
-    } catch (err) {
-        console.error('Error in getDetailedRequests:', err);
-        return [];
-    }
-}
-
 // Get request details for the Review Requests mini sidebar
-async function getRequestDetailsApi(req, res) {
-    
+async function getRequestSidebar(req, res) {
     try {
         const requestID = req.params.requestID;
-        const details = await getRequestDetails(requestID);
+        const details = await getRequestSidebarHelper(requestID);
         if (!details) {
+            console.log("4a. Request not found in database");
             return res.status(404).json({ error: 'Request not found' });
         }
         
         res.json(details);
     } catch (err) {
-        console.error('Error in getRequestDetailsApi:', err);
+        console.error('Error in getRequestSidebar:', err);
         res.status(500).json({ error: 'Internal server error' });
     }
 }
 
 // Fetch the data needed for the Review Requests - expanded details sidebar
-async function getRequestDetails(requestID) {
+async function getRequestSidebarHelper(requestID) {
     try {
         const request = await Request.findOne({ requestID: requestID });
         if (!request) {
@@ -482,57 +521,8 @@ async function getRequestDetails(requestID) {
             requestDate: request.requestDate
         };
     } catch (err) {
-        console.error('Error in getRequestDetails:', err);
+        console.error('Error in getRequestSidebarHelper:', err);
         return null;
-    }
-}
-
-// Fetch the data needed for the Review Request - Sustainapartners table
-async function getPartnersData() {
-    try {
-        const customers = await User.find({ usertype: 'Customer' });
-        const partnerStats = [];
-
-        for (const customer of customers) {
-            // Get total requests
-            const totalReqs = await Request.countDocuments({ customerID: customer.userID });
-
-            // Calculate weekly average
-            // const weeklyReqs = await Request.aggregate([
-            //     { $match: { customerID: customer.userID }},
-            //     { $group: {
-            //         _id: { 
-            //             year: { $year: '$requestDate' },
-            //             week: { $week: '$requestDate' }
-            //         },
-            //         count: { $sum: 1 }
-            //     }},
-            //     { $group: {
-            //         _id: null,
-            //         avgWeeklyReqs: { $avg: '$count' }
-            //     }}
-            // ]);
-
-            // Calculate cancel rate
-            const cancelledReqs = await Request.countDocuments({
-                customerID: customer.userID,
-                status: 'Cancelled'
-            });
-
-            partnerStats.push({
-                userID: customer.userID,
-                name: customer.restaurantName || customer.name,
-                pointPerson: customer.name,
-                // location: customer.address || 'N/A',
-                totalReqs: totalReqs,
-                cancelRate: totalReqs > 0 ? ((cancelledReqs / totalReqs) * 100).toFixed(1) + '%' : '0.0%',
-            });
-        }
-
-        return partnerStats;
-    } catch (err) {
-        console.error('Error in getPartnersData:', err);
-        return [];
     }
 }
 
@@ -571,38 +561,18 @@ async function setRequestStatus (req, res) {
     }
 };
 
-async function getWarehouseInventory(req, res) {
-    try {
-        const items = await Item.find({});
-        const inventory = await getInventory();
-
-        res.render('sales_warehouseInventory', {
-            title: 'Warehouse Inventory',
-            css: ['logisales_dashboard.css'],
-            layout: 'sales',
-            active: 'warehouseinventory',
-            items: items,
-            inventory: inventory
-        });
-
-
-    } catch (err) {
-        console.error('Error fetching warehouse inventory:', err);
-        res.status(500).json({ error: 'Failed to fetch warehouse inventory' });
-    }
-}
-
 module.exports = {
-    getDashboard,
-    getRequests,
-    getReviewRequests,
-    getRequests,
-    getInventory,
+    getDashboardPage,
+    getRequestsPage,
+    getWarehousePage, 
+    getDashboardStats,
+    getRequestStats,
     getWarehouseStats,
-    getReviewRequests,
-    getRequestDetails,
+    getRequestJson,
+    getRequestData,
+    getInventoryData,
     getPartnersData,
-    getRequestDetailsApi,
-    setRequestStatus,
-    getWarehouseInventory
+    getRequestSidebar,
+    getRequestSidebarHelper,
+    setRequestStatus
 };

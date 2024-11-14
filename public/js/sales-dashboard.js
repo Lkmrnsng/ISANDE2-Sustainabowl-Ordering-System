@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${request.requestID}</td>
                 <td>${request.partner}</td>
                 <td>${request.status}</td>
-                <td>${request.date}</td>
+                <td>${request.dates}</td>
             </tr>
         `).join('');
 

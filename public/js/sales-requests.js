@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let filteredRequests = [];
     let allRequests = [];
 
+    // Load the page for the first time
     async function initializeTables() {
         const requestsTable = document.getElementById('requestsTable');
         if (requestsTable) {
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Fetch the json requests data from the server
     async function refreshRequestsData() {
         try {
             const response = await fetch('/sales/api/requests');
@@ -82,51 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Fetch and display request details
-    async function loadRequestDetails(requestID) {
-        try {
-            const response = await fetch(`/sales/api/${requestID}/details`);
-            if (!response.ok) throw new Error('Failed to fetch request details');
-            const details = await response.json();
-            updateRequestDetailsPanel(details);
-        } catch (error) {
-            console.error('Error loading request details:', error);
-            updateRequestDetailsPanel(null);
-        }
-    }
-
-    // Update the details panel with request information
-    function updateRequestDetailsPanel(details) {
-        const detailsContainer = document.querySelector('.request-details .item-list');
-        const totalElement = document.getElementById('request-total');
-        const statusElement = document.getElementById('request-status');
-
-        if (!details) {
-            // Show error or empty state
-            detailsContainer.innerHTML = '<p class="empty-state">No request details available</p>';
-            totalElement.textContent = '₱0';
-            statusElement.textContent = 'N/A';
-            return;
-        }
-
-        // Update items list
-        detailsContainer.innerHTML = details.items.map(item => `
-            <div class="item">
-                <div class="placeholder-image"><img class="request-image" src="${item.itemImage}" alt="Product Image" ></div>
-                <p>${item.name}</p>
-                <p>${item.quantity} kg</p>
-                <p>₱${item.price.toFixed(2)}</p>
-            </div>
-        `).join('');
-
-        // Update summary section
-        totalElement.textContent = `₱${details.total.toFixed(2)}`;
-        statusElement.textContent = details.status;
-
-        // Show the details panel if it was hidden
-        document.querySelector('.request-details').style.display = 'block';
-    }
-
+    // Using the current contents of filteredRequests, clear and update the requests table
     function updateRequestsTable() {
         const tbody = document.getElementById('requestsTable').querySelector('tbody');
         const startIndex = (currentPage - 1) * itemsPerPage;
@@ -184,6 +142,52 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Fetch and display request details
+    async function loadRequestDetails(requestID) {
+        try {
+            const response = await fetch(`/sales/api/${requestID}/details`);
+            if (!response.ok) throw new Error('Failed to fetch request details');
+            const details = await response.json();
+            updateRequestDetailsPanel(details);
+        } catch (error) {
+            console.error('Error loading request details:', error);
+            updateRequestDetailsPanel(null);
+        }
+    }
+
+    // Update the details panel with request information
+    function updateRequestDetailsPanel(details) {
+        const detailsContainer = document.querySelector('.request-details .item-list');
+        const totalElement = document.getElementById('request-total');
+        const statusElement = document.getElementById('request-status');
+
+        if (!details) {
+            // Show error or empty state
+            detailsContainer.innerHTML = '<p class="empty-state">No request details available</p>';
+            totalElement.textContent = '₱0';
+            statusElement.textContent = 'N/A';
+            return;
+        }
+
+        // Update items list
+        detailsContainer.innerHTML = details.items.map(item => `
+            <div class="item">
+                <div class="placeholder-image"><img class="request-image" src="${item.itemImage}" alt="Product Image" ></div>
+                <p>${item.name}</p>
+                <p>${item.quantity} kg</p>
+                <p>₱${item.price.toFixed(2)}</p>
+            </div>
+        `).join('');
+
+        // Update summary section
+        totalElement.textContent = `₱${details.total.toFixed(2)}`;
+        statusElement.textContent = details.status;
+
+        // Show the details panel if it was hidden
+        document.querySelector('.request-details').style.display = 'block';
+    }
+
+    // Function to change page on the sustainapartner table
     window.changePartnerPage = function(delta) {
         const partnerRows = document.querySelectorAll('.sustaina-partners tbody tr');
         const totalPages = Math.ceil(partnerRows.length / partnersPerPage);
@@ -195,6 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // 
     function updateRequestDetails(details) {
         const detailsContainer = document.querySelector('.request-details .item-list');
         detailsContainer.innerHTML = details.items.map(item => `
@@ -232,6 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 await Promise.all(cancelPromises);
                 await refreshRequestsData();
                 updateRequestsTable();
+                updatePartnerTable();
                 
                 // Clear all checkboxes
                 checkedBoxes.forEach(checkbox => {
@@ -290,6 +296,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updatePartnerTable();
     };
 
+    // Fetch newest partner data and refresh the table
     async function updatePartnerTable() {
         try {
             const customers = await User.find({ usertype: 'Customer' });
