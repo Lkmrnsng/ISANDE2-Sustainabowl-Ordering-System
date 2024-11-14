@@ -1,0 +1,53 @@
+<div class="calendar-container">
+        <h2>Delivery Calendar</h2>
+        <div class="calendar-section">
+            <div class="calendar-header">
+                <div class="navigation-buttons">
+
+                    <button id="prevMonth" class="nav-button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+                    <button id="nextMonth" class="nav-button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></button>
+                </div>
+                <h3 id="monthYear"></h3>
+            </div>
+            <div class="calendar-grid" id="calendar"></div>
+        </div>
+    
+
+    <h3>Your Tasklist</h3>
+    <div class="tasklist-container">
+        <table id="taskList">
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Details</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="taskListBody">
+                {{#each tasks}}
+                <tr>
+                    <td>{{this.task}}</td>
+                    <td>{{this.details}}</td>
+                    <td>{{this.date}}</td>
+                    <td>{{this.status}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div id="overlay" class="overlay">
+    <div class="overlay-content">
+        <span id="closeOverlay" class="close">&times;</span>
+        <h2 id="overlayTitle">Task Details</h2>
+        <p id="overlayDate"></p>
+        <p id="overlayStatus"></p>
+        <p id="overlayDescription"></p>
+    </div>
+</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+    <script src="/js/calendar.js"></script>

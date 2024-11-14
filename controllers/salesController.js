@@ -73,6 +73,21 @@ async function getWarehousePage(req, res) {
     }
 }
 
+// Render the calendar page
+async function getCalendarPage(req, res) {
+    try {
+        res.render('sales_calendar', {
+            title: 'Calendar',
+            css: ['sales_calendar.css'],
+            layout: 'sales',
+            active: 'calendar'
+        });
+    } catch (err) {
+        console.error('Error fetching calendar data:', err);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
 // Call the methods to compute the Sales Dashboard statistics
 async function getDashboardStats() {
     const statsArray = [];
@@ -565,6 +580,7 @@ module.exports = {
     getDashboardPage,
     getRequestsPage,
     getWarehousePage, 
+    getCalendarPage,
     getDashboardStats,
     getRequestStats,
     getWarehouseStats,
