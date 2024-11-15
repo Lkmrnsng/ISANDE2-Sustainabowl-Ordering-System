@@ -29,13 +29,7 @@ body, html {
   min-width: 300px;
 }
 
-.place-request {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  align-items: center;
-  position: fixed;
-  bottom: 30px;
-}
+
 
 .items-container {
   align-items: center;
