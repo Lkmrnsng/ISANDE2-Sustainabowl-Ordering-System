@@ -251,3 +251,11 @@ footer img{
   color: #C4CF24;
   font-weight: 600;
 }
+
+.place-request {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  align-items: center;
+  position: fixed;
+  bottom: 30px;
+}

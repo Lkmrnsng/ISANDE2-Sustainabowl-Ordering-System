@@ -235,11 +235,23 @@ const reviewController = {
 
             const isCustomer = req.session.userType === 'Customer';
             console.log('isCustomer:', isCustomer);
+
+
+            let layoutString = 'main';
+
+            //If usertype is Sales, layoutString is 'sales'
+            if (req.user.usertype === 'Sales') {
+                layoutString = 'sales';
+            } else if (req.user.usertype === 'Customer') {
+                layoutString = 'customer';
+            } else if(req.user.usertype === 'Logistics') {
+                layoutString = 'logistics';
+            }
     
             res.render('review/review-dashboard', {
                 title: 'Review Dashboard',
                 css: ['review.css'],
-                layout: 'main',
+                layout: layoutString,
                 reviews,
                 averageRatings,
                 pagination: {
@@ -255,7 +267,8 @@ const reviewController = {
                     endDate
                 },
                 isSalesTeam,
-                isCustomer
+                isCustomer,
+                active: 'reviews',
             });
         } catch (error) {
             console.error('Error in getAllReviews:', error);
