@@ -185,6 +185,9 @@ const hbs = exphbs.create({
                 maximumFractionDigits: 2
             }).format(number);
         },
+        format_phone: function(phone) {
+            return phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+        },
         toString: function (value) {
             return value ? value.toString() : '';
         },

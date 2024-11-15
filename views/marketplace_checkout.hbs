@@ -1,14 +1,13 @@
 <div class="container">
-  
   <div class="main-content">
     <!-- Checkout Steps -->
     <div class="checkout-steps">
-        <a href="/">
+        <a href="/marketplace/catalog">
             <button class="back-button">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M15 18l-6-6 6-6"/>
                 </svg>
-                Back
+                Back to Catalog
             </button>
         </a>
       <div class="progress-container">
@@ -18,22 +17,21 @@
         <div class="section active" id="deliver-section">
           <div class="section-marker"></div>
           <div class="section-content">
-            <div class="section-header" onclick="toggleSection('deliver-section'); toggleSection(summary-section)">
+            <div class="section-header">
               <h2>Deliver To</h2>
-              <p  onclick="toggleSection('deliver-section')">Edit Delivery</p>
-              
+              <p class="edit-button" id="deliver-edit-button" onclick="toggleSection('deliver-section', 1); toggleSummary('deliver-summary-section', 0)">Edit Address</p>
             </div>
-            <div class="section-summary active" id="summary-section">
-              <div class="delivery-summary" >
-                <p class="head">118 J.P. Bautista Ave, 1004, Caloocan, Metro Manila</p>
-                <p class="sub">Christopher Chua • 0428-736-2394</p>
+            <div class="section-summary" id="deliver-summary-section">
+              <div class="delivery-summary summary">
+                <p class="head"></p>
+                <p class="sub"></p>
               </div>
             </div>
 
             <div class="section-body">
               <div class="tab-buttons">
-                <button class="tab-button active" onclick="showTab('input-address')">Input Address</button>
-                <button class="tab-button" onclick="showTab('saved-address')">Saved Addresses</button>
+                <button class="tab-button active" onclick="toggleTab('input-address')">Input Address</button>
+                <button class="tab-button" onclick="toggleTab('saved-address')">Old Addresses</button>
               </div>
 
               <div id="input-address" class="tab-content active">
@@ -41,68 +39,47 @@
                   <div class="form-row">
                     <div class="form-group">
                       <label class="form-label">Name of Recipient</label>
-                      <input type="text" class="form-input" placeholder="Name">
+                      <input type="text" class="form-input" id="input-name" placeholder="{{user.name}}" disabled>
                     </div>
                     <div class="form-group">
-                      <label class="form-label">House/Block/Lot No.</label>
-                      <input type="text" class="form-input" placeholder="Block">
+                      <label class="form-label">House No.</label>
+                      <input type="text" class="form-input" id="input-house-no" placeholder="Block" required>
                     </div>
                   </div>
 
                   <div class="form-group">
                     <label class="form-label">Street</label>
-                    <input type="text" class="form-input" placeholder="Street">
+                    <input type="text" class="form-input" id="input-street" placeholder="Street" required>
                   </div>
 
                   <div class="form-row form-row-3">
                     <div class="form-group">
-                      <label class="form-label">Postal Code</label>
-                      <input type="text" class="form-input" placeholder="XXXX">
-                    </div>
-                    <div class="form-group">
                       <label class="form-label">Region/Province</label>
-                      <input type="text" class="form-input" placeholder="Region">
+                      <input type="text" class="form-input" id="input-region" placeholder="Region" required>
                     </div>
                     <div class="form-group">
                       <label class="form-label">Contact No.</label>
-                      <input type="text" class="form-input" placeholder="XXX-XXX-XXXX">
+                      <input type="text" class="form-input" id="input-contact" placeholder="{{user.phone}}" disabled>
                     </div>
                   </div>
 
-                  <div class="checkbox-group">
-                    <input type="checkbox" id="saveAddress">
-                    <label for="saveAddress">Save Address?</label>
-                  </div>
-
-                  <button type="button" class="continue-button" onclick="toggleSection('schedule-section')" >Continue to Schedule</button>
+                  <button type="button" class="continue-button" onclick="proceedFunction('input-address', 'schedule', 'deliver')">Continue to Schedule</button>
                 </form>
               </div>
 
-              <div id="saved-address" class="tab-content" style="display: none;">
+              <div id="saved-address" class="tab-content" style="display: none;"> 
+                {{#each addresses}}
                 <div class="saved-info">
                   <div class="saved-info-radio">
-                    <input type="radio" name="address">
+                    <input type="radio" name="address" {{#if @first}}checked{{/if}}>
                     <div>
-                      <p>118 J.P. Bautista Ave, 1004, Caloocan, Metro Manila</p>
-                      <p>Christopher Chua • 0428-736-2394</p>
-                    </div>
-                  </div>
-                </div>
-                
-                
-                {{#each address}}
-                <div class="saved-address">
-                  <div class="saved-address-radio">
-                    <input type="radio" name="address">
-                    <div>
-                      <p>{{this.address}}</p>
-                      <p>{{this.name}}</p>
-                      <p>{{this.number}}</p>
+                      <p>{{this}}</p>
+                      <p>{{../user.name}} • {{format_phone ../user.phone}}</p>
                     </div>
                   </div>
                 </div>
                 {{/each}}
-                <button type="button" class="continue-button" onclick="toggleSection('schedule-section')">Continue to Schedule</button>
+                <button type="button" class="continue-button" onclick="proceedFunction('old-address', 'schedule', 'deliver')">Continue to Schedule</button>
               </div>
             </div>
           </div>
@@ -112,15 +89,15 @@
         <div class="section" id="schedule-section">
           <div class="section-marker"></div>
           <div class="section-content">
-            <div class="section-header" >
+            <div class="section-header">
               <h2>Delivery Schedule</h2>
-              <p onclick="toggleSection('schedule-section')">Edit Schedule</p>
+              <p class="edit-button" id="schedule-edit-button" onclick="toggleSection('schedule-section', 1); toggleSummary('schedule-summary-section', 0)">Edit Schedule</p>
             </div>
 
-            <div class="section-summary active" id="summary-section">
-              <div class="delivery-summary" >
-                <p class="head">Every Wednesday, 5 am - 8 am, on July 24, 27, 31</p>
-                <p class="sub">No Remarks</p>
+            <div class="section-summary" id="schedule-summary-section">
+              <div class="delivery-summary summary">
+                <p class="head"></p>
+                <p class="sub"></p>
               </div>
             </div>
             <div class="section-body">
@@ -128,22 +105,26 @@
                 <div class="form-row">
                   <div class="form-group">
                     <label class="form-label">Delivery Date/s</label>
-                    <input type="date" class="form-input">
+                    <input type="date" class="form-input" id="input-date" required>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Delivery Time</label>
-                    <select class="form-select">
-                      <option>8 am - 11 am</option>
+                    <select class="form-select" id="input-time" required>
+                      <option>Select Batch</option>
+                      <option>5am - 8am (Morning)</option>
+                      <option>12nn - 3pm (Afternoon)</option>
+                      <option>6pm - 9pm (Evening)</option>
                     </select>
                   </div>
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label">Any Customization Requests?</label>
-                  <textarea class="form-textarea" rows="4" placeholder="e.g. Thinly slice the tomatoes"></textarea>
+                  <label class="form-label form-label--not-required">Any Customization Requests?</label>
+                  <textarea class="form-textarea" id="input-customization" rows="4" placeholder="e.g. Thinly slice the tomatoes"></textarea>
                 </div>
 
-                <button type="button" class="continue-button" onclick="toggleSection('payment-section')" >Continue to Payment</button>
+                <p class="note">Note: It is possible for 1 request = multiple orders. This is if you want deliveries of the same items on different dates.</p>
+                <button type="button" class="continue-button" onclick="proceedFunction('input-schedule', 'payment', 'schedule')">Continue to Payment</button>
               </form>
             </div>
           </div>
@@ -153,108 +134,55 @@
         <div class="section" id="payment-section">
           <div class="section-marker"></div>
           <div class="section-content">
-            <div class="section-header" >
+            <div class="section-header">
               <h2>Payment Details</h2>
-              <p onclick="toggleSection('payment-section')">Edit Payment Method</p>
+              <p class="edit-button" id="payment-edit-button" onclick="toggleSection('payment-section', 1); toggleSummary('payment-summary-section', 0)">Edit Payment Method</p>
             </div>
 
-            <div class="section-summary active" id="summary-section">
-              <div class="delivery-summary" >
-                <p class="head">Metrobank Visa</p>
-                <p class="sub">**** **** **** 5249</p>
+            <div class="section-summary" id="payment-summary-section">
+              <div class="delivery-summary summary">
+                <p class="head"></p>
               </div>
             </div>
 
             <div class="section-body">
-              <!-- Payment form content here -->
-              <div class="tab-buttons">
-                <button class="tab-button active" onclick="showTab('input-payment')">Input Payment Method</button>
-                <button class="tab-button" onclick="showTab('saved-payment')">Saved Payment Methods</button>
-              </div>
-
               <div id="input-payment" class="tab-content active">
                 <div class="payment-form">
                   <div class="form-group">
                     <label class="form-label">Payment Method</label>
-                    <select class="form-select">
-                      <option>Credit Card</option>
+                    <select class="form-select" id="input-payment-method">
+                      <option>Gcash</option>
+                      <option>Card</option>
+                      <option>Bank Transfer</option>
                     </select>
                   </div>
-
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label class="form-label">Card Number</label>
-                      <input type="text" class="form-input" placeholder="XXXX XXXX XXXX XXXX">
-                    </div>
-                  </div>
-
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label class="form-label">Valid Thru (MM/YY)</label>
-                      <input type="text" class="form-input" placeholder="XX/XX">
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label">CVV</label>
-                      <input type="text" class="form-input" placeholder="XXX">
-                    </div>
-                  </div>
-
-                  <div class="checkbox-group">
-                    <input type="checkbox" id="savePayment">
-                    <label for="savePayment">Save Payment Method?</label>
-                  </div>
-
-                  <p class="payment-note">Note that payment will not be collected until the delivery has been made.</p>
-
-                  <button class="finalize-button">Finalize Request Details</button>
+                  <p class="note">Note that payment will not be collected until the delivery has been made.</p>
+                  <button class="continue-button" onclick="proceedFunction('input-payment', 'confirm', 'payment')">Confirm Details</button>
                 </div>
               </div>
-
-              <div id="saved-payment" class="tab-content" style="display: none;">
-                <div class="saved-info">
-                  <div class="saved-info-radio">
-                    <input type="radio" name="payment">
-                    <div>
-                      <p>Metrobank Visa</p>
-                      <p>**** **** **** 5249</p>
-                    </div>
-                  </div>
-              </div>
-
-                <p class="payment-note">Note that payment will not be collected until the delivery has been made.</p>
-
-                <button class="finalize-button">Finalize Request Details</button>
-
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-
-    </div>
-
-    <!-- Cart Summary -->
-    <div class="cart-summary">
-      <div class="cart-item">
-          <img src="/img/tomato.jpg" alt="product-image">
-          <div class="item-container">
-              <div class="item-details">
-                  <p class="item-name">Tomato</p>
-                  <p class="item-weight">1 kg</p>
-              </div>
-              
-              <div class="item-price">
-                  <p class="item-price-per-kg">x ₱50 / kg</p>
-                  <p class="item-total-price">₱250</p>
-              </div>
+      <!-- Confirmation Section -->
+      <div class="section" id="confirm-section">
+        <div class="section-content">
+          <div class="section-body">
+            <p class="note" id="confirm-note">By clicking the button below, I understand that I am placing a request for produce, which is not guaranteed yet to be approved. I will await the Sales team to inform me of what can be fulfilled.</p>
+            <button class="finalize-button" onclick="submitRequest()">Submit Request</button>
           </div>
+        </div>
       </div>
-      <hr>
-      <div class="cart-total">
-        <p>Request Total:</p>
-        <p class="total-price">₱500</p>
-      </div>
+  </div>
+
+  <!-- Cart Summary -->
+  <div class="cart-summary">
+    {{!-- The client-side js file will populate this for us --}}
+    <hr>
+    <div class="cart-total">
+      <p>Request Total:</p>
+      <p class="total-price">₱0.00</p>
     </div>
   </div>
 </div>
