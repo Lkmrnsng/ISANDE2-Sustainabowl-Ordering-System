@@ -5,7 +5,7 @@ const RequestSchema = new mongoose.Schema({
     customerID: { type: Number },
     status: { type: String }, //Received, Negotiation, Approved, or Cancelled
     pointPersonID: { type: Number }, //Sales Rep
-    requestDate: { type: Date }, // Date request was made
+    requestDate: { type: String }, // Date request was made
 });
 
 const Request = mongoose.model('requests', RequestSchema);

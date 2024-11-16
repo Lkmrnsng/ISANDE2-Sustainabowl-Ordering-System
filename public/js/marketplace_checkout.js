@@ -2,15 +2,6 @@
 cartItem = JSON.parse(localStorage.getItem('cartItem')) || [];
 totalPrice = parseFloat(localStorage.getItem('totalPrice')) || 0;
 
-// Declare local variables
-// let inputName = document.getElementById('input-name').getAttribute('placeholder') || "";
-// let inputContact = document.getElementById('input-contact').getAttribute('placeholder') || "";
-// let inputAddress = "";
-// let inputDates = [];
-// let inputSchedule = "";
-// let inputCustomization = "";
-// let inputPayment = "";
-
 // Display or hide the section divs
 function toggleSection(sectionId, setting) {
   const sections = document.querySelectorAll('.section');
@@ -20,7 +11,7 @@ function toggleSection(sectionId, setting) {
   // If setting = 0, the user is moving forward
   if (setting == 0) {
     sections.forEach(section => {
-      if (section.id === sectionId) {
+      if (section.id === sectionId) {        
         section.classList.toggle('active');
         editButtons[currentIndex - 1].style.display = 'block';
       } else {
@@ -186,9 +177,11 @@ async function submitRequest() {
   const address = deliverySummary.querySelector('.head').textContent;
   const name = deliverySummary.querySelector('.sub').textContent.split("•")[0].trim();
   const contact = deliverySummary.querySelector('.sub').textContent.split("•")[1].trim();
+  const formattedContact = contact.replace(/-/g, '');
 
   const scheduleSummary = document.querySelector('#schedule-summary-section .delivery-summary');
-  const date = scheduleSummary.querySelector('.head').textContent.split("during batch")[0].trim();
+  const inputDates = scheduleSummary.querySelector('.head').textContent.split("during batch")[0].trim();
+  const dates = inputDates.split(',').map(date => new Date(date.trim()).toISOString());
   const time = scheduleSummary.querySelector('.head').textContent.split("during batch")[1].trim();
   const batch = time.split("(")[1].split(")")[0];
   const customization = scheduleSummary.querySelector('.sub').textContent;
@@ -196,10 +189,37 @@ async function submitRequest() {
   const paymentSummary = document.querySelector('#payment-summary-section .delivery-summary');
   const payment = paymentSummary.querySelector('.head').textContent;
 
-  console.log(address, name, contact, date, batch, customization, payment);
+  try {
+    const payload = {
+      address,
+      name,
+      formattedContact,
+      dates,
+      batch,
+      customization,
+      payment,
+      cartItem,
+    };
 
-  // todo: call controller function to add to db
-  // todo: clear cart if success
+    const response = await fetch('/marketplace/api/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error('Failed to fetch partner details');
+    // Clear local storage variables
+    cartItem = [];
+    totalPrice = 0;
+    localStorage.removeItem('cartItem');
+    localStorage.removeItem('totalPrice');
+    // Return to customer dashboard
+    alert("Checkout success! Redirecting to dashboard...");
+    window.location.href = '/customer/dashboard';
+  } catch (erorr) {
+    console.error("Error saving checkout info to db: ", error);
+  }
 }
 
 // Initialize the first section as active

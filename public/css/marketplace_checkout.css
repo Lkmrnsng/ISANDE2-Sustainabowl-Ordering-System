@@ -285,3 +285,26 @@
 .edit-button {
   display: none;
 }
+
+.preview-area {
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 5px;
+  background: #f9f9f9;
+}
+.form-group {
+  margin-bottom: 15px;
+}
+.ok-button {
+  margin-top: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.ok-button:hover {
+  background-color: #0056b3;
+}
