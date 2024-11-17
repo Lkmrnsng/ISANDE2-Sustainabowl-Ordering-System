@@ -162,6 +162,12 @@ table th, table td {
     align-items: center;
     gap: 1rem;
   }
+
+  .items-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
   
   .request-image {
     width: 50px;

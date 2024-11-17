@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
             statusElement.textContent = details.status || 'N/A';
     
             // Show the details panel if it was hidden
-            document.querySelector('.request-details').style.display = 'block';
+            // document.querySelector('.request-details').style.display = 'block';
     
         } catch (error) {
             console.error('Error processing details:', error);
