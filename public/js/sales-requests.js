@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentPartnerPage = 1;
     let filteredRequests = [];
     let allRequests = [];
+    let filteredData = [];
     let partnersData = [];
 
     // Load the page for the first time
@@ -24,13 +25,45 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch('/sales/api/requests');
             if (!response.ok) throw new Error('Failed to fetch requests');
             const data = await response.json();
-            allRequests = data.map(row => ({
-                requestID: row.requestID,
-                partner: row.partner,
-                status: row.status,
-                date: row.date
+            const userID = document.getElementById('user-id').value;
+            const requests = [];
+
+            const compiledData = data.map(row => ({
+                request: row.request,
+                orders: row.orders,
+                salesInCharge: row.salesInCharge,
+                customer: row.customer
             }));
-            filteredRequests = [...allRequests];
+            filteredData = compiledData.filter(unit => unit.salesInCharge.userID.toString() === userID.toString());
+
+            for (const unit of filteredData) {
+                const requestID = unit.request.requestID;
+                const partner = unit.customer.restaurantName;
+                const status = unit.request.status;
+                let count = 0;
+                let dates = "";
+                
+                for (const order of unit.orders) {
+                    if (count == 0) {
+                        dates = order.deliveryDate.split('T')[0];
+                        count++;
+                    } else {
+                        dates += ', ' + order.deliveryDate.split('T')[0];
+                    }
+                }
+
+                const formattedDates = dates.replace(/-/g, '/');
+
+                requests.push({
+                    requestID: requestID,
+                    partner: partner,
+                    status: status,
+                    dates: formattedDates
+                });
+            }
+
+            filteredRequests = [...requests];
+            allRequests = [...requests];
         } catch (error) {
             console.error('Error refreshing requests data:', error);
         }
@@ -84,8 +117,6 @@ document.addEventListener('DOMContentLoaded', function() {
     window.sortRequests = function() {
         const sortBy = document.getElementById('sortByRequest').value;
         
-        // filteredRequests = [...filteredRequests];
-        
         switch(sortBy) {
             case 'idAsc':
                 filteredRequests.sort((a, b) => parseInt(a.requestID) - parseInt(b.requestID));
@@ -94,10 +125,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 filteredRequests.sort((a, b) => parseInt(b.requestID) - parseInt(a.requestID));
                 break;
             case 'dateAsc':
-                filteredRequests.sort((a, b) => new Date(a.date) - new Date(b.date));
+                filteredRequests.sort((a, b) => { 
+                    const dateA = a.dates.split(',')[0].trim();
+                    const dateB = b.dates.split(',')[0].trim();
+                    return new Date(dateA) - new Date(dateB); // If multi-date, will only sort the first date in String 
+                });
                 break;
             case 'dateDesc':
-                filteredRequests.sort((a, b) => new Date(b.date) - new Date(a.date));
+                filteredRequests.sort((a, b) => { 
+                    const dateA = a.dates.split(',')[0].trim();
+                    const dateB = b.dates.split(',')[0].trim();
+                    return new Date(dateB) - new Date(dateA); // If multi-date, will only sort the first date in String 
+                });
                 break;
         }
         
@@ -168,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${request.requestID}</td>
                 <td>${request.partner}</td>
                 <td>${request.status}</td>
-                <td>${request.date}</td>
+                <td>${request.dates}</td>
             `;
 
             // Add click event listener to the checkbox
@@ -286,29 +325,28 @@ document.addEventListener('DOMContentLoaded', function() {
         const requestsTable = document.getElementById('requestsTable');
         if (requestsTable) {
             const checkedBoxes = requestsTable.querySelectorAll('.request-checkbox:checked');
+            if (checkedBoxes.length === 0) return;
+            
             const confirmMessage = checkedBoxes.length === 1 
                 ? 'Are you sure you want to cancel this request?' 
                 : `Are you sure you want to cancel these ${checkedBoxes.length} requests?`;
             if (!confirm(confirmMessage)) return;
-
-            // Get all selected requests
-            const cancelPromises = Array.from(checkedBoxes).map(async checkbox => {
-                const row = checkbox.closest('tr');
-                const requestID = row.cells[1].textContent.trim();
-                return setRequestStatus(requestID, "Cancelled");
-            });
-
+    
             try {
+                // Get all selected requests and cancel them
+                const cancelPromises = Array.from(checkedBoxes).map(async checkbox => {
+                    const row = checkbox.closest('tr');
+                    const requestID = row.cells[1].textContent.trim();
+                    await setRequestStatus(requestID, "Cancelled");
+                    await cancelOrders(requestID);
+                    checkbox.checked = false;
+                });
+    
                 await Promise.all(cancelPromises);
                 await getRequestsJson();
                 updateRequestsTable();
                 await getPartnersJson();
                 updatePartnersTable();
-                
-                // Clear all checkboxes
-                checkedBoxes.forEach(checkbox => {
-                    checkbox.checked = false;
-                });
             } catch (error) {
                 console.error('Error cancelling requests:', error);
                 alert('Failed to cancel one or more requests. Please try again.');
@@ -316,10 +354,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // For every order in a request, set its status to 'Cancelled'
+    window.cancelOrders = async function(requestID) {
+        const orders = filteredData.filter(unit => unit.request.requestID.toString() === requestID.toString()).flatMap(unit => unit.orders) || [];
+            
+        if (orders.length === 0) {
+            console.log('No orders found for request:', requestID);
+            return;
+        }
+    
+        const orderCancelPromises = orders.map(order => 
+            setOrderStatus(order.OrderID, "Cancelled")
+        );
+    
+        await Promise.all(orderCancelPromises);
+    };
+
     // Modify the MongoDB to set the request status
     async function setRequestStatus(requestID, status) {
         try {
-            const response = await fetch(`/sales/api/${requestID}/status`, {
+            const response = await fetch(`/sales/api/requests/${requestID}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -329,6 +383,23 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) throw new Error(`Failed to update status for request ${requestID}`);
         } catch (error) {
             console.error('Failed to update request status:', error);
+            throw error;
+        }
+    }
+
+    // Modify the MongoDB to set the order status
+    async function setOrderStatus(orderID, status) {        
+        try {
+            const response = await fetch(`/sales/api/orders/${orderID}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status })
+            });
+            if (!response.ok) throw new Error(`Failed to update status for order ${orderID}`);
+        } catch (error) {
+            console.error('Failed to update order status:', error);
             throw error;
         }
     }

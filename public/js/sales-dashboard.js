@@ -114,8 +114,9 @@ document.addEventListener('DOMContentLoaded', function() {
             allRequests = rows.slice(1).map(row => ({
                 requestID: row.cells[0].textContent,
                 partner: row.cells[1].textContent,
-                status: row.cells[2].textContent,
-                date: row.cells[3].textContent
+                salesInCharge: row.cells[2].textContent,
+                status: row.cells[3].textContent,
+                dates: row.cells[4].textContent
             }));
             filteredRequests = [...allRequests];
             updateRequestsTable();
@@ -175,6 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr>
                 <td>${request.requestID}</td>
                 <td>${request.partner}</td>
+                <td>${request.salesInCharge}</td>
                 <td>${request.status}</td>
                 <td>${request.dates}</td>
             </tr>

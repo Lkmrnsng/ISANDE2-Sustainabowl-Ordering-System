@@ -112,7 +112,7 @@ async function createRequest(name, contact) {
 
 async function createOrder(request, cartItem, address, dates, batch, customization, payment) {
     try {
-        const orderID = await Order.countDocuments() + 40001;
+        let orderID = await Order.countDocuments() + 40001;
         const orders = [];
         const formattedItems = [];
 
@@ -141,6 +141,7 @@ async function createOrder(request, cartItem, address, dates, batch, customizati
             });
 
             if(order) orders.push(order);
+            orderID++;
         }
 
         return orders;

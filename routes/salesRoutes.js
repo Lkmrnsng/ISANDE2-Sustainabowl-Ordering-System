@@ -9,7 +9,8 @@ router.get('/calendar', salesController.getCalendarPage);
 
 router.get('/api/:requestID/details', salesController.getRequestSidebarJson);
 router.get('/api/partners', salesController.getPartnerJson);
-router.put('/api/:requestID/status', salesController.setRequestStatus);
 router.get('/api/requests', salesController.getRequestJson);
+router.put('/api/requests/:requestID/status', salesController.setRequestStatus);
+router.put('/api/orders/:orderID/status', salesController.setOrderStatus);
 
 module.exports = router;

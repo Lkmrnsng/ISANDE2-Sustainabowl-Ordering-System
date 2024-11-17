@@ -2,14 +2,45 @@ const User = require('../models/User');
 const Request = require('../models/Request');
 const Order = require('../models/Order');
 const Item = require('../models/Item');
+const { request } = require('express');
 
 // Render the sales dashboard
 async function getDashboardPage(req, res) {
     try{
         const stats = (await getDashboardStats())[0];
-        const requests = await getRequestData();
+        const compiledData = await getRequestData();
+        const filteredData = compiledData.filter(unit => unit.salesInCharge.userID === req.user.userID);
+        const requests = [];
         const inventory = await getInventoryData();
         // const weekDays = await getWeekDays();
+        
+        for (const unit of filteredData) {
+            const requestID = unit.request.requestID;
+            const partner = unit.customer.restaurantName;
+            const salesInCharge = unit.salesInCharge.name;
+            const status = unit.request.status;
+            let count = 0;
+            let dates = "";
+            
+            for (const order of unit.orders) {
+                if (count == 0) {
+                    dates = order.deliveryDate.split('T')[0];
+                    count++;
+                } else {
+                    dates += ', ' + order.deliveryDate.split('T')[0];
+                }
+            }
+
+            dates = dates.replace(/-/g, '/');
+
+            requests.push({
+                requestID: requestID,
+                partner: partner,
+                salesInCharge: salesInCharge,
+                status: status,
+                dates: dates
+            });
+        }
         
         res.render('sales_dashboard', {
             title: 'Dashboard',
@@ -20,7 +51,7 @@ async function getDashboardPage(req, res) {
             requests: requests,
             inventory: inventory,
             // weekDays: weekDays,
-            warehouseStats: await getWarehouseStats() 
+            warehouseStats: await getWarehouseStats()
         });
     } catch(err) {
         console.error('Error fetching items:', err);
@@ -39,6 +70,7 @@ async function getRequestsPage(req, res) {
             layout: 'sales',
             active: 'requests',
             stats: stats,
+            userID: req.user.userID
         });
     } catch(err) {
         console.error('Error in getRequestsPage:', err);
@@ -199,13 +231,16 @@ async function getMonthlyRevenue() {
     
     try {
         const orders = await Order.find({});
-        const monthOrders = orders.filter(order => 
-            order.deliveryDate && 
-            order.deliveryDate.getFullYear() === currentYear && 
-            order.deliveryDate.getMonth() + 1 === currentMonth
-        );
+        const monthOrders = orders.filter(order => {
+            if (!order.deliveryDate) return false;
+            const dateParts = order.deliveryDate.split('T')[0];
+            const [year, month, day] = dateParts.split('-');
+            return parseInt(year) === currentYear && parseInt(month) === currentMonth;
+        });
+
+        const filteredOrders = monthOrders.filter(order => order.status.toString() !== "Cancelled");
         
-        for (const order of monthOrders) {
+        for (const order of filteredOrders) {
             if (order.items && Array.isArray(order.items)) {
                 for (const orderItem of order.items) {
                     const item = await Item.findOne({ itemID: orderItem.itemID });
@@ -291,33 +326,24 @@ async function getRequestJson(req, res) {
 // Fetch requests data by mapping across models
 async function getRequestData() {
     try {
-        const requests = await Request.find({})
-            .sort({ requestDate: -1 })
-            .limit(10);
+        const requests = await Request.find({}).sort({ requestDate: -1 });
+        const compiledData = [];
 
-        // Get all customer IDs from requests
-        const customerIDs = requests.map(req => req.customerID);
-        const customers = await User.find({
-            userID: { $in: customerIDs },
-            usertype: 'Customer'
-        });
+        for (const request of requests) {
+            const orders = await Order.find({ requestID: request.requestID });
+            const salesInCharge = await User.findOne({ userID: request.pointPersonID });
+            const customer = await User.findOne({ userID: request.customerID });
+            compiledData.push({
+                request: request,
+                orders: orders, 
+                salesInCharge: salesInCharge,
+                customer: customer
+            });
+        }
 
-        // Create a map of customerID to restaurantName
-        const customerMap = {};
-        customers.forEach(customer => {
-            customerMap[customer.userID] = customer.restaurantName || customer.name;
-        });
-
-        return requests.map(request => ({
-            requestID: request.requestID,
-            partner: customerMap[request.customerID] || 'Unknown Partner',
-            status: request.status || 'Pending',
-            dates: request.requestDate ? request.requestDate.toLocaleDateString() : 'N/A',
-            items: [] // Will be populated when request details are opened
-        }));
-    } catch (err) {
-        console.error('Error in getRequestData:', err);
-        return [];
+        return compiledData;
+    } catch (error) {
+        console.log("Erorr in getRequestData: ", error);
     }
 }
 
@@ -532,11 +558,11 @@ async function getRequestSidebarHelper(requestID) {
 
 // Setter for request status
 async function setRequestStatus (req, res) {
-    const { requestID } = req.params;
+    const requestID = req.params.requestID;
     const { status } = req.body;
 
     try {
-        const request = await Request.find({ requestID: requestID })
+        const request = await Request.findOne({ requestID: requestID })
 
         if (!request) {
             return res.status(404).json({
@@ -553,11 +579,46 @@ async function setRequestStatus (req, res) {
             message: 'Request status updated successfully',
             request: {
                 id: request._id,
-                status: request.status,
+                status: status,
             }
         });
     } catch (error) {
         console.error('Error updating request status:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+};
+
+// Setter for order status
+async function setOrderStatus (req, res) {
+    const orderID = req.params.orderID;
+    const { status } = req.body;
+
+    try {
+        const order = await Order.findOne({ OrderID: orderID });
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: 'Order not found'
+            });
+        }
+
+        // Update the order status
+        await Order.updateOne({ OrderID: orderID }, { $set: { status: status }});
+
+        return res.status(200).json({
+            success: true,
+            message: 'Order status updated successfully',
+            order: {
+                id: order._id,
+                status: status,
+            }
+        });
+    } catch (error) {
+        console.error('Error updating order status:', error);
         return res.status(500).json({
             success: false,
             message: 'Internal server error'
@@ -580,5 +641,6 @@ module.exports = {
     getPartnersData,
     getRequestSidebarJson,
     getRequestSidebarHelper,
-    setRequestStatus
+    setRequestStatus,
+    setOrderStatus
 };
