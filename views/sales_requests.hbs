@@ -11,21 +11,23 @@
                 <div class="card">Average Order Value: <h1>₱{{format_number stats.averageOrder}}</h1></div>
             </div>
             <div class="controls">
-                <select id="statusFilter" onchange="filterRequests()">
-                    <option value="all">All Status</option>
-                    <option value="Received">Status: Received</option>
-                    <option value="Negotiation">Status: Negotiation</option>
-                    <option value="Approved">Status: Approved</option>
-                </select>
-                <select id="sortByRequest" onchange="sortRequests()">
-                    <option value="none">Sort by</option>
-                    <option value="idAsc">ID Ascending</option>
-                    <option value="idDesc">ID Descending</option>
-                    <option value="dateAsc">Date Ascending</option>
-                    <option value="dateDesc">Date Descending</option>
-                </select>
-            </div>
+                <div class="sort">
+                    <select id="statusFilter" onchange="filterRequests()">
+                        <option value="all">All Status</option>
+                        <option value="Received">Status: Received</option>
+                        <option value="Negotiation">Status: Negotiation</option>
+                        <option value="Approved">Status: Approved</option>
+                    </select>
+                    <select id="sortByRequest" onchange="sortRequests()">
+                        <option value="none">Sort by</option>
+                        <option value="idAsc">ID Ascending</option>
+                        <option value="idDesc">ID Descending</option>
+                        <option value="dateAsc">Date Ascending</option>
+                        <option value="dateDesc">Date Descending</option>
+                    </select>
+                </div>
             <button onclick="cancelRequests()">Cancel Request/s</button>
+            </div>
             <table id="requestsTable">
             <thead>
                 <tr>
@@ -56,9 +58,12 @@
 
         <!-- Request Details Section -->
         <aside class="request-details">
-            <h2>Request Details</h2>
-            <div class="item-list">
-                {{!-- This will be populated by sales-request.js when an item is selected --}}
+            <div class="items-container">
+                <h2>Request Details</h2>
+                <br>
+                <div class="item-list">
+                    {{!-- This will be populated by sales-request.js when an item is selected --}}
+                </div>
             </div>
 
             <div class="summary">

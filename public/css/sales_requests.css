@@ -16,11 +16,17 @@
   }
   
   .all-requests, .sustaina-partners {
-    width: 100%;
+    /* width: 100%; */
+    min-width: 730px;
     background: #f9f9f9;
     padding: 1.5rem;
     border-radius: 8px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .sustaina-partners {
+    width: 100%;
+
   }
   
   .all-requests h2, .sustaina-partners h2 {
@@ -33,7 +39,8 @@
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    width: 35%;
+    /* width: 35%; */
+    width: 350px;
     background: #f9f9f9;
     padding: 1.5rem;
     border-radius: 8px;
@@ -149,7 +156,9 @@
   }
   
   .item {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    justify-items: start;
     align-items: center;
     gap: 1rem;
   }
@@ -159,6 +168,8 @@
     height: 50px;
     background: #ddd;
     border-radius: 4px;
+    object-fit: cover;
+
   }
   
   .summary {

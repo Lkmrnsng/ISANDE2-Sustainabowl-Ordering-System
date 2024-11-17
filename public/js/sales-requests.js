@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
         statusElement.textContent = details.status;
 
         // Show the details panel if it was hidden
-        document.querySelector('.request-details').style.display = 'block';
+        // document.querySelector('.request-details').style.display = 'block';
     }
 
     // Update the partners table with given information

@@ -42,13 +42,13 @@
 }
 
 .request-item:hover {
-  background: #f0f4f8;
+  background: #f8f8f0;
   transform: translateY(-1px);
 }
 
 .request-item.active {
-  background: #e3f2fd;
-  border-color: #2196f3;
+  background: #f6fde3;
+  border-color: #e1e6c8;
 }
 
 .request-header {
@@ -72,7 +72,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 500px;
+  min-width: 700px;
 }
 
 .chat-header {
@@ -84,7 +84,7 @@
   display: flex;
   flex: 1;
   min-height: 0;
-  max-width: 900px;
+  width: 100%;
 }
 
 /* Messages Area */
@@ -95,7 +95,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-
+  width: 250px;
 }
 
 /* Message wrapper positioning */
@@ -171,7 +171,7 @@
 
 .chat-input button {
   padding: 0 24px;
-  background: #2196f3;
+  background: var(--turquoise);
   color: white;
   border: none;
   border-radius: 6px;
@@ -180,7 +180,7 @@
 }
 
 .chat-input button:hover {
-  background: #1976d2;
+  background: #00bfa5;
 }
 
 /* Order Details Panel */
@@ -291,7 +291,7 @@ select, input[type="date"], textarea {
   padding: 12px 15px;
   border-bottom: 1px solid #e0e0e0;
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
   align-items: center;
   gap: 10px;
 }
@@ -333,7 +333,7 @@ select, input[type="date"], textarea {
 .item-subtotal {
   text-align: right;
   font-weight: 500;
-  color: #2196f3;
+  color: var(--green);
 }
 
 .total-line {
@@ -348,7 +348,10 @@ select, input[type="date"], textarea {
 }
 
 .total-amount {
-  color: #2196f3;
+  color: white;
+  background-color: var(--magenta);
+  padding: 10px;
+  border-radius: 5px;
 }
 
 /* Update the button styles */
@@ -369,13 +372,13 @@ select, input[type="date"], textarea {
 }
 
 #saveCurrentOrder {
-  background: #2196f3;
-  color: white;
+  background: lightgrey;
+  color: black;
 }
 
 #saveAllOrders {
-  background: #4CAF50;
-  color: white;
+  background: var(--green);
+  color: black;
 }
 
 .button-group button:hover {

@@ -357,8 +357,8 @@ document.addEventListener('DOMContentLoaded', function() {
                               onchange="handleItemQuantityChange(event)"> 
                               kg
                       </div>
+                    </div>
                       <span class="item-price-detail" data-price="${item.itemPrice}">₱${item.itemPrice.toFixed(2)}</span>
-                  </div>
                   <div class="item-subtotal">₱${(item.totalPrice || 0).toFixed(2)}</div>
               </div>
           `).join('');
