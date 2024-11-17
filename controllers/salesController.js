@@ -501,12 +501,12 @@ async function getPartnersData() {
 async function getRequestSidebarJson(req, res) {
     try {
         const requestID = req.params.requestID;
-        const details = await getRequestSidebarHelper(requestID);
-        if (!details) {
+        const orderDetails = await getRequestSidebarHelper(requestID);
+        if (!orderDetails) {
             return res.status(404).json({ error: 'Request not found' });
         }
         
-        res.json(details);
+        res.json(orderDetails);
     } catch (err) {
         console.error('Error in getRequestSidebarJson:', err);
         res.status(500).json({ error: 'Internal server error' });
@@ -522,29 +522,36 @@ async function getRequestSidebarHelper(requestID) {
             return null;
         }
 
-        const order = await Order.findOne({ requestID: requestID });
-        if (!order) return null;
+        const orders = await Order.find({ requestID: requestID });
+        if (!orders) return null;
 
-        const items = [];
+        let items = [];
         let total = 0;
+        const orderItems = [];
+        let orderID = "";
 
-        for (const orderItem of order.items) {
-            const item = await Item.findOne({ itemID: orderItem.itemID });
-            if (item) {
-                const itemTotal = item.itemPrice * orderItem.quantity;
-                items.push({
-                    name: item.itemName,
-                    quantity: orderItem.quantity,
-                    price: itemTotal,
-                    itemImage: item.itemImage || null
-                });
-                total += itemTotal;
+        for (const order of orders) {
+            for (const orderItem of order.items) {
+                const item = await Item.findOne({ itemID: orderItem.itemID });
+                if (item) {
+                    const itemTotal = item.itemPrice * orderItem.quantity;
+                    items.push({
+                        name: item.itemName,
+                        quantity: orderItem.quantity,
+                        price: itemTotal,
+                        itemImage: item.itemImage || null
+                    });
+                    total += itemTotal;
+                }
             }
+            orderID = order.OrderID;
+            orderItems.push({ orderID: orderID, items: items });
+            items = [];
         }
 
         return {
             requestID: request.requestID,
-            items: items,
+            items: orderItems,
             total: total,
             status: request.status,
             customerID: request.customerID,

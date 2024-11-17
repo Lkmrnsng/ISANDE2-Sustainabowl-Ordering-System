@@ -72,13 +72,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fetch and display request details as json
     async function getRequestSidebarJson(requestID) {
         try {
-            const response = await fetch(`/sales/api/${requestID}/details`);
+            const response = await fetch(`/sales/api/sidebar/${requestID}`);
             if (!response.ok) throw new Error('Failed to fetch request details');
-            const details = await response.json();
-            updateRequestDetailsPanel(details);
+            const orderDetails = await response.json();
+            updateRequestDetailsPanel(orderDetails);
         } catch (error) {
             console.error('Error loading request details:', error);
-            updateRequestDetailsPanel(null);
         }
     }
 
@@ -249,6 +248,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Update the details panel with request information
     function updateRequestDetailsPanel(details) {
+        console.log('Type:', typeof details);
+        console.log('Details:', details);
+
         const detailsContainer = document.querySelector('.request-details .item-list');
         const totalElement = document.getElementById('request-total');
         const statusElement = document.getElementById('request-status');
@@ -261,22 +263,41 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Update items list
-        detailsContainer.innerHTML = details.items.map(item => `
-            <div class="item">
-                <div class="placeholder-image"><img class="request-image" src="${item.itemImage}" alt="Product Image" ></div>
-                <p>${item.name}</p>
-                <p>${item.quantity} kg</p>
-                <p>₱${item.price.toFixed(2)}</p>
+        try {
+            // Generate HTML for items
+            detailsContainer.innerHTML = `
+            <div class="order-container">
+                ${details.items.map(order => `
+                    <p class="attribute order-header">Order ${order.orderID}</p>
+                    <div class="order-items">
+                        ${order.items.map(item => `
+                            <div class="item">
+                                <div class="placeholder-image">
+                                    <img class="request-image" src="${item.itemImage}" alt="Product Image">
+                                </div>
+                                <p>${item.name}</p>
+                                <p>${item.quantity} kg</p>
+                                <p>₱${Number(item.price)}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `).join('')}
             </div>
-        `).join('');
-
-        // Update summary section
-        totalElement.textContent = `₱${details.total.toFixed(2)}`;
-        statusElement.textContent = details.status;
-
-        // Show the details panel if it was hidden
-        document.querySelector('.request-details').style.display = 'block';
+        `;
+    
+            // Update summary section 
+            totalElement.textContent = `₱${details.total.toFixed(2)}`;
+            statusElement.textContent = details.status || 'N/A';
+    
+            // Show the details panel if it was hidden
+            document.querySelector('.request-details').style.display = 'block';
+    
+        } catch (error) {
+            console.error('Error processing details:', error);
+            detailsContainer.innerHTML = '<p class="empty-state">Error loading request details</p>';
+            totalElement.textContent = '₱0';
+            statusElement.textContent = 'Error';
+        }
     }
 
     // Update the partners table with given information
@@ -373,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Modify the MongoDB to set the request status
     async function setRequestStatus(requestID, status) {
         try {
-            const response = await fetch(`/sales/api/requests/${requestID}/status`, {
+            const response = await fetch(`/sales/api/requests/${requestID}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -390,7 +411,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Modify the MongoDB to set the order status
     async function setOrderStatus(orderID, status) {        
         try {
-            const response = await fetch(`/sales/api/orders/${orderID}/status`, {
+            const response = await fetch(`/sales/api/orders/${orderID}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
