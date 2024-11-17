@@ -1,12 +1,12 @@
 .dashboard-container {
-    display: flex;
-    gap: 2rem;
-    padding: 2rem;
-    flex-direction: column;
-    align-items: center;
-    margin-left: 240px;
-    /* width: 100%; */
-  }
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 240px;
+  /* width: 100%; */
+}
 
   .requests-container {
     display: flex;
@@ -66,60 +66,60 @@
     
   }
 
-  .card-link {
-    text-decoration: none;
-    color: #333;
-    font-size: .5rem;
-    }
-
-    .summary-cards .card h1 {
-        font-size: 1.5rem;
-    }
-  
-  .controls {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    justify-content: space-between;
-  }
-  
-  .controls select, .controls input[type="text"], .controls button {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+.card-link {
+  text-decoration: none;
+  color: #333;
+  font-size: .5rem;
   }
 
-  .controls button {
-    padding: 0.5rem 1rem;
-    background: #ccc;
-    color: #000000;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  .summary-cards .card h1 {
+      font-size: 1.5rem;
   }
 
-    .controls button:hover {
-        color: #fff;
-        background: var(--magenta);
-    }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 1rem;
-  }
-  
-  table th, table td {
-    padding: 0.75rem;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
+.controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  justify-content: space-between;
+}
 
-  .navigation-buttons {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
+.controls select, .controls input[type="text"], .controls button {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.controls button, #cancel-button {
+  padding: 0.5rem 1rem;
+  background: #ccc;
+  color: #000000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.controls button:hover, #cancel-button:hover {
+  color: #fff;
+  background: var(--magenta);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+table th, table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.navigation-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
 
   .navigation-buttons svg{
     display: flex;
@@ -184,30 +184,58 @@
     margin: 0.5rem 0;
   }
 
-  .summary-details {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    justify-content: space-between;
-  }
+.summary-details {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+}
 
-  .attribute {
-    font-weight: bold;
-  }
-  
-  .request-details button {
-    display: flex;
-    justify-content: center;
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
-    background: var(--green);
-    color: rgb(0, 0, 0);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .request-details button:hover {
-    background: var(--yellow);
-  }
-  
+.attribute {
+  font-weight: bold;
+}
+
+.request-details button {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--green);
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.request-details button:hover {
+  background: var(--yellow);
+}
+
+.order-header {
+  margin-top: 10px;
+  margin-bottom: 5px;
+}  
+
+.request-checkbox {
+  /* Hide the default checkbox */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #000; 
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.request-checkbox:checked {
+  background-color: #4CAF50;
+  border-color: #4CAF50; 
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2); 
+}
+
+.request-checkbox:hover {
+  border-color: #4CAF50;
+}
