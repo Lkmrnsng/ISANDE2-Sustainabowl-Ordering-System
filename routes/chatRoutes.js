@@ -145,40 +145,11 @@ router.put('/api/request/:requestId/orders',
     }
 );
 
-router.put('/api/request/:requestId/orders',
-    authMiddleware.salesOnly,
+router.put('/api/request/:requestId/status',
     authMiddleware.validateSession,
+    authMiddleware.salesOnly,
     authMiddleware.validateRequest,
-    async (req, res) => {
-        try {
-            const orders = await Order.find({ requestID: parseInt(req.params.requestId) });
-            
-            // Parse date string to create UTC date
-            const deliveryDate = new Date(req.body.deliveryDate);
-            deliveryDate.setHours(0, 0, 0, 0);
-            
-            const updates = {
-                deliveryDate: deliveryDate.toISOString(),
-                deliveryTimeRange: req.body.deliveryTimeRange,
-                status: req.body.status,
-                deliveryAddress: req.body.deliveryAddress,
-                customizations: req.body.customizations,
-                items: req.body.items
-            };
-
-            await Promise.all(orders.map(order => 
-                Order.findOneAndUpdate(
-                    { OrderID: order.OrderID },
-                    updates
-                )
-            ));
-
-            res.json({ success: true, message: 'All orders updated successfully' });
-        } catch (error) {
-            console.error('Error updating orders:', error);
-            res.status(500).json({ error: 'Failed to update orders' });
-        }
-    }
+    chatController.updateRequestStatus
 );
 
 router.get('/api/items', async (req, res) => {

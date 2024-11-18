@@ -59,51 +59,54 @@ document.addEventListener('DOMContentLoaded', function() {
 
     fetchAvailableItems();
 
-  // Handle request status changes
-  async function handleRequestStatusChange(e) {
-      if (!state.activeRequestId) return;
+    // Handle request status changes
+    async function handleRequestStatusChange(e) {
+        if (!state.activeRequestId) return;
 
-      const newStatus = e.target.value;
-      const oldStatus = e.target.dataset.previousValue;
+        const newStatus = e.target.value;
+        const oldStatus = e.target.dataset.previousValue;
 
-      try {
-          const response = await fetch(`/chat/api/request/${state.activeRequestId}/status`, {
-              method: 'PUT',
-              headers: {
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ status: newStatus })
-          });
+        try {
+            const response = await fetch(`/chat/api/request/${state.activeRequestId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
 
-          if (!response.ok) {
-              throw new Error('Failed to update status');
-          }
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to update status');
+            }
 
-          const data = await response.json();
-          
-          // Update the status in the UI
-          document.querySelectorAll('.request-item').forEach(item => {
-              if (item.dataset.requestId === state.activeRequestId) {
-                  item.querySelector('.request-details span:last-child').textContent = `Status: ${newStatus}`;
-              }
-          });
+            const data = await response.json();
+            
+            // Update the status in the UI
+            document.querySelectorAll('.request-item').forEach(item => {
+                if (item.dataset.requestId === state.activeRequestId) {
+                    item.querySelector('.request-details span:last-child').textContent = `Status: ${newStatus}`;
+                }
+            });
 
-          // Store the new value as previous
-          e.target.dataset.previousValue = newStatus;
+            // Store the new value as previous
+            e.target.dataset.previousValue = newStatus;
 
-          showSuccess('Request status updated successfully');
+            showSuccess('Request status updated successfully');
 
-          // If status changed to Approved, refresh the orders list
-          if (newStatus === 'Approved') {
-              loadRequestData(state.activeRequestId);
-          }
+            // If status changed to Approved, refresh the orders list
+            if (newStatus === 'Approved') {
+                await loadRequestData(state.activeRequestId);
+            }
 
-      } catch (error) {
-          console.error('Error updating request status:', error);
-          e.target.value = oldStatus;
-          showError('Failed to update request status');
-      }
-  }
+        } catch (error) {
+            console.error('Error updating request status:', error);
+            // Revert the select element to its previous value
+            e.target.value = oldStatus || '';
+            // Show error message to user
+            showError(error.message || 'Failed to update request status');
+        }
+    }
 
   // Handle item quantity changes
   function handleItemQuantityChange(e) {

@@ -316,13 +316,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${partner.customerName}</td>
                 <td>${partner.totalReqs}</td>
                 <td>${partner.cancelRate}</td>
-                <td><button class="contact-button">Contact</button></td>
+                <td><button class="button-link">Contact</button></td>
             `;
 
-            const contactButton = row.querySelector('.contact-button');
+            const contactButton = row.querySelector('.button-link');
             contactButton.addEventListener('click', function() {
                 console.log("Contact button clicked.");
                 // TODO: Link to corresponding chat
+                window.location.href = '/chat/sales';
             });
             
             tbody.appendChild(row);

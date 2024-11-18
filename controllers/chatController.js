@@ -1,5 +1,3 @@
-
-
 const Message = require('../models/Message');
 const Request = require('../models/Request');
 const Order = require('../models/Order');
@@ -285,7 +283,11 @@ const chatController = {
         try {
             const { requestId } = req.params;
             const { status } = req.body;
-    
+
+            if (!requestId || !status) {
+                return res.status(400).json({ error: 'Missing required fields' });
+            }
+
             const validStatuses = ['Received', 'Negotiation', 'Approved', 'Cancelled'];
             if (!validStatuses.includes(status)) {
                 return res.status(400).json({ error: 'Invalid status' });
@@ -326,6 +328,3 @@ const chatController = {
 };
 
 module.exports = chatController;
-
-
-
