@@ -49,7 +49,7 @@
 .task-details {
     background-color: #eee;
     border-radius: 5px;
-    padding: 2px;
+    padding: 5px;
     font-size: 0.8em;
     margin-top: 5px;
     width: 100%;
@@ -58,6 +58,7 @@
 
 .task-content {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     align-items: center;
     gap: 4px;
@@ -68,12 +69,12 @@
 }
 
 .time {
-    font-size: 0.9em;
+    font-size: 0.9rem;
     color: #666;
 }
 
 /* Status colors */
-.status-received { background-color: #fff3cd; }
+.status-waiting-approval { background-color: #fff3cd; }
 .status-preparing { background-color: #cce5ff; }
 .status-dispatched { background-color: #d4edda; }
 .status-delivered { background-color: #c3e6cb; }
@@ -151,11 +152,11 @@
 /* Highlight current day */
 .current-day {
     display: flex;
-    padding: 10px;
+    /* padding: 10px; */
     border: 1px solid var(--green);
     min-height: 150px;
     min-width: 150px;
-    background-color: var(--green);
+    background-color: #f6ffdc;
     position: relative;
 }
 

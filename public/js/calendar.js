@@ -124,8 +124,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                     orderDetail.innerHTML = `
                         <div class="task-content">
-                            <span class="restaurant">${order.restaurant}</span>
-                            <span class="time">${order.deliveryTimeRange}</span>
+                            <span class="restaurant">${order.task}</span>
+                            
                         </div>
                     `;
                     
