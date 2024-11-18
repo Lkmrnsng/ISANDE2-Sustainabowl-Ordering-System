@@ -197,8 +197,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
           state.hasUnsavedChanges = false;
           showSuccess('Order updated successfully');
-          //refresh page
-          location.reload();
       } catch (error) {
           console.error('Error saving order:', error);
           showError('Failed to save order changes');
@@ -228,8 +226,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
                   state.hasUnsavedChanges = false;
                   showSuccess('All orders updated successfully');
-                  //refresh page
-                  location.reload();
               } catch (error) {
                   console.error('Error saving orders:', error);
                   showError('Failed to save changes to all orders');
