@@ -238,7 +238,8 @@ document.addEventListener('DOMContentLoaded', function() {
       );
   }
 
-  // Helper function to collect order data// In sales-chat.js, modify collectOrderData:
+  // Helper function to collect order data
+
 function collectOrderData() {
     const items = [];
     document.querySelectorAll('.item').forEach(item => {
@@ -249,11 +250,12 @@ function collectOrderData() {
         });
     });
 
+    // Add a day to compensate for timezone offset
     const deliveryDate = document.getElementById('deliveryDate').value;
-    // Convert to UTC/ISO date without timezone offset
-    const utcDate = new Date(deliveryDate);
-    utcDate.setHours(0, 0, 0, 0);
-    const isoDate = utcDate.toISOString();
+    const date = new Date(deliveryDate);
+    date.setDate(date.getDate() + 1);
+    date.setHours(0, 0, 0, 0);
+    const isoDate = date.toISOString();
 
     return {
         deliveryDate: isoDate,

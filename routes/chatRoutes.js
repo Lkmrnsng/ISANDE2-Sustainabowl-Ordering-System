@@ -78,61 +78,7 @@ router.post('/api/message',
     chatController.sendMessage
 );
 
-router.get('/api/order/:orderId', async (req, res) => {
-    try {
-        const { orderId } = req.params;
-        
-        // Parse orderId to number if your OrderID is stored as number
-        const order = await Order.findOne({ OrderID: parseInt(orderId) });
-        
-        if (!order) {
-            return res.status(404).json({
-                success: false,
-                error: `Order #${orderId} not found`
-            });
-        }
-
-        // Fetch item details with prices for the order
-        const enhancedItems = await Promise.all(order.items.map(async (item) => {
-            const itemData = await Item.findOne({ itemID: item.itemID });
-            return {
-                ...item.toObject(),
-                itemName: itemData ? itemData.itemName : 'Unknown Item',
-                itemPrice: itemData ? itemData.itemPrice : 0,
-                totalPrice: (itemData ? itemData.itemPrice : 0) * item.quantity
-            };
-        }));
-
-        // Calculate total amount
-        const totalAmount = enhancedItems.reduce((sum, item) => sum + item.totalPrice, 0);
-
-        const orderResponse = {
-            ...order.toObject(),
-            items: enhancedItems,
-            totalAmount
-        };
-
-        res.json(orderResponse);
-
-    } catch (error) {
-        console.error('Error fetching order:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to fetch order details'
-        });
-    }
-});
-
-// Update request status
-// Add this route in chatRoutes.js
-router.put('/api/request/:requestId/status', 
-    authMiddleware.validateSession,
-    authMiddleware.salesOnly,
-    authMiddleware.validateRequest,
-    chatController.updateRequestStatus
-);
-
-
+// In chatRoutes.js:
 router.put('/api/order/:orderId',
     authMiddleware.salesOnly,
     authMiddleware.validateSession,
@@ -143,12 +89,9 @@ router.put('/api/order/:orderId',
                 return res.status(404).json({ error: 'Order not found' });
             }
 
-            // Parse date string to create UTC date
-            const deliveryDate = new Date(req.body.deliveryDate);
-            deliveryDate.setHours(0, 0, 0, 0);
-            
+            // Keep the date as is from the client
             const updates = {
-                deliveryDate: deliveryDate.toISOString(),
+                deliveryDate: req.body.deliveryDate,  // Don't create new Date object
                 deliveryTimeRange: req.body.deliveryTimeRange,
                 status: req.body.status,
                 deliveryAddress: req.body.deliveryAddress,
@@ -165,6 +108,39 @@ router.put('/api/order/:orderId',
         } catch (error) {
             console.error('Error updating order:', error);
             res.status(500).json({ error: 'Failed to update order' });
+        }
+    }
+);
+
+router.put('/api/request/:requestId/orders',
+    authMiddleware.salesOnly,
+    authMiddleware.validateSession,
+    authMiddleware.validateRequest,
+    async (req, res) => {
+        try {
+            const orders = await Order.find({ requestID: parseInt(req.params.requestId) });
+            
+            // Keep the date as is from the client
+            const updates = {
+                deliveryDate: req.body.deliveryDate,  // Don't create new Date object
+                deliveryTimeRange: req.body.deliveryTimeRange,
+                status: req.body.status,
+                deliveryAddress: req.body.deliveryAddress,
+                customizations: req.body.customizations,
+                items: req.body.items
+            };
+
+            await Promise.all(orders.map(order => 
+                Order.findOneAndUpdate(
+                    { OrderID: order.OrderID },
+                    updates
+                )
+            ));
+
+            res.json({ success: true, message: 'All orders updated successfully' });
+        } catch (error) {
+            console.error('Error updating orders:', error);
+            res.status(500).json({ error: 'Failed to update orders' });
         }
     }
 );
