@@ -329,17 +329,18 @@ function collectOrderData() {
   }
 
   function updateOrderSelect(orders) {
-      if (!elements.orderSelect) return;
-  
-      elements.orderSelect.innerHTML = orders.map(order => {
-          const deliveryDate = new Date(order.deliveryDate).toLocaleDateString();
-          return `
-              <option value="${order.OrderID}">
-                  Order #${order.OrderID} - Delivery: ${deliveryDate}
-              </option>
-          `;
-      }).join('');
-  }
+    if (!elements.orderSelect) return;
+
+    elements.orderSelect.innerHTML = orders.map(order => {
+        const date = new Date(order.deliveryDate);
+        date.setDate(date.getDate() - 1); // Subtract a day to show correct date
+        return `
+            <option value="${order.OrderID}">
+                Order #${order.OrderID} - Delivery: ${date.toLocaleDateString()}
+            </option>
+        `;
+    }).join('');
+}
 
   function updateOrderDisplay(order) {
     if (!order) {
