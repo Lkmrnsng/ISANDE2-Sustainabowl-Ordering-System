@@ -197,6 +197,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
           state.hasUnsavedChanges = false;
           showSuccess('Order updated successfully');
+          //refresh page
+          document.location.reload();
       } catch (error) {
           console.error('Error saving order:', error);
           showError('Failed to save order changes');
@@ -226,6 +228,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                   state.hasUnsavedChanges = false;
                   showSuccess('All orders updated successfully');
+                  //refresh page
+                  document.location.reload();
               } catch (error) {
                   console.error('Error saving orders:', error);
                   showError('Failed to save changes to all orders');
@@ -280,46 +284,28 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   async function refreshMessages(requestId) {
-    if (!requestId || state.isRefreshing) return;
+      if (!requestId || state.isRefreshing) return;
 
-    try {
-        state.isRefreshing = true;
-        const response = await fetch(`/chat/api/chat/${requestId}`);
-        
-        if (!response.ok) {
-            throw new Error('Failed to fetch messages');
-        }
-        
-        const data = await response.json();
-        if (data.messages) {
-            updateChatMessages(data.messages);
-            
-            // Also refresh order data if available
-            if (data.orders && data.orders.length > 0) {
-                updateOrderSelect(data.orders);
-                
-                // Update current order display if we have an active order
-                if (state.activeOrderId) {
-                    const currentOrder = data.orders.find(o => o.OrderID === state.activeOrderId);
-                    if (currentOrder) {
-                        updateOrderDisplay(currentOrder);
-                    }
-                } else {
-                    // If no active order, display first order
-                    state.activeOrderId = data.orders[0].OrderID;
-                    updateOrderDisplay(data.orders[0]); 
-                }
-            }
-            
-            scrollToBottom();
-        }
-    } catch (error) {
-        console.error('Error refreshing messages:', error);
-        showError('Failed to refresh messages');
-    } finally {
-        state.isRefreshing = false;  
-    }
-}
+      try {
+          state.isRefreshing = true;
+          const response = await fetch(`/chat/api/chat/${requestId}`);
+          
+          if (!response.ok) {
+              throw new Error('Failed to fetch messages');
+          }
+          
+          const data = await response.json();
+          if (data.messages) {
+              updateChatMessages(data.messages);
+              scrollToBottom();
+          }
+      } catch (error) {
+          console.error('Error refreshing messages:', error);
+          showError('Failed to refresh messages');
+      } finally {
+          state.isRefreshing = false;
+      }
+  }
 
   function debouncedRefresh(requestId) {
       if (state.refreshTimeout) {
@@ -381,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
 
         itemsHTML += order.items.map(item => `
-            <div class="item" data-item-id="${item.itemID}">
+            <div class="item salesitems" data-item-id="${item.itemID}">
                 <div class="item-name">${item.itemName || 'Unknown Item'}</div>
                 <div class="item-details">
                     <div class="quantity-control">
