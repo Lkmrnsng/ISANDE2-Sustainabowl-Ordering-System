@@ -73,28 +73,46 @@ if (elements.requestItems[0]) {
   }
 
   async function refreshMessages(requestId) {
-      if (!requestId || state.isRefreshing) return;
+    if (!requestId || state.isRefreshing) return;
 
-      try {
-          state.isRefreshing = true;
-          const response = await fetch(`/chat/api/chat/${requestId}`);
-          
-          if (!response.ok) {
-              throw new Error('Failed to fetch messages');
-          }
-          
-          const data = await response.json();
-          if (data.messages) {
-              updateChatMessages(data.messages);
-              scrollToBottom();
-          }
-      } catch (error) {
-          console.error('Error refreshing messages:', error);
-          showError('Failed to refresh messages');
-      } finally {
-          state.isRefreshing = false;
-      }
-  }
+    try {
+        state.isRefreshing = true;
+        const response = await fetch(`/chat/api/chat/${requestId}`);
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch messages');
+        }
+        
+        const data = await response.json();
+        if (data.messages) {
+            updateChatMessages(data.messages);
+            
+            // Also refresh order data if available
+            if (data.orders && data.orders.length > 0) {
+                updateOrderSelect(data.orders);
+                
+                // Update current order display if we have an active order
+                if (state.activeOrderId) {
+                    const currentOrder = data.orders.find(o => o.OrderID === state.activeOrderId);
+                    if (currentOrder) {
+                        updateOrderDisplay(currentOrder);
+                    }
+                } else {
+                    // If no active order, display first order
+                    state.activeOrderId = data.orders[0].OrderID;
+                    updateOrderDisplay(data.orders[0]); 
+                }
+            }
+            
+            scrollToBottom();
+        }
+    } catch (error) {
+        console.error('Error refreshing messages:', error);
+        showError('Failed to refresh messages');
+    } finally {
+        state.isRefreshing = false;  
+    }
+}
 
   function debouncedRefresh(requestId) {
       if (state.refreshTimeout) {
