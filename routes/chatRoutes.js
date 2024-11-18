@@ -198,4 +198,14 @@ router.put('/api/request/:requestId/orders',
     }
 );
 
+router.get('/api/items', async (req, res) => {
+    try {
+        const items = await Item.find({}).lean();
+        res.json(items);
+    } catch (error) {
+        console.error('Error fetching items:', error);
+        res.status(500).json({ error: 'Failed to fetch items' });
+    }
+});
+
 module.exports = router;

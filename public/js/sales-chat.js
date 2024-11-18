@@ -22,8 +22,11 @@ document.addEventListener('DOMContentLoaded', function() {
       messageQueue: [],
       requestsData: new Map(), // Store request data
       originalOrderData: null,
-      hasUnsavedChanges: false
+      hasUnsavedChanges: false,
+      availableItems: []
   };
+
+  
 
   // Initialize requestsData from server-rendered data
   elements.requestItems.forEach(requestEl => {
@@ -41,6 +44,20 @@ document.addEventListener('DOMContentLoaded', function() {
       firstRequest.classList.add('active');
       loadRequestData(state.activeRequestId);
   }
+
+      // Fetch available items when page loads
+      async function fetchAvailableItems() {
+        try {
+            const response = await fetch('/chat/api/items');
+            if (!response.ok) throw new Error('Failed to fetch items');
+            state.availableItems = await response.json();
+        } catch (error) {
+            console.error('Error fetching available items:', error);
+            showError('Failed to load available items');
+        }
+    }
+
+    fetchAvailableItems();
 
   // Handle request status changes
   async function handleRequestStatusChange(e) {
@@ -318,16 +335,14 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    // Preserve the original date format
+    // Update form fields (same as before)
     const deliveryDateInput = document.getElementById('deliveryDate');
     if (deliveryDateInput && order.deliveryDate) {
-        // Extract just the date part in YYYY-MM-DD format
         const dateObj = new Date(order.deliveryDate);
         const formattedDate = dateObj.toISOString().split('T')[0];
         deliveryDateInput.value = formattedDate;
     }
 
-    // Update other form fields
     const timeRangeSelect = document.getElementById('timeRange');
     const orderStatusSelect = document.getElementById('orderStatus');
     const deliveryAddressInput = document.getElementById('deliveryAddress');
@@ -338,10 +353,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (deliveryAddressInput) deliveryAddressInput.value = order.deliveryAddress || '';
     if (customizationsInput) customizationsInput.value = order.customizations || '';
 
-    // Update items list while preserving existing items
+    // Update items list with add/remove functionality
     const itemsList = document.querySelector('.items-list');
     if (itemsList && Array.isArray(order.items)) {
-        let itemsHTML = order.items.map(item => `
+        let itemsHTML = `
+            <div class="items-header">
+                <button type="button" class="add-item-btn" onclick="addNewItem()">Add Item</button>
+            </div>
+        `;
+
+        itemsHTML += order.items.map(item => `
             <div class="item" data-item-id="${item.itemID}">
                 <div class="item-name">${item.itemName || 'Unknown Item'}</div>
                 <div class="item-details">
@@ -357,10 +378,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <span class="item-price-detail" data-price="${item.itemPrice}">₱${item.itemPrice.toFixed(2)}</span>
                 <div class="item-subtotal">₱${(item.quantity * item.itemPrice).toFixed(2)}</div>
+                <button type="button" class="remove-item-btn" onclick="removeItem(${item.itemID})">×</button>
             </div>
         `).join('');
 
-        // Add total amount line
         const totalAmount = order.items.reduce((sum, item) => 
             sum + (item.quantity * item.itemPrice), 0);
 
@@ -639,4 +660,67 @@ document.addEventListener('DOMContentLoaded', function() {
           return e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
       }
   });
+
+      // Add new item function
+      window.addNewItem = function() {
+        const itemSelectionHTML = `
+            <div class="item-selection-modal">
+                <div class="modal-content">
+                    <h3>Add Item</h3>
+                    <select id="itemSelect">
+                        ${state.availableItems.map(item => 
+                            `<option value="${item.itemID}" data-price="${item.itemPrice}">${item.itemName}</option>`
+                        ).join('')}
+                    </select>
+                    <input type="number" id="newItemQuantity" value="1" min="1" placeholder="Quantity (kg)">
+                    <div class="modal-actions">
+                        <button onclick="confirmAddItem()">Add</button>
+                        <button onclick="closeItemModal()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', itemSelectionHTML);
+    };
+
+    // Confirm add item
+    window.confirmAddItem = function() {
+        const select = document.getElementById('itemSelect');
+        const quantity = document.getElementById('newItemQuantity');
+        const selectedOption = select.options[select.selectedIndex];
+
+        const newItem = {
+            itemID: parseInt(select.value),
+            itemName: selectedOption.text,
+            quantity: parseInt(quantity.value),
+            itemPrice: parseFloat(selectedOption.dataset.price)
+        };
+
+        // Add to current order's items
+        const currentOrder = state.requestsData.get(state.activeRequestId)
+            .orders.find(o => o.OrderID === parseInt(state.activeOrderId));
+        
+        if (!currentOrder.items) currentOrder.items = [];
+        currentOrder.items.push(newItem);
+
+        // Update display
+        updateOrderDisplay(currentOrder);
+        closeItemModal();
+    };
+
+    // Remove item
+    window.removeItem = function(itemId) {
+        const currentOrder = state.requestsData.get(state.activeRequestId)
+            .orders.find(o => o.OrderID === parseInt(state.activeOrderId));
+        
+        currentOrder.items = currentOrder.items.filter(item => item.itemID !== itemId);
+        updateOrderDisplay(currentOrder);
+    };
+
+    // Close item modal
+    window.closeItemModal = function() {
+        const modal = document.querySelector('.item-selection-modal');
+        if (modal) modal.remove();
+    };
 });
