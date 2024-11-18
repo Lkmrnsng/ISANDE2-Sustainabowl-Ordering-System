@@ -336,7 +336,7 @@ select, input[type="date"], textarea {
 .item-subtotal {
   text-align: right;
   font-weight: 500;
-  color: var(--green);
+  color: var(--turquoise);
 }
 
 .total-line {
@@ -511,7 +511,7 @@ select, input[type="date"], textarea {
 }
 
 .add-item-btn {
-  background: var(--green);
+  background: var(--turquoise);
   color: white;
   border: none;
   padding: 8px 16px;
@@ -521,7 +521,7 @@ select, input[type="date"], textarea {
 }
 
 .remove-item-btn {
-  background: var(--magenta);
+  background: red;
   color: white;
   border: none;
   border-radius: 50%;
