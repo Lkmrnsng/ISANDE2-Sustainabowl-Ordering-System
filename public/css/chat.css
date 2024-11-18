@@ -2,7 +2,7 @@
 .chat-container {
   display: flex;
   height: calc(100vh - 200px);
-  margin: 20px;
+  /* margin: 20px; */
   margin-left: 250px; /* Account for customer sidebar */
   gap: 20px;
   background: #fff;
