@@ -313,73 +313,67 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function updateOrderDisplay(order) {
-      if (!order) {
-          console.error('No order data provided to updateOrderDisplay');
-          return;
-      }
+    if (!order) {
+        console.error('No order data provided to updateOrderDisplay');
+        return;
+    }
 
-      // Update editable form fields
-      const deliveryDateInput = document.getElementById('deliveryDate');
-      const timeRangeSelect = document.getElementById('timeRange');
-      const orderStatusSelect = document.getElementById('orderStatus');
-      const deliveryAddressInput = document.getElementById('deliveryAddress');
-      const customizationsInput = document.getElementById('customizations');
+    // Preserve the original date format
+    const deliveryDateInput = document.getElementById('deliveryDate');
+    if (deliveryDateInput && order.deliveryDate) {
+        // Extract just the date part in YYYY-MM-DD format
+        const dateObj = new Date(order.deliveryDate);
+        const formattedDate = dateObj.toISOString().split('T')[0];
+        deliveryDateInput.value = formattedDate;
+    }
 
-      if (deliveryDateInput && order.deliveryDate) {
-          deliveryDateInput.value = order.deliveryDate.split('T')[0];
-      }
-      if (timeRangeSelect && order.deliveryTimeRange) {
-          timeRangeSelect.value = order.deliveryTimeRange;
-      }
-      if (orderStatusSelect && order.status) {
-          orderStatusSelect.value = order.status;
-      }
-      if (deliveryAddressInput) {
-          deliveryAddressInput.value = order.deliveryAddress || '';
-      }
-      if (customizationsInput) {
-          customizationsInput.value = order.customizations || '';
-      }
+    // Update other form fields
+    const timeRangeSelect = document.getElementById('timeRange');
+    const orderStatusSelect = document.getElementById('orderStatus');
+    const deliveryAddressInput = document.getElementById('deliveryAddress');
+    const customizationsInput = document.getElementById('customizations');
 
-      // Update items list
-      const itemsList = document.querySelector('.items-list');
-      if (itemsList && Array.isArray(order.items)) {
-          let itemsHTML = order.items.map(item => `
-              <div class="salesitems" data-item-id="${item.itemID}">
-                  <div class="item-name">${item.itemName || 'Unknown Item'}</div>
-                  <div class="item-details">
-                      <div class="quantity-control">
-                          <input type="number" 
-                              class="quantity-input" 
-                              value="${item.quantity}" 
-                              min="1" 
-                              data-previous-value="${item.quantity}"
-                              onchange="handleItemQuantityChange(event)"> 
-                              kg
-                      </div>
+    if (timeRangeSelect) timeRangeSelect.value = order.deliveryTimeRange || '';
+    if (orderStatusSelect) orderStatusSelect.value = order.status || '';
+    if (deliveryAddressInput) deliveryAddressInput.value = order.deliveryAddress || '';
+    if (customizationsInput) customizationsInput.value = order.customizations || '';
+
+    // Update items list while preserving existing items
+    const itemsList = document.querySelector('.items-list');
+    if (itemsList && Array.isArray(order.items)) {
+        let itemsHTML = order.items.map(item => `
+            <div class="item" data-item-id="${item.itemID}">
+                <div class="item-name">${item.itemName || 'Unknown Item'}</div>
+                <div class="item-details">
+                    <div class="quantity-control">
+                        <input type="number" 
+                            class="quantity-input" 
+                            value="${item.quantity}" 
+                            min="1" 
+                            data-previous-value="${item.quantity}"
+                            onchange="handleItemQuantityChange(event)">
+                            kg
                     </div>
-                      <span class="item-price-detail" data-price="${item.itemPrice}">₱${item.itemPrice.toFixed(2)}</span>
-                  <div class="item-subtotal">₱${(item.totalPrice || 0).toFixed(2)}</div>
-              </div>
-          `).join('');
+                </div>
+                <span class="item-price-detail" data-price="${item.itemPrice}">₱${item.itemPrice.toFixed(2)}</span>
+                <div class="item-subtotal">₱${(item.quantity * item.itemPrice).toFixed(2)}</div>
+            </div>
+        `).join('');
 
-          itemsHTML += `
-              <div class="total-line">
-                  <span>Total Amount:</span>
-                  <span class="total-amount">₱${(order.totalAmount || 0).toFixed(2)}</span>
-              </div>
-          `;
+        // Add total amount line
+        const totalAmount = order.items.reduce((sum, item) => 
+            sum + (item.quantity * item.itemPrice), 0);
 
-          itemsList.innerHTML = itemsHTML;
-          
-          // Add event listeners to quantity inputs
-          itemsList.querySelectorAll('.quantity-input').forEach(input => {
-              input.addEventListener('change', handleItemQuantityChange);
-              input.addEventListener('input', handleItemQuantityChange);
-              input.dataset.previousValue = input.value;
-          });
-      }
-  }
+        itemsHTML += `
+            <div class="total-line">
+                <span>Total Amount:</span>
+                <span class="total-amount">₱${totalAmount.toFixed(2)}</span>
+            </div>
+        `;
+
+        itemsList.innerHTML = itemsHTML;
+    }
+}
 
   function handleRequestClick(e) {
       e.preventDefault();
@@ -509,45 +503,32 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   async function handleOrderSelect(e) {
-      const orderId = e.target.value;
-      if (!orderId) return;
-      
-      try {
-          const response = await fetch(`/chat/api/order/${orderId}`);
-          
-          if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(errorData.error || 'Failed to fetch order details');
-          }
-          
-          const orderData = await response.json();
-          
-          if (!orderData) {
-              throw new Error('No order data received');
-          }
-          
-          state.activeOrderId = orderId;
-  
-          const processedOrder = {
-              ...orderData,
-              items: orderData.items.map(item => ({
-                  ...item,
-                  totalPrice: (item.itemPrice || 0) * (item.quantity || 0)
-              })),
-              totalAmount: orderData.items.reduce((sum, item) => 
-                  sum + ((item.itemPrice || 0) * (item.quantity || 0)), 0)
-          };
-  
-          updateOrderDisplay(processedOrder);
-      } catch (error) {
-          console.error('Error fetching order details:', error);
-          showError(error.message || 'Failed to load order details');
-          
-          if (state.activeOrderId && elements.orderSelect) {
-              elements.orderSelect.value = state.activeOrderId;
-          }
-      }
-  }
+    const orderId = e.target.value;
+    if (!orderId) return;
+    
+    try {
+        const response = await fetch(`/chat/api/order/${orderId}`);
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to fetch order details');
+        }
+        
+        const orderData = await response.json();
+        if (!orderData) {
+            throw new Error('No order data received');
+        }
+        
+        state.activeOrderId = orderId;
+        updateOrderDisplay(orderData);
+    } catch (error) {
+        console.error('Error fetching order details:', error);
+        showError(error.message || 'Failed to load order details');
+        
+        if (state.activeOrderId && elements.orderSelect) {
+            elements.orderSelect.value = state.activeOrderId;
+        }
+    }
+}
 
   function createMessageHTML(message) {
       const isCurrentUser = String(message.senderID) === String(window.userId);
