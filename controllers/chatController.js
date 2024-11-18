@@ -121,6 +121,7 @@ const chatController = {
                     title: 'Sales Chat',
                     css: ['chat.css'],
                     js: ['sales-chat.js'],
+                    active: 'chat'
                 });
             }
     
@@ -186,7 +187,8 @@ const chatController = {
                 title: 'Sales Chat',
                 css: ['chat.css'],
                 js: ['sales-chat.js'],
-                activeRequest: requests.length > 0 ? requests[0] : null
+                activeRequest: requests.length > 0 ? requests[0] : null,
+                active: 'chat'
             });
         } catch (error) {
             next(error instanceof ChatError ? error : new ChatError('Server error'));

@@ -132,7 +132,7 @@ router.put('/api/request/:requestId/status',
     chatController.updateRequestStatus
 );
 
-// Update single order route
+
 router.put('/api/order/:orderId',
     authMiddleware.salesOnly,
     authMiddleware.validateSession,
@@ -143,9 +143,12 @@ router.put('/api/order/:orderId',
                 return res.status(404).json({ error: 'Order not found' });
             }
 
-            // Ensure date is stored in correct format
+            // Parse date string to create UTC date
+            const deliveryDate = new Date(req.body.deliveryDate);
+            deliveryDate.setHours(0, 0, 0, 0);
+            
             const updates = {
-                deliveryDate: new Date(req.body.deliveryDate), // This will convert to proper ISO format
+                deliveryDate: deliveryDate.toISOString(),
                 deliveryTimeRange: req.body.deliveryTimeRange,
                 status: req.body.status,
                 deliveryAddress: req.body.deliveryAddress,
@@ -155,8 +158,7 @@ router.put('/api/order/:orderId',
 
             await Order.findOneAndUpdate(
                 { OrderID: parseInt(req.params.orderId) },
-                updates,
-                { new: true }
+                updates
             );
 
             res.json({ success: true, message: 'Order updated successfully' });
@@ -167,7 +169,6 @@ router.put('/api/order/:orderId',
     }
 );
 
-// Update all orders for a request route
 router.put('/api/request/:requestId/orders',
     authMiddleware.salesOnly,
     authMiddleware.validateSession,
@@ -176,8 +177,12 @@ router.put('/api/request/:requestId/orders',
         try {
             const orders = await Order.find({ requestID: parseInt(req.params.requestId) });
             
+            // Parse date string to create UTC date
+            const deliveryDate = new Date(req.body.deliveryDate);
+            deliveryDate.setHours(0, 0, 0, 0);
+            
             const updates = {
-                deliveryDate: new Date(req.body.deliveryDate), // This will convert to proper ISO format
+                deliveryDate: deliveryDate.toISOString(),
                 deliveryTimeRange: req.body.deliveryTimeRange,
                 status: req.body.status,
                 deliveryAddress: req.body.deliveryAddress,
@@ -188,8 +193,7 @@ router.put('/api/request/:requestId/orders',
             await Promise.all(orders.map(order => 
                 Order.findOneAndUpdate(
                     { OrderID: order.OrderID },
-                    updates,
-                    { new: true }
+                    updates
                 )
             ));
 

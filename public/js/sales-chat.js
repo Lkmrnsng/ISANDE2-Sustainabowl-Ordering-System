@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
       );
   }
 
-  // Helper function to collect order data
+  // Helper function to collect order data// In sales-chat.js, modify collectOrderData:
 function collectOrderData() {
     const items = [];
     document.querySelectorAll('.item').forEach(item => {
@@ -250,11 +250,13 @@ function collectOrderData() {
     });
 
     const deliveryDate = document.getElementById('deliveryDate').value;
-    // Create ISO date string by appending time portion
-    const formattedDate = `${deliveryDate}T00:00:00.000Z`;
+    // Convert to UTC/ISO date without timezone offset
+    const utcDate = new Date(deliveryDate);
+    utcDate.setHours(0, 0, 0, 0);
+    const isoDate = utcDate.toISOString();
 
     return {
-        deliveryDate: formattedDate,
+        deliveryDate: isoDate,
         deliveryTimeRange: document.getElementById('timeRange').value,
         status: document.getElementById('orderStatus').value,
         deliveryAddress: document.getElementById('deliveryAddress').value,
