@@ -294,7 +294,7 @@ select, input[type="date"], textarea {
   padding: 12px 15px;
   border-bottom: 1px solid #e0e0e0;
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns:1fr 2fr 1fr 1fr 1fr;
   align-items: center;
   gap: 10px;
 }
@@ -511,7 +511,7 @@ select, input[type="date"], textarea {
 }
 
 .add-item-btn {
-  background: #4CAF50;
+  background: var(--green);
   color: white;
   border: none;
   padding: 8px 16px;
@@ -521,7 +521,7 @@ select, input[type="date"], textarea {
 }
 
 .remove-item-btn {
-  background: #ff4444;
+  background: var(--magenta);
   color: white;
   border: none;
   border-radius: 50%;
@@ -531,7 +531,6 @@ select, input[type="date"], textarea {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 10px;
 }
 
 #itemSelect, #newItemQuantity {
@@ -562,4 +561,12 @@ select, input[type="date"], textarea {
 .modal-actions button:last-child {
   background: #f44336;
   color: white;
+}
+
+.items-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }

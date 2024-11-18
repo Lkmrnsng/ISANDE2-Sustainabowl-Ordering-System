@@ -364,29 +364,26 @@ function collectOrderData() {
     // Update items list with add/remove functionality
     const itemsList = document.querySelector('.items-list');
     if (itemsList && Array.isArray(order.items)) {
-        let itemsHTML = `
-            <div class="items-header">
-                <button type="button" class="add-item-btn" onclick="addNewItem()">Add Item</button>
-            </div>
-        `;
+        let itemsHTML = ``;
 
         itemsHTML += order.items.map(item => `
+
             <div class="item salesitems" data-item-id="${item.itemID}">
+            <button type="button" class="remove-item-btn" onclick="removeItem(${item.itemID})">x</button>
                 <div class="item-name">${item.itemName || 'Unknown Item'}</div>
-                <div class="item-details">
-                    <div class="quantity-control">
-                        <input type="number" 
-                            class="quantity-input" 
-                            value="${item.quantity}" 
-                            min="1" 
-                            data-previous-value="${item.quantity}"
-                            onchange="handleItemQuantityChange(event)">
-                            kg
+                    <div class="item-details">
+                        <div class="quantity-control">
+                            <input type="number" 
+                                class="quantity-input" 
+                                value="${item.quantity}" 
+                                min="1" 
+                                data-previous-value="${item.quantity}"
+                                onchange="handleItemQuantityChange(event)">
+                                kg
+                        </div>
                     </div>
-                </div>
                 <span class="item-price-detail" data-price="${item.itemPrice}">₱${item.itemPrice.toFixed(2)}</span>
                 <div class="item-subtotal">₱${(item.quantity * item.itemPrice).toFixed(2)}</div>
-                <button type="button" class="remove-item-btn" onclick="removeItem(${item.itemID})">×</button>
             </div>
         `).join('');
 
