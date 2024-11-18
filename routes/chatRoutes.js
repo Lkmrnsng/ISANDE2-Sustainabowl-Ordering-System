@@ -132,7 +132,7 @@ router.put('/api/request/:requestId/status',
     chatController.updateRequestStatus
 );
 
-// Update single order
+// Update single order route
 router.put('/api/order/:orderId',
     authMiddleware.salesOnly,
     authMiddleware.validateSession,
@@ -143,9 +143,9 @@ router.put('/api/order/:orderId',
                 return res.status(404).json({ error: 'Order not found' });
             }
 
-            // Validate and update order data
+            // Ensure date is stored in correct format
             const updates = {
-                deliveryDate: new Date(req.body.deliveryDate),
+                deliveryDate: new Date(req.body.deliveryDate), // This will convert to proper ISO format
                 deliveryTimeRange: req.body.deliveryTimeRange,
                 status: req.body.status,
                 deliveryAddress: req.body.deliveryAddress,
@@ -155,7 +155,8 @@ router.put('/api/order/:orderId',
 
             await Order.findOneAndUpdate(
                 { OrderID: parseInt(req.params.orderId) },
-                updates
+                updates,
+                { new: true }
             );
 
             res.json({ success: true, message: 'Order updated successfully' });
@@ -166,7 +167,7 @@ router.put('/api/order/:orderId',
     }
 );
 
-// Update all orders for a request
+// Update all orders for a request route
 router.put('/api/request/:requestId/orders',
     authMiddleware.salesOnly,
     authMiddleware.validateSession,
@@ -176,6 +177,7 @@ router.put('/api/request/:requestId/orders',
             const orders = await Order.find({ requestID: parseInt(req.params.requestId) });
             
             const updates = {
+                deliveryDate: new Date(req.body.deliveryDate), // This will convert to proper ISO format
                 deliveryTimeRange: req.body.deliveryTimeRange,
                 status: req.body.status,
                 deliveryAddress: req.body.deliveryAddress,
@@ -186,7 +188,8 @@ router.put('/api/request/:requestId/orders',
             await Promise.all(orders.map(order => 
                 Order.findOneAndUpdate(
                     { OrderID: order.OrderID },
-                    updates
+                    updates,
+                    { new: true }
                 )
             ));
 

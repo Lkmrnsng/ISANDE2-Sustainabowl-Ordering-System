@@ -239,25 +239,29 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Helper function to collect order data
-  function collectOrderData() {
-      const items = [];
-      document.querySelectorAll('.item').forEach(item => {
-          items.push({
-              itemID: parseInt(item.dataset.itemId),
-              quantity: parseInt(item.querySelector('.quantity-input').value),
-              itemPrice: parseFloat(item.querySelector('.item-price-detail').dataset.price)
-          });
-      });
+function collectOrderData() {
+    const items = [];
+    document.querySelectorAll('.item').forEach(item => {
+        items.push({
+            itemID: parseInt(item.dataset.itemId),
+            quantity: parseInt(item.querySelector('.quantity-input').value),
+            itemPrice: parseFloat(item.querySelector('.item-price-detail').dataset.price)
+        });
+    });
 
-      return {
-          deliveryDate: document.getElementById('deliveryDate').value,
-          deliveryTimeRange: document.getElementById('timeRange').value,
-          status: document.getElementById('orderStatus').value,
-          deliveryAddress: document.getElementById('deliveryAddress').value,
-          customizations: document.getElementById('customizations').value,
-          items: items
-      };
-  }
+    const deliveryDate = document.getElementById('deliveryDate').value;
+    // Create ISO date string by appending time portion
+    const formattedDate = `${deliveryDate}T00:00:00.000Z`;
+
+    return {
+        deliveryDate: formattedDate,
+        deliveryTimeRange: document.getElementById('timeRange').value,
+        status: document.getElementById('orderStatus').value,
+        deliveryAddress: document.getElementById('deliveryAddress').value,
+        customizations: document.getElementById('customizations').value,
+        items: items
+    };
+}
 
   async function loadRequestData(requestId) {
       try {
