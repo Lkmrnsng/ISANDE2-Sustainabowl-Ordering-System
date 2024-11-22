@@ -26,15 +26,6 @@ const cancelRoutes = require('./routes/cancelRoutes');
 const userRoutes = require('./routes/userRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 
-// Import Models
-const User = require('./models/User');
-const Request = require('./models/Request');
-const Order = require('./models/Order');
-const Item = require('./models/Item');
-const Message = require('./models/Message');
-const Review = require('./models/Review');
-const Shipment = require('./models/Shipment');
-
 /* Initialize Express App */
 const app = express();
 

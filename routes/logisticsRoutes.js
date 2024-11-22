@@ -12,7 +12,4 @@ router.get('/partners', logisticsController.getPartnersView);
 router.get('/procurement',logisticsController.getProcurementView);
 router.get('/sendalert', logisticsController.getSendAlertView);
 
-
-
-
 module.exports = router;
