@@ -31,7 +31,7 @@ exports.createAlert = async (data) => {
         });
 
         // Create system message for chat notification
-        let messageText = `⚠️ System-generated Alert: ${data.concernType}\n Details:${data.details}`;
+        let messageText = `>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>⚠️ System-generated Alert: ${data.concernType} \n Details:${data.details} <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<`;
         if (data.orderID) {
             messageText = `⚠️ System-generated Alert: ${data.concernType} - Order #${data.orderID}\n${data.details}`;
         }
