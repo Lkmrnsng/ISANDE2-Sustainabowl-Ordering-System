@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const AlertSchema = new mongoose.Schema({
-    alertID: { type: Number },
+    alertID: { type: Number }, //90001 onwards format
     category: { type: String }, // Delay, Cancellation, Reminder 
     details: { type: String },
     dateCreated: { type: String },

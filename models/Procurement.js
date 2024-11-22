@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const ProcurementSchema = new mongoose.Schema({
-    procurementID: { type: Number },
+    procurementID: { type: Number }, //60001 onwards format
     deliveryAgencyID: { type: Number },
     bookedItems: { type: Array }, // 2d array: itemid, qty shipping
     receivedItems: { type: Array }, // 2d array: itemid, qty accepted, qty discarded

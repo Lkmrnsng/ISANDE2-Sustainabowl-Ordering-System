@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const DeliverySchema = new mongoose.Schema({
-    deliveryID: { type: String },
+    deliveryID: { type: String }, //70001 onwards format
     requestID: { type: String },
     weight: { type: Number },
     isComplete: { type: Boolean },
