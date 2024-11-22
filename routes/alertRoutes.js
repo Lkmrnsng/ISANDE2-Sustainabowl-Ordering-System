@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const AlertController = require('../controllers/alertController');
+const alertController = require('../controllers/alertController');
 
 // Middleware to ensure user is authenticated
 const isAuthenticated = (req, res, next) => {
@@ -10,10 +10,21 @@ const isAuthenticated = (req, res, next) => {
     next();
 };
 
-// Create alert
-router.post('/alerts', AlertController.createAlert);
+// Get notifications
+router.get('/notifications', isAuthenticated, alertController.getNotifications);
 
-// Get notifications for the logged-in user
-router.get('/api/notifications', isAuthenticated, AlertController.getNotifications);
+// Create alert
+router.post('/create', isAuthenticated, async (req, res) => {
+    try {
+        const alert = await alertController.createAlert(req.body);
+        res.json({ success: true, alert });
+    } catch (error) {
+        console.error('Error creating alert:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to create alert'
+        });
+    }
+});
 
 module.exports = router;

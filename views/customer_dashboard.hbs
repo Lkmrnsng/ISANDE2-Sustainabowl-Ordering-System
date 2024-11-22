@@ -22,6 +22,9 @@
                     </div>
                     <div class="request-details hidden">
                         <h3>Request Details</h3>
+                        <p><strong>Status:</strong> {{this.status}}</p>
+                        <p><strong>Request Date:</strong> {{formatDate this.requestDate}}</p>
+                        <p><strong>Items:</strong> {{this.itemNames}}</p>
                         <p><strong>Sales Representative:</strong> {{this.pointPersonName}}</p>
                         
                         <div class="delivery-schedule">
@@ -46,7 +49,9 @@
                         <div class="request-actions">
                             <a href="/chat/customer" class="button-link">Contact Sales</a>
                             {{#unless (eq this.status 'Approved')}}
+                            {{#unless (eq this.status 'Cancelled')}}
                             <button class="cancel-request" onclick="window.location.href = /cancel/">Cancel Request</button>
+                            {{/unless}}
                             {{/unless}}
                             {{#if (eq this.status 'Approved')}}
                                 <a href="/review/my-reviews" class="give-feedback">View Reviews</a>
@@ -131,10 +136,10 @@
 
                 // Update delivery dates
                 const deliveryDates = document.querySelector('.delivery-dates');
-                deliveryDates.innerHTML = '<h4>Delivery Schedule:</h4><ul>' +
+                deliveryDates.innerHTML = '<br><h4>Delivery Schedule:</h4><ul>' +
                     request.deliveryDates.map(date => 
                         `<li>• ${new Date(date).toLocaleDateString()}</li>`
-                    ).join('') + '</ul>';
+                    ).join('') + '</ul><br>';
 
                 // Update items breakdown
                 const itemsBreakdown = document.querySelector('.items-breakdown');

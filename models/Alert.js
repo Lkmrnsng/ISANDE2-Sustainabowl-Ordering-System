@@ -6,7 +6,7 @@ const AlertSchema = new mongoose.Schema({
     details: { type: String },
     dateCreated: { type: String },
     orders: { type: Array }, // 1d array of order ids 
-    userType: { type: String }, // Customer, Sales, Logistics
+    userType: { type: String }, // If the alert was made by Customer, Sales, Logistics
 });
 
 const Alert = mongoose.model('Alert', AlertSchema);

@@ -573,3 +573,9 @@ body, html {
     color: var(--turquoise);
     text-decoration: underline;
 }
+
+.contact-note {
+    color: #666;
+    font-size: 0.875rem;
+    margin-top: 1rem;
+}

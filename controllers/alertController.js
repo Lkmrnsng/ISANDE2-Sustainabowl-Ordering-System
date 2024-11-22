@@ -13,56 +13,50 @@ exports.createAlert = async (data) => {
             }
         }
 
-        // Find the request to get pointPersonID for messaging
         const request = await Request.findOne({ requestID: data.requestID });
         if (!request) {
             throw new Error('Associated request not found');
         }
 
-        // Create alert with defaults
         const alert = new Alert({
-            alertID: Math.floor(Math.random() * 1000000),
+            alertID: await getNextAlertId(),
             category: data.concernType,
             details: data.details,
-            dateCreated: new Date(),
-            orders: data.orders || [], // Array of order IDs
-            userType: request.pointPersonID ? 'Sales' : 'Logistics' // Default to Sales if there's a point person
+            dateCreated: new Date().toISOString(),
+            orders: data.orderID ? [data.orderID] : [],
+            userType: data.byCustomer ? 'Customer' : (request.pointPersonID ? 'Sales' : 'Logistics')
         });
 
-        // If this is a cancellation alert, cancel all associated orders
-        if (data.concernType === 'Cancellation' && data.orders && data.orders.length > 0) {
-            const cancelPromises = data.orders.map(orderData => 
-                Order.findOneAndUpdate(
-                    { OrderID: orderData.OrderID },
-                    { status: 'Cancelled' }
-                )
+        // Handle cancellations
+        if (data.cancelRequest) {
+            await Request.findOneAndUpdate(
+                { requestID: data.requestID },
+                { status: 'Cancelled' }
             );
-            await Promise.all(cancelPromises);
         }
 
-        // Create system message for chat notification
-        let messageText = `⚠️ System Alert: ${data.concernType}\n${data.details}`;
-        if (data.orders && data.orders.length > 0) {
-            const orderIds = data.orders.map(o => `#${o.OrderID}`).join(', ');
-            messageText += `\nAffected Orders: ${orderIds}`;
+        if (data.cancelOrder && data.orderID) {
+            await Order.findOneAndUpdate(
+                { OrderID: data.orderID },
+                { status: 'Cancelled' }
+            );
         }
 
+        // Create system message
         const message = new Message({
             senderID: data.byCustomer ? data.customerId : request.pointPersonID,
             receiverID: data.byCustomer ? request.pointPersonID : request.customerID,
-            message: messageText,
+            message: `⚠️ Alert: ${data.concernType}\n${data.details}`,
             date: new Date(),
             requestID: data.requestID
         });
 
-        // Save both alert and message
         await Promise.all([
             alert.save(),
             message.save()
         ]);
 
         return alert;
-
     } catch (error) {
         console.error('Error creating alert:', error);
         throw error;
@@ -76,26 +70,42 @@ exports.getNotifications = async (req, res) => {
         let alerts;
 
         if (userType === 'Customer') {
-            // For customers, find alerts related to their requests
-            const requests = await Request.find({ customerID: userId });
-            const requestIds = requests.map(req => req.requestID);
-            
-            alerts = await Alert.find({
-                orders: { 
-                    $elemMatch: { 
-                        requestID: { $in: requestIds }
-                    }
+            // Get all alerts first
+            alerts = await Alert.find().sort({ dateCreated: -1 });
+
+            // Filter alerts based on customer ID
+            alerts = await Promise.all(alerts.map(async alert => {
+                // Get all orders mentioned in the alert
+                const orders = await Order.find({ 
+                    OrderID: { $in: alert.orders } 
+                });
+
+                // Get all request IDs from these orders
+                const requestIds = [...new Set(orders.map(order => order.requestID))];
+
+                // Get all requests with these IDs
+                const requests = await Request.find({
+                    requestID: { $in: requestIds }
+                });
+
+                // Get all customer IDs from these requests
+                const customerIds = [...new Set(requests.map(request => request.customerID))];
+
+                // If current user is one of these customers, include the alert
+                if (customerIds.includes(userId)) {
+                    return alert;
                 }
-            })
-            .sort({ dateCreated: -1 })
-            .limit(20);
+                return null;
+            }));
+
+            // Remove null values and limit to 20 alerts
+            alerts = alerts.filter(alert => alert !== null).slice(0, 20);
+
         } else {
-            // For Sales and Logistics users, show relevant alerts for their department
-            alerts = await Alert.find({
-                userType: userType
-            })
-            .sort({ dateCreated: -1 })
-            .limit(20);
+            // For Sales and Logistics, get all alerts
+            alerts = await Alert.find()
+                .sort({ dateCreated: -1 })
+                .limit(20);
         }
 
         // Transform alerts for frontend display
@@ -103,7 +113,7 @@ exports.getNotifications = async (req, res) => {
             alertID: alert.alertID,
             category: alert.category,
             details: alert.details,
-            dateCreated: alert.dateCreated,
+            date: alert.dateCreated,
             orders: alert.orders,
             userType: alert.userType
         }));
@@ -117,8 +127,12 @@ exports.getNotifications = async (req, res) => {
         console.error('Error fetching notifications:', error);
         res.status(500).json({
             success: false,
-            message: 'Error fetching notifications',
-            error: error.message
+            message: 'Error fetching notifications'
         });
     }
 };
+
+async function getNextAlertId() {
+    const lastAlert = await Alert.findOne().sort({ alertID: -1 });
+    return lastAlert ? lastAlert.alertID + 1 : 90001;
+}

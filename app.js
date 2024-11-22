@@ -25,6 +25,7 @@ const registerRoutes = require('./routes/registerRoutes');
 const cancelRoutes = require('./routes/cancelRoutes');
 const userRoutes = require('./routes/userRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const alertRoutes = require('./routes/alertRoutes');
 
 /* Initialize Express App */
 const app = express();
@@ -274,6 +275,7 @@ app.use('/register', registerRoutes);
 app.use('/cancel', cancelRoutes);
 app.use('/user', userRoutes);
 app.use('/reports', reportRoutes);
+app.use('/alert', alertRoutes);
 
 app.get('/', (req, res) => {
     // If user is authenticated, redirect to homepage

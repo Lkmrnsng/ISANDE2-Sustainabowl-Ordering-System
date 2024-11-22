@@ -19,7 +19,6 @@
                     {{/if}}
                 {{/if}}
                 
-                <!-- Add notification bell here -->
                 <li class="notification-dropdown">
                     <div class="notification-bell" id="notification-bell">
                         <i class="fas fa-bell"></i>
@@ -30,7 +29,6 @@
                             <h3>Notifications</h3>
                         </div>
                         <div class="notification-list" id="notification-list">
-                            <!-- Notifications will be loaded here -->
                             <div class="notification-loading">Loading...</div>
                         </div>
                     </div>
@@ -56,13 +54,11 @@
     const notificationMenu = document.getElementById('notification-menu');
     let notifications = [];
 
-    // User dropdown functionality
     userIcon.addEventListener('click', function(event) {
         event.preventDefault();
         dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
     });
 
-    // Notification bell functionality
     notificationBell.addEventListener('click', function(event) {
         event.preventDefault();
         notificationMenu.style.display = notificationMenu.style.display === 'block' ? 'none' : 'block';
@@ -71,7 +67,6 @@
         }
     });
 
-    // Close dropdowns when clicking outside
     document.addEventListener('click', function(event) {
         if (!userIcon.contains(event.target) && !dropdownMenu.contains(event.target)) {
             dropdownMenu.style.display = 'none';
@@ -81,10 +76,9 @@
         }
     });
 
-    // Load notifications function
     async function loadNotifications() {
         try {
-            const response = await fetch('/api/notifications');
+            const response = await fetch('/alert/notifications');
             const data = await response.json();
             
             if (data.success) {
@@ -119,7 +113,8 @@
                 <div class="notification-content">
                     <div class="notification-title">${notification.category}</div>
                     <div class="notification-message">${notification.details}</div>
-                    <div class="notification-time">${formatNotificationDate(notification.dateCreated)}</div>
+                    <div class="notification-message">Affected Orders: ${notification.orders}</div>
+                    <div class="notification-time">${formatNotificationDate(notification.date)}</div>
                 </div>
             </div>
         `).join('');
@@ -149,10 +144,8 @@
         return 'Just now';
     }
 
-    // Initial load of notifications
     if (notificationBell) {
         loadNotifications();
     }
 });
-
 </script>
