@@ -6,54 +6,61 @@ const Order = require('../models/Order');
 exports.createAlert = async (data) => {
     try {
         // Validate required fields
-        const requiredFields = ['concernType', 'details', 'requestID'];
+        const requiredFields = ['category', 'details', 'orders', 'userType'];
         for (const field of requiredFields) {
             if (!data[field]) {
                 throw new Error(`Missing required field: ${field}`);
             }
         }
 
-        const request = await Request.findOne({ requestID: data.requestID });
-        if (!request) {
-            throw new Error('Associated request not found');
-        }
+        //Get Orders from orders array
+        const orders = await Order.find({ OrderID: { $in: data.orders } });
 
+        //Get Request IDs from orders
+        const requestIds = [...new Set(orders.map(order => order.requestID))];
+
+        //Get Requests from request IDs
+        const requests = await Request.find({ requestID: { $in: requestIds } });
+        
         const alert = new Alert({
             alertID: await getNextAlertId(),
-            category: data.concernType,
+            category: data.category,
             details: data.details,
             dateCreated: new Date().toISOString(),
-            orders: data.orderID ? [data.orderID] : [],
-            userType: data.byCustomer ? 'Customer' : (request.pointPersonID ? 'Sales' : 'Logistics')
+            orders: data.orders,
+            userType: data.userType
         });
 
         // Handle cancellations
         if (data.cancelRequest) {
-            await Request.findOneAndUpdate(
-                { requestID: data.requestID },
+            await Request.findManyAndUpdate(
+                { requestID: { $in: requestIds } },
                 { status: 'Cancelled' }
             );
         }
 
-        if (data.cancelOrder && data.orderID) {
-            await Order.findOneAndUpdate(
-                { OrderID: data.orderID },
+        if (data.cancelOrder && orders.length > 0) {
+            await Order.findManyAndUpdate(
+                { OrderID: { $in: data.orders } },
                 { status: 'Cancelled' }
             );
         }
 
-        // Create system message
-        const message = new Message({
-            senderID: data.byCustomer ? data.customerId : request.pointPersonID,
-            receiverID: data.byCustomer ? request.pointPersonID : request.customerID,
-            message: `⚠️ Alert: ${data.concernType}\n${data.details}`,
-            date: new Date(),
-            requestID: data.requestID
-        });
+        // Create system message for each request in requests
+        for (const request of requests) {
+            const message = new Message({
+                senderID: request.pointPersonID,
+                recipientID: request.customerID,
+                message: `⚠️ System-generated Alert: [${data.category} from ${data.userType}] Reason: ${data.details}`,
+                dateSent: new Date().toISOString(),
+                requestID: request.requestID
+            });
+
+            await message.save(); // Save message
+        }
 
         await Promise.all([
-            alert.save(),
-            message.save()
+            alert.save()
         ]);
 
         return alert;

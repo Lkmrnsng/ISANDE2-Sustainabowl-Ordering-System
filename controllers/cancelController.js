@@ -3,54 +3,49 @@ const Order = require('../models/Order');
 const { createAlert } = require('./alertController');
 
 const cancelController = {
-  async getCancelView(req, res) {
-    try {
-        const customerId = parseInt(req.session.userId);
-        
-        // First, get all requests for this customer
-        const customerRequests = await Request.find({ 
-            customerID: customerId 
-        });
+    async getCancelView(req, res) {
+        try {
+            const customerId = parseInt(req.session.userId);
+            
+            const customerRequests = await Request.find({ 
+                customerID: customerId 
+            }).sort({ requestID: -1 });
 
-        // Get cancellable requests and their IDs
-        const cancellableRequests = customerRequests.filter(req => 
-            ['Received', 'Negotiation'].includes(req.status)
-        ).sort((a, b) => b.requestDate - a.requestDate);
+            const cancellableRequests = customerRequests.filter(req => 
+                ['Received', 'Negotiation'].includes(req.status)
+            );
 
-        // Get request IDs for approved requests (to find cancellable orders)
-        const approvedRequestIds = customerRequests
-            .filter(req => req.status === 'Approved')
-            .map(req => req.requestID);
+            const approvedRequestIds = customerRequests
+                .filter(req => req.status === 'Approved')
+                .map(req => req.requestID);
 
-        // Get cancellable orders from approved requests
-        const cancellableOrders = await Order.find({
-            requestID: { $in: approvedRequestIds },
-            status: 'Preparing'
-        }).sort({ OrderID: -1 });
+            const cancellableOrders = await Order.find({
+                requestID: { $in: approvedRequestIds },
+                status: 'Preparing'
+            }).sort({ OrderID: -1 });
 
-        res.render('customer-cancel', {
-            title: 'Cancel Request/Order',
-            css: ['customer.css'],
-            layout: 'customer',
-            requests: cancellableRequests,
-            orders: cancellableOrders,
-            active: 'cancel'
-        });
+            res.render('customer-cancel', {
+                title: 'Cancel Request/Order',
+                css: ['customer.css'],
+                layout: 'customer',
+                requests: cancellableRequests,
+                orders: cancellableOrders,
+                active: 'cancel'
+            });
 
-    } catch (error) {
-        console.error('Error loading cancel view:', error);
-        res.status(500).send('Failed to load cancellation page');
-    }
-},
+        } catch (error) {
+            console.error('Error loading cancel view:', error);
+            res.status(500).send('Failed to load cancellation page');
+        }
+    },
 
     async cancelRequest(req, res) {
         try {
             const customerId = parseInt(req.session.userId);
             const { requestId, reason } = req.body;
 
-            // Find and verify the request
             const request = await Request.findOne({ 
-                requestID: requestId,
+                requestID: parseInt(requestId),
                 customerID: customerId,
                 status: { $in: ['Received', 'Negotiation'] }
             });
@@ -62,18 +57,25 @@ const cancelController = {
                 });
             }
 
-            // Create alert and update request status
+            const orders = await Order.find({ requestID: request.requestID });
+            const orderIds = orders.map(order => order.OrderID);
+
+            if (orders.length > 0) {
+                await Order.updateMany(
+                    { requestID: request.requestID },
+                    { status: 'Cancelled' }
+                );
+            }
+
             await Promise.all([
                 createAlert({
-                    concernType: 'Request Cancelled by Customer',
+                    category: 'Cancellation',
                     details: reason,
-                    cancelRequest: true,
-                    requestID: request.requestID,
-                    byCustomer: true,
-                    customerId: customerId
+                    orders: orderIds || [],
+                    userType: 'Customer'
                 }),
                 Request.findOneAndUpdate(
-                    { requestID: requestId },
+                    { requestID: parseInt(requestId) },
                     { status: 'Cancelled' }
                 )
             ]);
@@ -97,11 +99,8 @@ const cancelController = {
             const customerId = parseInt(req.session.userId);
             const { orderId, reason } = req.body;
 
-        console.log('Request body:', req.body);
-
-            // Find and verify the order
             const order = await Order.findOne({
-                OrderID: orderId,
+                OrderID: parseInt(orderId),
                 status: 'Preparing'
             });
 
@@ -112,19 +111,27 @@ const cancelController = {
                 });
             }
 
-            // Create alert and update order status
+            const request = await Request.findOne({
+                requestID: order.requestID,
+                customerID: customerId
+            });
+
+            if (!request) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Unauthorized to cancel this order'
+                });
+            }
+
             await Promise.all([
                 createAlert({
-                    concernType: 'Order Cancelled by Customer',
+                    category: 'Cancellation',
                     details: reason,
-                    cancelOrder: true,
-                    requestID: order.requestID,
-                    orderID: order.OrderID,
-                    byCustomer: true,
-                    customerId: customerId
+                    orders: [order.OrderID],
+                    userType: 'Customer'
                 }),
                 Order.findOneAndUpdate(
-                    { OrderID: orderId },
+                    { OrderID: parseInt(orderId) },
                     { status: 'Cancelled' }
                 )
             ]);
