@@ -270,29 +270,39 @@ function collectOrderData() {
     };
 }
 
-  async function loadRequestData(requestId) {
-      try {
-          const request = state.requestsData.get(requestId);
-          if (!request) {
-              throw new Error('Request data not found');
-          }
+async function loadRequestData(requestId) {
+    try {
+        const request = state.requestsData.get(requestId);
+        if (!request) {
+            throw new Error('Request data not found');
+        }
 
-          updateChatMessages(request.messages);
-          
-          if (elements.orderSelect) {
-              updateOrderSelect(request.orders);
-              if (request.orders && request.orders.length > 0) {
-                  state.activeOrderId = request.orders[0].OrderID;
-                  updateOrderDisplay(request.orders[0]);
-              }
-          }
+        updateChatMessages(request.messages);
 
-          scrollToBottom();
-      } catch (error) {
-          showError('Failed to load request data');
-          console.error('Error loading request data:', error);
-      }
-  }
+        if (elements.orderSelect) {
+            updateOrderSelect(request.orders);
+            if (request.orders && request.orders.length > 0) {
+                const firstOrderId = request.orders[0].OrderID;
+
+                // Fetch the processed order details for the first order
+                const response = await fetch(`/chat/api/order/${firstOrderId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch order details');
+                }
+
+                const processedOrder = await response.json();
+                state.activeOrderId = firstOrderId;
+                updateOrderDisplay(processedOrder); // Use the processed order
+            }
+        }
+
+        scrollToBottom();
+    } catch (error) {
+        showError('Failed to load request data');
+        console.error('Error loading request data:', error);
+    }
+}
+
 
   async function refreshMessages(requestId) {
       if (!requestId || state.isRefreshing) return;
@@ -383,20 +393,20 @@ function collectOrderData() {
                         <div class="quantity-control">
                             <input type="number" 
                                 class="quantity-input" 
-                                value="${item.quantity}" 
+                                value="${item.itemQuantity}" 
                                 min="1" 
-                                data-previous-value="${item.quantity}"
+                                data-previous-value="${item.itemQuantity}"
                                 onchange="handleItemQuantityChange(event)">
                                 kg
                         </div>
                     </div>
                 <span class="item-price-detail" data-price="${item.itemPrice}">₱${item.itemPrice.toFixed(2)}</span>
-                <div class="item-subtotal">₱${(item.quantity * item.itemPrice).toFixed(2)}</div>
+                <div class="item-subtotal">₱${(item.itemQuantity * item.itemPrice).toFixed(2)}</div>
             </div>
         `).join('');
 
         const totalAmount = order.items.reduce((sum, item) => 
-            sum + (item.quantity * item.itemPrice), 0);
+            sum + (item.itemQuantity * item.itemPrice), 0);
 
         itemsHTML += `
             <div class="total-line">
@@ -665,6 +675,7 @@ function collectOrderData() {
   // Start the application
   setupEventListeners();
   setupAutoRefresh();
+  updateOrderDisplay()
 
   // Add warning when leaving with unsaved changes
   window.addEventListener('beforeunload', (e) => {

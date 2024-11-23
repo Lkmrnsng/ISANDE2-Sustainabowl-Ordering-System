@@ -78,7 +78,45 @@ router.post('/api/message',
     chatController.sendMessage
 );
 
-// In chatRoutes.js:
+
+//Used to get Order Details
+router.get('/api/order/:orderId',
+    authMiddleware.validateSession,
+    async (req, res) => {
+        try {
+            const order = await Order.findOne({ OrderID: parseInt(req.params.orderId) });
+            if (!order) {
+                return res.status(404).json({ error: 'Order not found' });
+            }
+
+            // Fetch item details and attach Item Name, Item Quantity, Item Price, Item totalPrice, order total amount
+            const itemsWithDetails = await Promise.all(order.items.map(async item => {
+                const itemDetails = await Item.findOne({ itemID: item.itemID });
+                return {
+                    itemName: itemDetails.itemName,
+                    itemQuantity: item.quantity,
+                    itemPrice: itemDetails.itemPrice,
+                    totalPrice: (itemDetails.itemPrice || 0) * (item.quantity || 0)
+                };
+            }));
+
+            const totalAmount = itemsWithDetails.reduce((sum, item) => 
+                sum + item.totalPrice, 0);
+
+            const processedOrder = {
+                ...order.toObject(), // Convert Mongoose document to plain object
+                items: itemsWithDetails,
+                totalAmount: totalAmount
+            };
+
+            res.json(processedOrder);
+        } catch (error) {
+            console.error('Error fetching order:', error);
+            res.status(500).json({ error: 'Failed to fetch order' });
+        }
+    }
+);
+
 router.put('/api/order/:orderId',
     authMiddleware.salesOnly,
     authMiddleware.validateSession,

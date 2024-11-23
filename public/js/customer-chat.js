@@ -140,72 +140,72 @@ if (elements.requestItems[0]) {
       }).join('');
   }
 
-  function updateOrderDisplay(order) {
-      if (!order) {
-          console.error('No order data provided to updateOrderDisplay');
-          return;
-      }
+function updateOrderDisplay(order) {
+    if (!order) {
+        console.error('No order data provided to updateOrderDisplay');
+        return;
+    }
 
-      // Update read-only fields
-      const orderInfo = document.querySelector('.order-info');
-      if (!orderInfo) return;
+    // Update read-only fields
+    const orderInfo = document.querySelector('.order-info');
+    if (!orderInfo) return;
 
-      // Update delivery date
-      const deliveryDateElement = orderInfo.querySelector('[data-field="deliveryDate"] .info-value');
-      if (deliveryDateElement && order.deliveryDate) {
-          deliveryDateElement.textContent = new Date(order.deliveryDate).toLocaleDateString();
-      }
+    // Update delivery date
+    const deliveryDateElement = orderInfo.querySelector('[data-field="deliveryDate"] .info-value');
+    if (deliveryDateElement && order.deliveryDate) {
+        deliveryDateElement.textContent = new Date(order.deliveryDate).toLocaleDateString();
+    }
 
-      // Update time range
-      const timeRangeElement = orderInfo.querySelector('[data-field="timeRange"] .info-value');
-      if (timeRangeElement) {
-          timeRangeElement.textContent = order.deliveryTimeRange || 'Not specified';
-      }
+    // Update time range
+    const timeRangeElement = orderInfo.querySelector('[data-field="timeRange"] .info-value');
+    if (timeRangeElement) {
+        timeRangeElement.textContent = order.deliveryTimeRange || 'Not specified';
+    }
 
-      // Update status
-      const statusBadge = orderInfo.querySelector('[data-field="status"] .status-badge');
-      if (statusBadge) {
-          statusBadge.textContent = order.status || 'Unknown';
-          statusBadge.dataset.status = order.status || 'unknown';
-      }
+    // Update status
+    const statusBadge = orderInfo.querySelector('[data-field="status"] .status-badge');
+    if (statusBadge) {
+        statusBadge.textContent = order.status || 'Unknown';
+        statusBadge.dataset.status = order.status || 'unknown';
+    }
 
-      // Update address
-      const addressElement = orderInfo.querySelector('[data-field="address"] .info-value');
-      if (addressElement) {
-          addressElement.textContent = order.deliveryAddress || 'No address specified';
-      }
+    // Update address
+    const addressElement = orderInfo.querySelector('[data-field="address"] .info-value');
+    if (addressElement) {
+        addressElement.textContent = order.deliveryAddress || 'No address specified';
+    }
 
-      // Update customizations
-      const customizationsElement = orderInfo.querySelector('[data-field="customizations"] .info-value');
-      if (customizationsElement) {
-          customizationsElement.textContent = order.customizations || 'None';
-      }
+    // Update customizations
+    const customizationsElement = orderInfo.querySelector('[data-field="customizations"] .info-value');
+    if (customizationsElement) {
+        customizationsElement.textContent = order.customizations || 'None';
+    }
 
-      // Update items list
-      const itemsList = document.querySelector('.items-list');
-      if (itemsList && Array.isArray(order.items)) {
-          let itemsHTML = order.items.map(item => `
-              <div class="item">
-                  <span class="item-name">${item.itemName || 'Unknown Item'}</span>
-                  <span class="item-details">
-                      <span class="item-quantity">x${item.quantity || 0} kg</span>
-                      <span class="item-price">₱${(item.itemPrice || 0).toFixed(2)}</span>
-                      <span class="item-total">₱${(item.totalPrice || 0).toFixed(2)}</span>
-                  </span>
-              </div>
-          `).join('');
+    // Update items list
+    const itemsList = document.querySelector('.items-list');
+    if (itemsList && Array.isArray(order.items)) {
+        let itemsHTML = order.items.map(item => `
+            <div class="item">
+                <span class="item-name">${item.itemName || 'Unknown Item'}</span>
+                <span class="item-details">
+                    <span class="item-quantity">x${item.quantity || 0} kg</span>
+                    <span class="item-price">₱${(item.itemPrice || 0).toFixed(2)}</span>
+                    <span class="item-total">₱${(item.totalPrice || 0).toFixed(2)}</span>
+                </span>
+            </div>
+        `).join('');
 
-          // Add total amount
-          itemsHTML += `
-              <div class="total-line">
-                  <span>Total Amount:</span>
-                  <span class="total-amount">₱${(order.totalAmount || 0).toFixed(2)}</span>
-              </div>
-          `;
+        // Add total amount
+        itemsHTML += `
+            <div class="total-line">
+                <span>Total Amount:</span>
+                <span class="total-amount">₱${(order.totalAmount || 0).toFixed(2)}</span>
+            </div>
+        `;
 
-          itemsList.innerHTML = itemsHTML;
-      }
-  }
+        itemsList.innerHTML = itemsHTML;
+    }
+}
 
   function handleRequestClick(e) {
     e.preventDefault();
@@ -297,17 +297,8 @@ if (elements.requestItems[0]) {
           
           state.activeOrderId = orderId;
   
-          const processedOrder = {
-              ...orderData,
-              items: orderData.items.map(item => ({
-                  ...item,
-                  totalPrice: (item.itemPrice || 0) * (item.quantity || 0)
-              })),
-              totalAmount: orderData.items.reduce((sum, item) => 
-                  sum + ((item.itemPrice || 0) * (item.quantity || 0)), 0)
-          };
   
-          updateOrderDisplay(processedOrder);
+          updateOrderDisplay(orderData);
       } catch (error) {
           console.error('Error fetching order details:', error);
           showError(error.message || 'Failed to load order details');
