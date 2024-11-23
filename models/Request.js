@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const RequestSchema = new mongoose.Schema({
-    requestID: { type: Number },
+    requestID: { type: Number }, //30001 onwards format
     customerID: { type: Number },
     status: { type: String }, //Received, Negotiation, Approved, or Cancelled
     pointPersonID: { type: Number }, //Sales Rep

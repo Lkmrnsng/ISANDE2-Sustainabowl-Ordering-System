@@ -259,3 +259,132 @@ footer img{
   position: fixed;
   bottom: 30px;
 }
+
+
+/* Notification Bell */
+.notification-dropdown {
+  position: relative;
+  align-self: center;
+  margin-right: 20px;
+}
+
+.notification-bell {
+  cursor: pointer;
+  position: relative;
+  padding: 8px;
+}
+
+.notification-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: var(--magenta);
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  display: none;
+}
+
+/* Notification Menu */
+.notification-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: -10px;
+  width: 350px;
+  background-color: white;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  z-index: 1000;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.notification-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.notification-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.notification-list {
+  padding: 10px 0;
+}
+
+.notification-item {
+  display: flex;
+  padding: 12px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+  background-color: #f8f9fa;
+}
+
+.notification-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.notification-content {
+  flex-grow: 1;
+}
+
+.notification-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.notification-message {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: #999;
+}
+
+.notification-loading,
+.notification-error,
+.no-notifications {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+}
+
+.notification-error {
+  color: #dc3545;
+}
+
+/* Scrollbar Styles for Notification Menu */
+.notification-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-menu::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.notification-menu::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.notification-menu::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

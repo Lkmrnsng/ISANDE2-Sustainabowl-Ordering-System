@@ -1,0 +1,42 @@
+[
+    {
+      "alertID": 90001,
+      "category": "Delay",
+      "details": "Delivery delayed by 2 hours due to traffic congestion",
+      "dateCreated": "2024-11-20T08:30:00Z",
+      "orders": [40001, 40002],
+      "userType": "Logistics"
+    },
+    {
+      "alertID": 90002,
+      "category": "Cancellation",
+      "details": "Order cancelled due to insufficient stock",
+      "dateCreated": "2024-11-20T10:15:00Z", 
+      "orders": [40003],
+      "userType": "Sales"
+    },
+    {
+      "alertID": 90003,
+      "category": "Reminder",
+      "details": "Payment deadline approaching for order #40004",
+      "dateCreated": "2024-11-21T09:00:00Z",
+      "orders": [40004],
+      "userType": "Sales"
+    },
+    {
+      "alertID": 90004,
+      "category": "Delay",
+      "details": "Processing delayed due to equipment maintenance",
+      "dateCreated": "2024-11-21T14:30:00Z",
+      "orders": [40005, 40006],
+      "userType": "Logistics"
+    },
+    {
+      "alertID": 90005,
+      "category": "Cancellation",
+      "details": "Order cancelled by Customer",
+      "dateCreated": "2024-11-22T11:45:00Z",
+      "orders": [40007],
+      "userType": "Customer"
+    }
+  ]

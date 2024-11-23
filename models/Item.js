@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const ItemSchema = new mongoose.Schema({
-    itemID: { type: Number },
+    itemID: { type: Number }, //20001 onwards format
     itemName: { type: String },
     itemCategory: { type: String },
     itemDescription: { type: String },

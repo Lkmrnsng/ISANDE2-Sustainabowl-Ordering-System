@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const ReviewSchema = new mongoose.Schema({
-    reviewID: { 
+    reviewID: { // 50001 onwards format
         type: Number,
         required: true,
         unique: true 
