@@ -343,7 +343,7 @@ async function getRequestData() {
 
         return compiledData;
     } catch (error) {
-        console.log("Erorr in getRequestData: ", error);
+        console.log("Error in getRequestData: ", error);
     }
 }
 

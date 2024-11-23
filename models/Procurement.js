@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 
 const ProcurementSchema = new mongoose.Schema({
-    procurementID: { type: Number },
-    deliveryAgencyID: { type: Number },
-    bookedItems: { type: Array }, // 2d array: itemid, qty shipping
-    receivedItems: { type: Array }, // 2d array: itemid, qty accepted, qty discarded
-    incomingDate: { type: String }, 
-    receivedDate: { type: String },
+    procurementID: { type: Number }, // 60001
+    agencyID: { type: Number }, // 80001
+    bookedItems: { type: Array }, // 2d array: itemid (20001), qty shipping
+    receivedItems: { type: Array }, // 2d array: itemid (20001), qty accepted, qty discarded
+    incomingDate: { type: String }, // 2024-11-11T00:00:00Z
+    receivedDate: { type: String }, // 2024-11-11T00:00:00Z
     status: { type: String, default: "Booked" } // Booked, Cancelled, Completed 
 });
 

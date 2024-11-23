@@ -121,9 +121,9 @@ table th, table td {
   align-items: center;
 }
 
-  .navigation-buttons svg{
-    display: flex;
-  }
+.navigation-buttons svg{
+  display: flex;
+}
   
   #hidden-checkbox {
     visibility: hidden;

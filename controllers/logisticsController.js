@@ -3,19 +3,17 @@ const Request = require('../models/Request');
 const Order = require('../models/Order');
 const Item = require('../models/Item');
 const Review = require('../models/Review');
-
+const Procurement = require('../models/Procurement');
+const Agency = require('../models/Agency');
 
 // Fetch the logistics dashboard
 async function getDashboardView(req, res) {
     try {
-        console.log('Session user ID:', req.session.userId); // Debug log
         const logisticsId = parseInt(req.session.userId); // Convert to number since userID is stored as number
 
         // Fetch requests for this logistics
         const originalRequests = await Request.find({ logisticsID: logisticsId }).sort({ requestID: -1 });
         
-        console.log('Found requests:', originalRequests); // Debug log
-
         if (originalRequests.length === 0) {
             return res.render('logistics_dashboard', {
                 title: 'Dashboard',
@@ -198,6 +196,65 @@ async function getSendAlertView (req, res) {
     }
 }
 
+// Get the procurements data and return as a JSON
+async function getProcurementJson(req, res) {
+    try {
+        const procurements = await getProcurementData();
+        res.json(procurements);
+    } catch (err) {
+        console.error('Error fetching procurements:', err);
+        res.status(500).json({ error: 'Failed to fetch procurements' });
+    }
+}
+
+// Fetch procurements data by mapping across models
+async function getProcurementData() {
+    try {
+        const procurements = await Procurement.find({}).sort({ incomingDate: -1 });
+        const compiledData = [];
+        
+        for (const procurement of procurements) {
+            // Get unique item IDs from both arrays
+            const itemIDs = new Set([
+                ...procurement.bookedItems.map(item => item[0]), // First element is itemID
+                ...procurement.receivedItems.map(item => item[0])
+            ]);
+
+            // Fetch all required items in one query
+            const items = await Item.find({ itemID: { $in: Array.from(itemIDs) } });
+            const itemMap = new Map(items.map(item => [item.itemID, item]));
+
+            const processedBookedItems = procurement.bookedItems.map(bookedItem => ({
+                itemName: itemMap.get(bookedItem[0])?.itemName || 'Undefined',
+                quantityShipping: bookedItem[1]
+            }));
+
+            const processedReceivedItems = procurement.receivedItems.map(receivedItem => ({
+                itemName: itemMap.get(receivedItem[0])?.itemName || 'Undefined',
+                quantityAccepted: receivedItem[1],
+                quantityDiscarded: receivedItem[2]
+            }));
+
+            // Get agency information
+            const agency = await Agency.findOne({ agencyID: procurement.agencyID });
+
+            compiledData.push({
+                procurementID: procurement.procurementID,
+                agencyName: agency?.name || 'Undefined',
+                incomingDate: procurement.incomingDate,
+                receivedDate: procurement.receivedDate,
+                bookedItems: processedBookedItems,
+                receivedItems: processedReceivedItems,
+                status: procurement.status
+            });
+        }
+
+        return compiledData;
+    } catch (error) {
+        console.log("Error in getProcurementData: ", error);
+    }
+}
+
 module.exports = {
     getDashboardView,
     getCalendarView,
@@ -206,5 +263,7 @@ module.exports = {
     getWarehouseView,
     getPartnersView,
     getProcurementView,
-    getSendAlertView
+    getSendAlertView,
+    getProcurementJson,
+    getProcurementData
 };

@@ -12,4 +12,6 @@ router.get('/partners', logisticsController.getPartnersView);
 router.get('/procurement',logisticsController.getProcurementView);
 router.get('/sendalert', logisticsController.getSendAlertView);
 
+router.get('/api/procurements', logisticsController.getProcurementJson);
+
 module.exports = router;

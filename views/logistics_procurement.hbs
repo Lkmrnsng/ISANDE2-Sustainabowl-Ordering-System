@@ -1,44 +1,34 @@
 <div class="main-layout">
     <div class="procurement-container">
         <div class="header-section">
-            <h2>Procurement Shipment</h2>
-            <button class="create-btn" onclick="showModal('addShipmentModal')">Create +</button>
+            <h2>Procurements</h2>
+            <button class="create-btn" onclick="createProcurement">Create +</button> {{!-- Implement this --}}
         </div>
 
         <div class="procurement-table-container">
             <table class="procurement-table">
                 <thead>
                     <tr>
-                        <th>Quantity</th>
+                        <th>Procurement ID</th>
+                        <th>Agency Name</th>
+                        <th>Incoming Date</th>
                         <th>Items</th>
-                        <th>Farm</th>
-                        <th>Receive by Date</th>
                         <th>Status</th>
-                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {{#each shipments as |shipment|}}
-                    <tr>
-                        <td>{{shipment.quantity}}</td>
-                        <td>{{shipment.items}}</td>
-                        <td>{{shipment.farm}}</td>
-                        <td>{{shipment.receiveDate}}</td>
-                        <td>{{shipment.status}}</td>
-                        <td class="action-buttons">
-                            <button class="book-btn" onclick="showModal('deliveryAgencyModal', {{shipment.id}})">Book Shipment</button>
-                            <button class="complete-btn" onclick="showModal('completeShipmentModal', {{shipment.id}})">Complete</button>
-                            <button class="contact-btn">Contact ></button>
-                        </td>
-                    </tr>
-                    {{/each}}
+                    {{!-- This will be automatically populated by the js file --}}
                 </tbody>
             </table>
             <div class="pagination">
-                <span>Page {{currentPage}} of {{totalPages}}</span>
+                <span>Page <span id="currentProcurementPage">1</span> of <span id="totalProcurementPages">1</span></span>
                 <div class="pagination-controls">
-                    <button class="prev-page-btn" {{#unless hasPrevPage}}disabled{{/unless}}><</button>
-                    <button class="next-page-btn" {{#unless hasNextPage}}disabled{{/unless}}>></button>
+                    <button id="prevProcurement" class="nav-button" onclick="changeProcurementPage(-1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    <button id="nextProcurement" class="nav-button" onclick="changeProcurementPage(1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -51,112 +41,30 @@
             <table class="completed-table">
                 <thead>
                     <tr>
-                        <th>Quantity</th>
-                        <th>Items</th>
-                        <th>Farm</th>
+                        <th>Procurement ID</th>
+                        <th>Agency Name</th>
                         <th>Received Date</th>
-                        <th>Discarded Amount</th>
+                        <th>Items Received</th>
+                        <th>Items Discarded</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {{#each completedShipments as |shipment|}}
-                    <tr>
-                        <td>{{shipment.quantity}}</td>
-                        <td>{{shipment.items}}</td>
-                        <td>{{shipment.farm}}</td>
-                        <td>{{shipment.receivedDate}}</td>
-                        <td>{{shipment.discardedAmount}}</td>
-                    </tr>
-                    {{/each}}
+                    {{!-- This will be automatically populated by the js --}}
                 </tbody>
             </table>
+            <div class="pagination">
+                <span>Page <span id="currentCompletedPage">1</span> of <span id="totalCompletedPages">1</span></span>
+                <div class="pagination-controls">
+                    <button id="prevCompleted" class="navigation-buttons" onclick="changeCompletedPage(-1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    <button id="nextCompleted" class="navigation-buttons" onclick="changeCompletedPage(1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Add New Shipment Modal -->
-<div id="addShipmentModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Add New Shipment</h3>
-            <span class="close" onclick="hideModal('addShipmentModal')">&times;</span>
-        </div>
-        <form id="addShipmentForm">
-            <div class="form-group">
-                <label>Quantity</label>
-                <input type="text" name="quantity" required>
-            </div>
-            <div class="form-group">
-                <label>Items</label>
-                <input type="text" name="items" required>
-            </div>
-            <div class="form-group">
-                <label>Farm</label>
-                <input type="text" name="farm" required>
-            </div>
-            <div class="form-group">
-                <label>Receive Date</label>
-                <input type="date" name="receiveDate" required>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="cancel-btn" onclick="hideModal('addShipmentModal')">Cancel</button>
-                <button type="submit" class="confirm-btn">Confirm</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Select Delivery Agency Modal -->
-<div id="deliveryAgencyModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Select Delivery Agency</h3>
-            <span class="close" onclick="hideModal('deliveryAgencyModal')">&times;</span>
-        </div>
-        <form id="deliveryAgencyForm">
-            <div class="form-group">
-                <label>Agency</label>
-                <select name="agency" required>
-                    <option value="">--</option>
-                    {{#each agencies as |agency|}}
-                    <option value="{{agency.id}}">{{agency.name}}</option>
-                    {{/each}}
-                </select>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="cancel-btn" onclick="hideModal('deliveryAgencyModal')">Cancel</button>
-                <button type="submit" class="confirm-btn">Confirm</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Complete Shipment Modal -->
-<div id="completeShipmentModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Complete Shipment</h3>
-            <span class="close" onclick="hideModal('completeShipmentModal')">&times;</span>
-        </div>
-        <form id="completeShipmentForm">
-            <div class="form-group">
-                <label>Accepted Kg</label>
-                <input type="number" name="acceptedKg" required>
-            </div>
-            <div class="form-group">
-                <label>Discarded Kg</label>
-                <input type="number" name="discardedKg" required>
-            </div>
-            <div class="form-group">
-                <label>Reason</label>
-                <input type="text" name="reason" required>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="cancel-btn" onclick="hideModal('completeShipmentModal')">Cancel</button>
-                <button type="submit" class="confirm-btn">Confirm</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script src="/js/procurement.js"></script>
+<script src="/js/logistics-procurement.js"></script>
