@@ -12,7 +12,6 @@ const authMiddleware = {
         if (!req.session.userId) {
             return res.redirect('/login');
         }
-
         next();
     },
 
@@ -45,16 +44,13 @@ const authMiddleware = {
 
     salesOnly: (req, res, next) => {
         if (req.session.userType !== 'Sales') {
-            return res.render('error', {
-                message: 'Access denied',
-                layout: 'bodyOnly'
-            });
+            return res.status(403).json({ error: 'Access denied' });
         }
         next();
     }
 };
 
-// Routes with consolidated middleware
+// Chat view routes
 router.get('/customer', 
     authMiddleware.validateSession,
     chatController.getCustomerChatView
@@ -66,10 +62,71 @@ router.get('/sales',
     chatController.getSalesChatView
 );
 
+// Chat API routes
 router.get('/api/chat/:requestId',
     authMiddleware.validateSession,
     authMiddleware.validateRequest,
     chatController.getChatMessages
+);
+
+// Get individual order details
+router.get('/api/order/:orderId',
+    authMiddleware.validateSession,
+    async (req, res) => {
+        try {
+            const order = await Order.findOne({ OrderID: parseInt(req.params.orderId) });
+            if (!order) {
+                return res.status(404).json({ error: 'Order not found' });
+            }
+
+            // Get the associated request to check permissions
+            const request = await Request.findOne({ requestID: order.requestID });
+            if (!request) {
+                return res.status(404).json({ error: 'Associated request not found' });
+            }
+
+            // Check if user has access to this order
+            const userType = req.session.userType;
+            const userId = req.session.userId;
+            const hasAccess = userType === 'Customer' 
+                ? request.customerID === userId
+                : request.pointPersonID === userId;
+
+            if (!hasAccess) {
+                return res.status(403).json({ error: 'Unauthorized access' });
+            }
+
+            // Get item details for each item in the order
+            const processedItems = await Promise.all(order.items.map(async (item) => {
+                const itemDetails = await Item.findOne({ itemID: item.itemID });
+                return {
+                    itemID: item.itemID,
+                    itemName: itemDetails ? itemDetails.itemName : 'Unknown Item',
+                    itemPrice: itemDetails ? itemDetails.itemPrice : 0,
+                    quantity: item.quantity
+                };
+            }));
+
+            // Create response object with all order details
+            const orderDetails = {
+                OrderID: order.OrderID,
+                requestID: order.requestID,
+                status: order.status,
+                items: processedItems,
+                customizations: order.customizations,
+                deliveryDate: order.deliveryDate,
+                deliveryAddress: order.deliveryAddress,
+                deliveryTimeRange: order.deliveryTimeRange,
+                paymentMethod: order.paymentMethod,
+                pointPersonID: order.pointPersonID
+            };
+
+            res.json(orderDetails);
+        } catch (error) {
+            console.error('Error fetching order details:', error);
+            res.status(500).json({ error: 'Failed to fetch order details' });
+        }
+    }
 );
 
 router.post('/api/message',
@@ -78,10 +135,10 @@ router.post('/api/message',
     chatController.sendMessage
 );
 
-// In chatRoutes.js:
+// Order management routes (Sales only)
 router.put('/api/order/:orderId',
-    authMiddleware.salesOnly,
     authMiddleware.validateSession,
+    authMiddleware.salesOnly,
     async (req, res) => {
         try {
             const order = await Order.findOne({ OrderID: parseInt(req.params.orderId) });
@@ -91,7 +148,7 @@ router.put('/api/order/:orderId',
 
             // Keep the date as is from the client
             const updates = {
-                deliveryDate: req.body.deliveryDate,  // Don't create new Date object
+                deliveryDate: req.body.deliveryDate,
                 deliveryTimeRange: req.body.deliveryTimeRange,
                 status: req.body.status,
                 deliveryAddress: req.body.deliveryAddress,
@@ -113,16 +170,15 @@ router.put('/api/order/:orderId',
 );
 
 router.put('/api/request/:requestId/orders',
-    authMiddleware.salesOnly,
     authMiddleware.validateSession,
+    authMiddleware.salesOnly,
     authMiddleware.validateRequest,
     async (req, res) => {
         try {
             const orders = await Order.find({ requestID: parseInt(req.params.requestId) });
             
-            // Keep the date as is from the client
             const updates = {
-                deliveryDate: req.body.deliveryDate,  // Don't create new Date object
+                deliveryDate: req.body.deliveryDate,
                 deliveryTimeRange: req.body.deliveryTimeRange,
                 status: req.body.status,
                 deliveryAddress: req.body.deliveryAddress,
@@ -152,14 +208,18 @@ router.put('/api/request/:requestId/status',
     chatController.updateRequestStatus
 );
 
-router.get('/api/items', async (req, res) => {
-    try {
-        const items = await Item.find({}).lean();
-        res.json(items);
-    } catch (error) {
-        console.error('Error fetching items:', error);
-        res.status(500).json({ error: 'Failed to fetch items' });
+// Get available items for sales
+router.get('/api/items',
+    authMiddleware.validateSession,
+    async (req, res) => {
+        try {
+            const items = await Item.find({}).lean();
+            res.json(items);
+        } catch (error) {
+            console.error('Error fetching items:', error);
+            res.status(500).json({ error: 'Failed to fetch items' });
+        }
     }
-});
+);
 
 module.exports = router;

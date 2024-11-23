@@ -737,3 +737,55 @@ function collectOrderData() {
         if (modal) modal.remove();
     };
 });
+
+window.handleItemQuantityChange = function(e) {
+    const input = e.target;
+    const newQuantity = parseInt(input.value);
+    const itemRow = input.closest('.item') || input.closest('.salesitems');
+    
+    if (isNaN(newQuantity) || newQuantity < 0) {
+        input.value = input.dataset.previousValue || 1;
+        return;
+    }
+    
+    const priceElement = itemRow.querySelector('.item-price-detail');
+    const price = parseFloat(priceElement.dataset.price || priceElement.textContent.replace('₱', ''));
+    
+    // Calculate subtotal
+    const subtotal = price * newQuantity;
+    const subtotalElement = itemRow.querySelector('.item-subtotal');
+    if (subtotalElement) {
+        subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
+    }
+    
+    // Save previous value for reverting if needed
+    input.dataset.previousValue = newQuantity;
+    
+    // Update total by summing all subtotals
+    updateTotalAmount();
+
+    // Set unsaved changes flag if in sales view
+    if (typeof state !== 'undefined' && state.hasUnsavedChanges !== undefined) {
+        state.hasUnsavedChanges = true;
+    }
+};
+
+function updateTotalAmount() {
+    const itemRows = document.querySelectorAll('.item, .salesitems');
+    let total = 0;
+    
+    itemRows.forEach(row => {
+        const subtotalElement = row.querySelector('.item-subtotal');
+        if (subtotalElement) {
+            const subtotal = parseFloat(subtotalElement.textContent.replace('₱', ''));
+            if (!isNaN(subtotal)) {
+                total += subtotal;
+            }
+        }
+    });
+    
+    const totalElement = document.querySelector('.total-amount');
+    if (totalElement) {
+        totalElement.textContent = `₱${total.toFixed(2)}`;
+    }
+}
