@@ -13,5 +13,8 @@ router.get('/procurement',logisticsController.getProcurementView);
 router.get('/sendalert', logisticsController.getSendAlertView);
 
 router.get('/api/procurements', logisticsController.getProcurementJson);
+router.get('/api/agencies', logisticsController.getAgenciesJson);
+router.get('/api/items', logisticsController.getItemsJson);
+router.post('/api/submit-procurement', logisticsController.submitProcurement);
 
 module.exports = router;

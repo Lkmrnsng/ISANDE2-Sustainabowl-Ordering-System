@@ -1,8 +1,6 @@
-const User = require('../models/User');
 const Request = require('../models/Request');
 const Order = require('../models/Order');
 const Item = require('../models/Item');
-const Review = require('../models/Review');
 const Procurement = require('../models/Procurement');
 const Agency = require('../models/Agency');
 
@@ -207,6 +205,28 @@ async function getProcurementJson(req, res) {
     }
 }
 
+// Get the list of agencies for procurement dropdown as a JSON
+async function getAgenciesJson(req, res) {
+    try {
+        const agencies = await getAgenciesData();
+        res.json(agencies);
+    } catch (err) {
+        console.error('Error fetching agencies:', err);
+        res.status(500).json({ error: 'Failed to fetch agencies' });
+    }
+}
+
+// Get the list of items for procurement dropdown as a JSON
+async function getItemsJson(req, res) {
+    try {
+        const items = await getItemsData();
+        res.json(items);
+    } catch (err) {
+        console.error('Error fetching items:', err);
+        res.status(500).json({ error: 'Failed to fetch items' });
+    }
+}
+
 // Fetch procurements data by mapping across models
 async function getProcurementData() {
     try {
@@ -255,6 +275,127 @@ async function getProcurementData() {
     }
 }
 
+// Fetch agencies data from the db
+async function getAgenciesData() {
+    try {
+        const agencies = await Agency.find({}).sort({ agencyID: 1 });
+        const compiledData = [];
+        
+        for (const agency of agencies) {
+            compiledData.push({
+                agencyID: agency.agencyID,
+                name: agency.name,
+                contact: agency.contact,
+                location: agency.location,
+                price: agency.price,
+                maxWeight: agency.maxWeight,
+            });
+        }
+
+        return compiledData;
+    } catch (err) {
+        console.error('Error fetching agencies:', err);
+    }
+}
+
+// Fetch items data from the db
+async function getItemsData(req, res) {
+    try {
+        const items = await Item.find({}).sort({ itemID: 1 });
+        const compiledData = [];
+        
+        for (const item of items) {
+            compiledData.push({
+                itemID: item.itemID,
+                itemName: item.itemName,
+                itemCategory: item.itemCategory,
+                itemDescription: item.itemDescription,
+                itemPrice: item.itemPrice,
+                itemStock: item.itemStock,
+                itemImage: item.itemImage
+            });
+        }
+
+        return compiledData;
+    } catch (err) {
+        console.error('Error fetching items:', err);
+    }
+}
+
+// Process the request to save the procurement to the db
+async function submitProcurement(req, res) {
+    try {
+        const {
+            agency,
+            items,
+            incomingDate
+          } = req.body;
+
+        const procurement = await createProcurement(agency, items, incomingDate);
+        res.status(200).json({ procurement: procurement });
+    } catch (err) {
+        console.error('Error saving to db:', err);
+        res.status(500).json({ error: 'Failed to save to db' });
+    }
+}
+
+// Save procurement to db
+async function createProcurement(agencyName, items, incomingDate) {
+    try {
+        const procurementID = await Procurement.countDocuments() + 60001;
+        const agency = await Agency.findOne({ name: agencyName });
+        const agencyID = agency.agencyID;
+        const processedItems = await processItems(items);
+        const formattedDate = incomingDate + "T00:00:00Z";
+                
+        const procurement = await Procurement.create({
+            procurementID: procurementID,
+            agencyID: agencyID,
+            bookedItems: processedItems,
+            receivedItems: [],
+            incomingDate: formattedDate,
+            receivedDate: "",
+            status: "Booked"
+        });
+
+        return procurement;
+    } catch (error) {
+        console.error('Error in createProcurement:', error);
+        return null;
+    }
+}
+
+// Convert the items array into a 2d array of itemID, qty
+async function processItems(items) {
+    try {
+        const itemQuantityMap = new Map();
+        
+        // Merge duplicates by adding quantities
+        items.forEach(({item, quantity}) => {
+            if (itemQuantityMap.has(item)) {
+                itemQuantityMap.set(item, itemQuantityMap.get(item) + quantity);
+            } else {
+                itemQuantityMap.set(item, quantity);
+            }
+        });
+
+        // Convert the merged items into an array of promises to get item IDs
+        const itemPromises = Array.from(itemQuantityMap.entries()).map(async ([itemName, quantity]) => {
+            const itemDoc = await Item.findOne({ itemName: itemName });
+            if (!itemDoc) {
+                throw new Error(`Item not found: ${itemName}`);
+            }
+            return [itemDoc.itemID, quantity];
+        });
+
+        const processedItems = await Promise.all(itemPromises);        
+        return processedItems;
+    } catch (error) {
+        console.error('Error processing items:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     getDashboardView,
     getCalendarView,
@@ -265,5 +406,7 @@ module.exports = {
     getProcurementView,
     getSendAlertView,
     getProcurementJson,
-    getProcurementData
+    getAgenciesJson,
+    getItemsJson,
+    submitProcurement
 };

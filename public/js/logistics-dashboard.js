@@ -1,135 +1,121 @@
+const procurementsPerPage = 7;
+let currentProcurementPage = 1;
+let allProcurements = [];
+
 document.addEventListener('DOMContentLoaded', function() {
-    const itemsPerPage = 7; // For requests table
-    const inventoryItemsPerPage = 5; // For inventory table
-    let currentPage = 1;
-    let currentInventoryPage = 1;
-    let filteredRequests = [];
-    let allRequests = [];
+    // Load the page for the first time
+    async function initializeTables() {
+        const procurementTable = document.querySelector('.procurement-table');
+        if (procurementTable) {
+            await getProcurementsJson();
+            updateProcurementsTable();
+        } else {
+            console.log("Table not found");
+        }
+    }
+
+    // Fetch the json procurements data from the server
+    async function getProcurementsJson() {
+        try {
+            const response = await fetch('/logistics/api/procurements');
+            if (!response.ok) throw new Error('Failed to fetch procurements');
+            const data = await response.json();
+            const procurements = [];
+
+            const compiledData = data.map(row => ({
+                procurementID: row.procurementID,
+                agencyName: row.agencyName,
+                incomingDate: row.incomingDate,
+                receivedDate: row.receivedDate,
+                bookedItems: row.bookedItems,
+                receivedItems: row.receivedItems,
+                status: row.status
+            }));
+
+            for (const unit of compiledData) {
+                formattedIncomingDate = unit.incomingDate.split('T')[0];
+                formattedReceivedDate = unit.receivedDate.split('T')[0];
+
+                procurements.push({
+                    procurementID: unit.procurementID,
+                    agencyName: unit.agencyName,
+                    incomingDate: formattedIncomingDate,
+                    receivedDate: formattedReceivedDate,
+                    bookedItems: unit.bookedItems,
+                    receivedItems: unit.receivedItems,
+                    status: unit.status
+                })
+            }
+
+            allProcurements = [...procurements];
+        } catch (error) {
+            console.error('Error refreshing requests data:', error);
+        }
+    }
+
+    // Using the current contents of allProcurements, clear and update the procurements table
+    function updateProcurementsTable() {
+        const tbody = document.querySelector('.procurement-table').querySelector('tbody');
+        const startIndex = (currentProcurementPage - 1) * procurementsPerPage;
+        const endIndex = Math.min(startIndex + procurementsPerPage, allProcurements.length);
+        const pageData = allProcurements.slice(startIndex, endIndex);
+
+        // Clear existing rows
+        tbody.innerHTML = '';
+
+        // Add new rows
+        pageData.forEach(procurement => {
+            const row = document.createElement('tr');
+            let itemString = "";
+            let count = 0;
+
+            for (const item of procurement.bookedItems) {
+                if (count === 0) {
+                    itemString = `${item.itemName} (${item.quantityShipping}kg)`;
+                } else {
+                    itemString += `, ${item.itemName} (${item.quantityShipping}kg)`;
+                }
+                count++;
+            }
+
+            row.innerHTML = `
+                <td>${procurement.procurementID}</td>
+                <td>${procurement.agencyName}</td>
+                <td>${procurement.incomingDate}</td>
+                <td>${itemString}</td>
+                <td>${procurement.status}</td>
+            `;
+            
+            tbody.appendChild(row);
+            count = 0;
+            itemString = "";
+        });
+
+        // Update pagination controls
+        const totalProcurementPages = Math.ceil(allProcurements.length / procurementsPerPage);
+        document.getElementById('currentProcurementPage').textContent = currentProcurementPage;
+        document.getElementById('totalProcurementPages').textContent = totalProcurementPages;
+        document.getElementById('prevProcurement').disabled = currentProcurementPage === 1;
+        document.getElementById('nextProcurement').disabled = currentProcurementPage === totalProcurementPages || allProcurements.length === 0;
+
+        // Handle empty state
+        if (allProcurements.length === 0) {
+            const emptyRow = document.createElement('tr');
+            emptyRow.innerHTML = '<td colspan="5" class="text-center">No procurements found</td>';
+            tbody.appendChild(emptyRow);
+        }
+    }
+
+    // Update functions and pagination handlers (existing implementation)
+    window.changeProcurementPage = function(delta) {
+        const totalProcurementPages = Math.ceil(allProcurements.length / procurementsPerPage);
+        const newPage = currentProcurementPage + delta;
+        
+        if (newPage >= 1 && newPage <= totalProcurementPages) {
+            currentProcurementPage = newPage;
+            updateProcurementsTable();
+        }
+    };
 
     initializeTables();
-
-    async function initializeTables() {
-        const requestsTable = document.getElementById('requestsTable');
-        if (requestsTable) {
-            const rows = Array.from(requestsTable.getElementsByTagName('tr'));
-            // Skip header row
-            allRequests = rows.slice(1).map(row => ({
-                requestID: row.cells[0].textContent,
-                partner: row.cells[1].textContent,
-                salesInCharge: row.cells[2].textContent,
-                status: row.cells[3].textContent,
-                dates: row.cells[4].textContent
-            }));
-            filteredRequests = [...allRequests];
-            updateRequestsTable();
-        }
-    }
-
-    // Filter requests
-    window.filterRequests = function() {
-        const statusFilter = document.getElementById('statusFilter').value;
-
-        
-        filteredRequests = allRequests.filter(request => {
-            if (statusFilter !== 'all' && request.status !== statusFilter) {
-                return false;
-            }
-            return true;
-        });
-
-        currentPage = 1;
-        updateRequestsTable();
-    };
-
-    // Sort requests
-    window.sortRequests = function() {
-        const sortBy = document.getElementById('sortBy').value;
-        
-        switch(sortBy) {
-            case 'idAsc':
-                filteredRequests.sort((a, b) => a.requestID.localeCompare(b.requestID, undefined, {numeric: true}));
-                break;
-            case 'idDesc':
-                filteredRequests.sort((a, b) => b.requestID.localeCompare(a.requestID, undefined, {numeric: true}));
-                break;
-            case 'dateAsc':
-                filteredRequests.sort((a, b) => new Date(a.date) - new Date(b.date));
-                break;
-            case 'dateDesc':
-                filteredRequests.sort((a, b) => new Date(b.date) - new Date(a.date));
-                break;
-            default:
-                filteredRequests = [...allRequests];
-        }
-        
-        currentPage = 1; // Reset to first page after sorting
-        updateRequestsTable();
-    };
-
-    // Update requests table
-    function updateRequestsTable() {
-        const table = document.getElementById('requestsTable').getElementsByTagName('tbody')[0];
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        const pageData = filteredRequests.slice(startIndex, endIndex);
-
-        // Update table content
-        table.innerHTML = pageData.map(request => `
-            <tr>
-                <td>${request.requestID}</td>
-                <td>${request.partner}</td>
-                <td>${request.salesInCharge}</td>
-                <td>${request.status}</td>
-                <td>${request.dates}</td>
-            </tr>
-        `).join('');
-
-        // Update pagination info and buttons
-        const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
-        document.getElementById('currentPage').textContent = currentPage;
-        document.getElementById('totalPages').textContent = totalPages;
-        document.getElementById('prevRequest').disabled = currentPage === 1;
-        document.getElementById('nextRequest').disabled = currentPage === totalPages;
-    }
-
-    // Handle page changes for requests
-    window.changePage = function(delta) {
-        const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
-        const newPage = currentPage + delta;
-        
-        if (newPage >= 1 && newPage <= totalPages) {
-            currentPage = newPage;
-            updateRequestsTable();
-        }
-    };
-
-    // Handle page changes for inventory
-    window.changeInventoryPage = function(delta) {
-        const inventoryRows = document.querySelectorAll('.inventory tbody tr');
-        const totalPages = Math.ceil(inventoryRows.length / inventoryItemsPerPage);
-        const newPage = currentInventoryPage + delta;
-        
-        if (newPage >= 1 && newPage <= totalPages) {
-            currentInventoryPage = newPage;
-            updateInventoryTable();
-        }
-    };
-
-    // Update inventory table
-    function updateInventoryTable() {
-        const rows = document.querySelectorAll('.inventory tbody tr');
-        const startIndex = (currentInventoryPage - 1) * inventoryItemsPerPage;
-        const endIndex = startIndex + inventoryItemsPerPage;
-
-        rows.forEach((row, index) => {
-            row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
-        });
-
-        // Update pagination info and buttons
-        const totalPages = Math.ceil(rows.length / inventoryItemsPerPage);
-        document.getElementById('currentInventoryPage').textContent = currentInventoryPage;
-        document.getElementById('totalInventoryPages').textContent = totalPages;
-        document.getElementById('prevInventory').disabled = currentInventoryPage === 1;
-        document.getElementById('nextInventory').disabled = currentInventoryPage === totalPages;
-    }
 });

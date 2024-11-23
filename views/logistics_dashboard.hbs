@@ -75,35 +75,36 @@
         
     <div class="section">
         <div class="section-header">
-            <h2 class="section-title">Procurement Shipments</h2>
-            <button class="create-button">Create +</button>
+            <h2 class="section-title">Procurements</h2>
+            {{!-- <button class="create-btn" onclick="openOverlay()">Create +</button>  --}}
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Quantity</th>
-                    <th>Items</th>
-                    <th>Form</th>
-                    <th>Receive by Date</th>
-                    <th>Status</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>---</td>
-                    <td>---</td>
-                    <td>---</td>
-                    <td>---</td>
-                    <td><button class="action-button">Book Shipment</button></td>
-                    <td>
-                        <span class="status-pill status-complete">Complete</span>
-                        <span style="margin-left: 10px;">Contact ›</span>
-                    </td>
-                </tr>
-                <!-- Repeat similar rows -->
-            </tbody>
-        </table>
+        <div class="procurement-table-container">
+            <table class="procurement-table">
+                <thead>
+                    <tr>
+                        <th>Procurement ID</th>
+                        <th>Agency Name</th>
+                        <th>Incoming Date</th>
+                        <th>Items</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{!-- This will be automatically populated by the js file --}}
+                </tbody>
+            </table>
+            <div class="pagination">
+                <span>Page <span id="currentProcurementPage">1</span> of <span id="totalProcurementPages">1</span></span>
+                <div class="pagination-controls">
+                    <button id="prevProcurement" class="nav-button" onclick="changeProcurementPage(-1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    <button id="nextProcurement" class="nav-button" onclick="changeProcurementPage(1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="section">
@@ -193,4 +194,4 @@
     </main>
 </div>
 
-<script src="/js/dashboard.js"></script>
+<script src="/js/logistics-dashboard.js"></script>

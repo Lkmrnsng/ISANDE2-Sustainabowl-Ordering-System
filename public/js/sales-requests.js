@@ -321,8 +321,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const contactButton = row.querySelector('.button-link');
             contactButton.addEventListener('click', function() {
-                console.log("Contact button clicked.");
-                // TODO: Link to corresponding chat
                 window.location.href = '/chat/sales';
             });
             
@@ -425,6 +423,11 @@ document.addEventListener('DOMContentLoaded', function() {
             throw error;
         }
     }
+
+    // Redirect to the sales chat page
+    window.navigateToChat = function () {
+        window.location.href = '/chat/sales';
+    };
 
     initializeTables();
 });

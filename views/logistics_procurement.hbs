@@ -2,7 +2,7 @@
     <div class="procurement-container">
         <div class="header-section">
             <h2>Procurements</h2>
-            <button class="create-btn" onclick="createProcurement">Create +</button> {{!-- Implement this --}}
+            <button class="create-btn" onclick="openOverlay()">Create +</button> 
         </div>
 
         <div class="procurement-table-container">
@@ -44,7 +44,7 @@
                         <th>Procurement ID</th>
                         <th>Agency Name</th>
                         <th>Received Date</th>
-                        <th>Items Received</th>
+                        <th>Items Accepted</th>
                         <th>Items Discarded</th>
                     </tr>
                 </thead>
@@ -63,6 +63,26 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Create Procurement Overlay -->
+    <div id="procurement-overlay" onclick="closeOverlayOutside(event)">
+        <div class="overlay-content">
+            <i class="fa-solid fa-xmark" alt="Close" onclick="closeOverlay()"></i>
+            <h2>Add New Procurement<span id="overlay-name"></span></h2>
+                {{!-- the form input fields will be automatically loaded --}}
+            <button class="save-btn" onclick="createProcurement()">Save</button>
+        </div>
+    </div>
+
+    <!-- Completed Procurement Overlay -->
+    <div id="completed-overlay" onclick="closeOverlayOutside(event)">
+        <div class="overlay-content">
+            <i class="fa-solid fa-xmark" alt="Close" onclick="closeOverlay()"></i>
+            <h2>Received Procurement Details<span id="overlay-name"></span></h2>
+                {{!-- the form input fields will be automatically loaded --}}
+            <button class="save-btn" onclick="createProcurement()">Save</button>
         </div>
     </div>
 </div>
