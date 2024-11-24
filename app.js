@@ -120,6 +120,19 @@ const hbs = exphbs.create({
                 day: 'numeric' 
             });
         },
+
+        flexFormatDate: function(date, format) {
+            if (!date) return '';
+            const d = new Date(date);
+            if (isNaN(d.getTime())) return '';
+            
+            // Format MM/DD/YY
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const year = String(d.getFullYear()).slice(-2);
+            
+            return `${month}/${day}/${year}`;
+        },
     
         // For date with time
         formatDateTime: function (date) {

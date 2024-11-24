@@ -7,145 +7,160 @@
         >
         <p>Sustainabowl</p>
         </a>
-            {{#if user}}
-            <ul class="nav-links">
-                {{#if user.usertype}}
-                    {{#if (eq user.usertype "Customer")}}
-                        <li>Customer</li>
-                    {{else if (eq user.usertype "Logistics")}}
-                        <li>Logistics</li>
-                    {{else if (eq user.usertype "Sales")}}
-                        <li>Sales</li>
-                    {{/if}}
+        {{#if user}}
+        <ul class="nav-links">
+            {{#if user.usertype}}
+                {{#if (eq user.usertype "Customer")}}
+                    <li>Customer</li>
+                {{else if (eq user.usertype "Logistics")}}
+                    <li>Logistics</li>
+                {{else if (eq user.usertype "Sales")}}
+                    <li>Sales</li>
                 {{/if}}
-                
-                <li class="notification-dropdown">
-                    <div class="notification-bell" id="notification-bell">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-count" id="notification-count"></span>
-                    </div>
-                    <div class="notification-menu" id="notification-menu">
-                        <div class="notification-header">
-                            <h3>Notifications</h3>
-                        </div>
-                        <div class="notification-list" id="notification-list">
-                            <div class="notification-loading">Loading...</div>
-                        </div>
-                    </div>
-                </li>
-
-                <li class="user-dropdown">
-                    <img id="user-icon" class="usericon-header" src="/img/defaultfarmer.webp" alt="User Icon">
-                    <ul class="dropdown-menu" id="dropdown-menu">
-                        <li><a href="/user/profile" class="dropdown-item">View Account</a></li>
-                        <li><a onclick="logoutUser()" class="dropdown-item">Logout</a></li>
-                    </ul>
-                </li>     
-            </ul>
             {{/if}}
+            
+            <li class="notification-dropdown">
+                <div class="notification-bell" id="notification-bell">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count" id="notification-count"></span>
+                </div>
+                <div class="notification-menu" id="notification-menu">
+                    <div class="notification-header">
+                        <h3>Notifications</h3>
+                    </div>
+                    <div class="notification-list" id="notification-list">
+                        <div class="notification-loading">Loading...</div>
+                    </div>
+                </div>
+            </li>
+
+            <li class="user-dropdown">
+                <img id="user-icon" class="usericon-header" src="/img/defaultfarmer.webp" alt="User Icon">
+                <ul class="dropdown-menu" id="dropdown-menu">
+                    <li><a href="/user/profile" class="dropdown-item">View Account</a></li>
+                    <li><a onclick="logoutUser()" class="dropdown-item">Logout</a></li>
+                </ul>
+            </li>     
+        </ul>
+        {{/if}}
     </div>
 </header>
 
 <script>
+    // Make the function global
+    window.handleNotificationClick = function() {
+        const userType = '{{user.usertype}}'; // Get the user type from Handlebars
+        
+        if (userType === 'Customer') {
+            window.location.href = '/customer/orders';
+        }
+        else if (userType === 'Logistics') {
+            window.location.href = '/logistics/dashboard';
+        }
+        else if (userType === 'Sales') {
+            window.location.href = '/sales/dashboard';
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
-    const userIcon = document.getElementById('user-icon');
-    const dropdownMenu = document.getElementById('dropdown-menu');
-    const notificationBell = document.getElementById('notification-bell');
-    const notificationMenu = document.getElementById('notification-menu');
-    let notifications = [];
+        const userIcon = document.getElementById('user-icon');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const notificationBell = document.getElementById('notification-bell');
+        const notificationMenu = document.getElementById('notification-menu');
+        let notifications = [];
 
-    userIcon.addEventListener('click', function(event) {
-        event.preventDefault();
-        dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
-    });
+        userIcon.addEventListener('click', function(event) {
+            event.preventDefault();
+            dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+        });
 
-    notificationBell.addEventListener('click', function(event) {
-        event.preventDefault();
-        notificationMenu.style.display = notificationMenu.style.display === 'block' ? 'none' : 'block';
-        if (notificationMenu.style.display === 'block') {
+        notificationBell.addEventListener('click', function(event) {
+            event.preventDefault();
+            notificationMenu.style.display = notificationMenu.style.display === 'block' ? 'none' : 'block';
+            if (notificationMenu.style.display === 'block') {
+                loadNotifications();
+            }
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!userIcon.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.style.display = 'none';
+            }
+            if (!notificationBell.contains(event.target) && !notificationMenu.contains(event.target)) {
+                notificationMenu.style.display = 'none';
+            }
+        });
+
+        async function loadNotifications() {
+            try {
+                const response = await fetch('/alert/notifications');
+                const data = await response.json();
+                
+                if (data.success) {
+                    notifications = data.notifications;
+                    updateNotificationUI(notifications);
+                }
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                document.getElementById('notification-list').innerHTML = 
+                    '<div class="notification-error">Error loading notifications</div>';
+            }
+        }
+
+        function updateNotificationUI(notifications) {
+            const notificationList = document.getElementById('notification-list');
+            const notificationCount = document.getElementById('notification-count');
+            
+            if (notifications.length === 0) {
+                notificationList.innerHTML = '<div class="no-notifications">No notifications</div>';
+                notificationCount.style.display = 'none';
+                return;
+            }
+
+            notificationCount.textContent = notifications.length;
+            notificationCount.style.display = 'block';
+
+            notificationList.innerHTML = notifications.map(notification => `
+                <div class="notification-item" onclick="handleNotificationClick()">
+                    <div class="notification-icon">
+                        ${getNotificationIcon(notification.category)}
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${notification.category}</div>
+                        <div class="notification-message">${notification.details}</div>
+                        <div class="notification-message">Affected Orders: ${notification.orders}</div>
+                        <div class="notification-time">${formatNotificationDate(notification.date)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getNotificationIcon(category) {
+            const icons = {
+                'Delay': '⏰',
+                'Cancellation': '❌',
+                'Reminder': '📝',
+                'default': 'ℹ️'
+            };
+            return icons[category] || icons.default;
+        }
+
+        function formatNotificationDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor(diff / (1000 * 60));
+
+            if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+            if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+            return 'Just now';
+        }
+
+        if (notificationBell) {
             loadNotifications();
         }
     });
-
-    document.addEventListener('click', function(event) {
-        if (!userIcon.contains(event.target) && !dropdownMenu.contains(event.target)) {
-            dropdownMenu.style.display = 'none';
-        }
-        if (!notificationBell.contains(event.target) && !notificationMenu.contains(event.target)) {
-            notificationMenu.style.display = 'none';
-        }
-    });
-
-    async function loadNotifications() {
-        try {
-            const response = await fetch('/alert/notifications');
-            const data = await response.json();
-            
-            if (data.success) {
-                notifications = data.notifications;
-                updateNotificationUI(notifications);
-            }
-        } catch (error) {
-            console.error('Error loading notifications:', error);
-            document.getElementById('notification-list').innerHTML = 
-                '<div class="notification-error">Error loading notifications</div>';
-        }
-    }
-
-    function updateNotificationUI(notifications) {
-        const notificationList = document.getElementById('notification-list');
-        const notificationCount = document.getElementById('notification-count');
-        
-        if (notifications.length === 0) {
-            notificationList.innerHTML = '<div class="no-notifications">No notifications</div>';
-            notificationCount.style.display = 'none';
-            return;
-        }
-
-        notificationCount.textContent = notifications.length;
-        notificationCount.style.display = 'block';
-
-        notificationList.innerHTML = notifications.map(notification => `
-            <div class="notification-item">
-                <div class="notification-icon">
-                    ${getNotificationIcon(notification.category)}
-                </div>
-                <div class="notification-content">
-                    <div class="notification-title">${notification.category}</div>
-                    <div class="notification-message">${notification.details}</div>
-                    <div class="notification-message">Affected Orders: ${notification.orders}</div>
-                    <div class="notification-time">${formatNotificationDate(notification.date)}</div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function getNotificationIcon(category) {
-        const icons = {
-            'Delay': '⏰',
-            'Cancellation': '❌',
-            'Reminder': '📝',
-            'default': 'ℹ️'
-        };
-        return icons[category] || icons.default;
-    }
-
-    function formatNotificationDate(dateString) {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diff = now - date;
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor(diff / (1000 * 60));
-
-        if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
-        if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-        if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-        return 'Just now';
-    }
-
-    if (notificationBell) {
-        loadNotifications();
-    }
-});
 </script>

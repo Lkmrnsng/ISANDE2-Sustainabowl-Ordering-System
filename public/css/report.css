@@ -1,13 +1,15 @@
+/* Report Container */
 .report-body {
   background: #f5f5f5;
   padding: 20px;
+  font-size: 11px;
 }
 
 .report-container {
-  max-width: 1200px;
+  max-width: 8.5in;
   margin: 0 auto;
   background: white;
-  padding: 40px;
+  padding: 30px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -18,9 +20,10 @@
 }
 
 .back-btn, .download-btn {
-  padding: 8px 16px;
+  padding: 6px 12px;
   border-radius: 4px;
   text-decoration: none;
+  font-size: 12px;
 }
 
 .back-btn {
@@ -33,80 +36,252 @@
   color: #000;
 }
 
+/* Report Content */
 .report {
-  font-family: 'Onest', sans-serif;
+  font-family: 'Arial', sans-serif;
+  width: 100%;
+  max-width: 8.2in;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0.2in .2in 0.2in 0.2in;
 }
 
 .report-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .report-header h1 {
-  font-size: 24px;
-  margin-bottom: 10px;
+  font-size: 14px;
+  margin-bottom: 5px;
 }
 
+.report-header h2 {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+/* Customer Info */
 .customer-info {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
+  text-align: left;
 }
 
+.customer-info h3 {
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+
+/* Summary Stats */
 .summary-stats {
-  display: grid;
-  gap: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 }
 
 .stat-group {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 15px;
 }
 
 .stat {
   background: #f8f9fa;
-  padding: 15px;
+  padding: 10px;
   border-radius: 4px;
 }
 
 .stat label {
   display: block;
-  font-size: 12px;
+  font-size: 10px;
   color: #666;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  text-align: center; /* Center the label */
 }
 
 .stat span {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 500;
+  display: block;
 }
 
+/* Specific alignment for commonly bought and schedule */
+.stat.common-items span,
+.stat.common-schedule span {
+  text-align: left;
+}
+
+/* All other stat spans should be centered */
+.stat:not(.common-items):not(.common-schedule) span {
+  text-align: center;
+}
+
+/* Tables */
 table {
   width: 100%;
+  max-width: 100%;
   border-collapse: collapse;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
+  table-layout: fixed;
+  page-break-inside: auto;
 }
 
 th, td {
-  padding: 12px;
+  padding: 6px 8px;
   border: 1px solid #e0e0e0;
-  text-align: left;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
 }
 
 th {
   background: #f8f9fa;
   font-weight: 500;
+  text-align: center;
+  text-transform: uppercase;
 }
 
+/* page break control */
+.page-break {
+  page-break-before: always;
+}
+
+/* Prevent unwanted breaks */
+tr {
+  page-break-inside: avoid;
+}
+
+.total-row {
+  page-break-inside: avoid;
+}
+
+/* Column widths for Order History */
+.order-history th:nth-child(1), /* Order ID */
+.order-history td:nth-child(1) {
+  width: 10%;
+  text-align: right;
+}
+
+.order-history th:nth-child(2), /* Requested */
+.order-history td:nth-child(2),
+.order-history th:nth-child(3), /* Delivered */
+.order-history td:nth-child(3) {
+  width: 11%;
+  text-align: right;
+}
+
+.order-history th:nth-child(4), /* Schedule */
+.order-history td:nth-child(4) {
+  width: 10%;
+  text-align: left;
+}
+
+.order-history th:nth-child(5), /* Produce */
+.order-history td:nth-child(5) {
+  width: 28%;
+  text-align: left;
+}
+
+.order-history th:nth-child(6), /* Payment */
+.order-history td:nth-child(6) {
+  width: 10%;
+  text-align: left;
+}
+
+.order-history th:nth-child(7), /* Total */
+.order-history td:nth-child(7) {
+  width: 15%;
+  text-align: right;
+}
+
+/* Order Summary table columns */
+.order-summary table th:nth-child(1),
+.order-summary table td:nth-child(1) {
+  width: 50%;
+  text-align: left;
+}
+
+.order-summary table th:nth-child(2),
+.order-summary table td:nth-child(2) {
+  width: 25%;
+  text-align: right;
+}
+
+.order-summary table th:nth-child(3),
+.order-summary table td:nth-child(3) {
+  width: 25%;
+  text-align: right;
+}
+
+/* Force column alignment for Headers */
+
+.order-history table th:nth-child(1),
+.order-history table th:nth-child(2),
+.order-history table th:nth-child(3),
+.order-history table th:nth-child(4),
+.order-history table th:nth-child(5),
+.order-history table th:nth-child(6),
+.order-history table th:nth-child(7),
+.order-summary table th:nth-child(1),
+.order-summary table th:nth-child(2),
+.order-summary table th:nth-child(3) {
+  text-align: center;
+}
+
+/* Numeric values alignment */
+.numeric {
+  text-align: right;
+}
+
+.text {
+  text-align: left;
+}
+
+/* Total row styling */
 .total-row {
   font-weight: 500;
   background: #f8f9fa;
 }
 
+.total-row td:first-child {
+  text-align: right;
+}
+
+.total-row td:last-child {
+  text-align: right;
+  padding-right: 8px;
+}
+
+/* Report Footer */
 .report-footer {
-  margin-top: 40px;
-  padding-top: 20px;
+  margin-top: 30px;
+  padding-top: 15px;
   border-top: 1px solid #e0e0e0;
-  font-size: 12px;
+  font-size: 10px;
   color: #666;
+}
+
+/* Section titles */
+.section-title {
+  font-size: 12px;
+  font-weight: 500;
+  margin: 20px 0 10px 0;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* Print specific styles */
+@media print {
+  .report-container {
+      max-width: none;
+      margin: 0;
+      padding: 15px;
+      box-shadow: none;
+  }
+
+  .report-actions {
+      display: none;
+  }
 }

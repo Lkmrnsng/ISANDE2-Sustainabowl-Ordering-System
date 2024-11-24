@@ -7,6 +7,8 @@
             <link rel="stylesheet" href="/css/{{this}}">
         {{/each}}
     {{/if}}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <title>{{title}}</title>
 </head>
 <body class="report-body">
@@ -19,3 +21,36 @@
     </div>
 </body>
 </html>
+
+{{#if isDownload}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Customize the PDF options
+        const opt = {
+            margin: [0.3, 0.3], // 0.5 inch margins
+            filename: 'order-report-{{month}}-{{year}}.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 2,
+                letterRendering: true,
+                useCORS: true
+            },
+            jsPDF: { 
+                unit: 'in', 
+                format: 'letter', 
+                orientation: 'portrait'
+            },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        // Get the report container
+        const element = document.querySelector('.report');
+
+        // Generate and download PDF
+        html2pdf().set(opt).from(element).save().then(() => {
+            // Redirect back to the report view page after download starts
+            window.location.href = '/reports/customer/{{month}}';
+        });
+    });
+</script>
+{{/if}}
