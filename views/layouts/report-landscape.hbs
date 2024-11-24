@@ -12,7 +12,7 @@
     <title>{{title}}</title>
 </head>
 <body class="report-body">
-    <div class="report-container">
+    <div class="report-container landscape">
         <div class="report-actions">
             <a href="javascript:history.back()" class="back-btn">← Back</a>
             <a href="{{downloadUrl}}" class="download-btn">Download PDF</a>
@@ -27,7 +27,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Customize the PDF options
         const opt = {
-            margin: [0.3, 0.3], // 0.5 inch margins
+            margin: [0.2, 0.2], // 0.5 inch margins
             filename: 'order-report-{{month}}-{{year}}.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
@@ -38,7 +38,7 @@
             jsPDF: { 
                 unit: 'in', 
                 format: 'letter', 
-                orientation: 'portrait'
+                orientation: 'landscape'
             },
             pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };

@@ -6,7 +6,7 @@
 }
 
 .report-container {
-  max-width: 8.5in;
+  max-width: 11in;
   margin: 0 auto;
   background: white;
   padding: 30px;
@@ -61,17 +61,6 @@
   margin-bottom: 5px;
 }
 
-/* Customer Info */
-.customer-info {
-  margin-bottom: 20px;
-  text-align: left;
-}
-
-.customer-info h3 {
-  font-size: 12px;
-  margin-bottom: 3px;
-}
-
 /* Summary Stats */
 .summary-stats {
   margin-bottom: 30px;
@@ -105,11 +94,6 @@
   display: block;
 }
 
-/* Specific alignment for commonly bought and schedule */
-.stat.common-items span,
-.stat.common-schedule span {
-  text-align: left;
-}
 
 /* All other stat spans should be centered */
 .stat:not(.common-items):not(.common-schedule) span {
@@ -157,78 +141,7 @@ tr {
   page-break-inside: avoid;
 }
 
-/* Column widths for Order History */
-.order-history th:nth-child(1), /* Order ID */
-.order-history td:nth-child(1) {
-  width: 10%;
-  text-align: right;
-}
 
-.order-history th:nth-child(2), /* Requested */
-.order-history td:nth-child(2),
-.order-history th:nth-child(3), /* Delivered */
-.order-history td:nth-child(3) {
-  width: 11%;
-  text-align: right;
-}
-
-.order-history th:nth-child(4), /* Schedule */
-.order-history td:nth-child(4) {
-  width: 10%;
-  text-align: left;
-}
-
-.order-history th:nth-child(5), /* Produce */
-.order-history td:nth-child(5) {
-  width: 28%;
-  text-align: left;
-}
-
-.order-history th:nth-child(6), /* Payment */
-.order-history td:nth-child(6) {
-  width: 10%;
-  text-align: left;
-}
-
-.order-history th:nth-child(7), /* Total */
-.order-history td:nth-child(7) {
-  width: 15%;
-  text-align: right;
-}
-
-/* Order Summary table columns */
-.order-summary table th:nth-child(1),
-.order-summary table td:nth-child(1) {
-  width: 50%;
-  text-align: left;
-}
-
-.order-summary table th:nth-child(2),
-.order-summary table td:nth-child(2) {
-  width: 25%;
-  text-align: right;
-}
-
-.order-summary table th:nth-child(3),
-.order-summary table td:nth-child(3) {
-  width: 25%;
-  text-align: right;
-}
-
-/* Force column alignment for Headers */
-
-.order-history table th:nth-child(1),
-.order-history table th:nth-child(2),
-.order-history table th:nth-child(3),
-.order-history table th:nth-child(4),
-.order-history table th:nth-child(5),
-.order-history table th:nth-child(6),
-.order-history table th:nth-child(7),
-.order-summary table th:nth-child(1),
-.order-summary table th:nth-child(2),
-.order-summary table th:nth-child(3) {
-  text-align: center;
-}
 
 /* Numeric values alignment */
 .numeric {
@@ -272,7 +185,74 @@ tr {
   text-align: center;
 }
 
+/* Landscape report specific styles */
+.report.landscape {
+  max-width: 11in; /* Letter size landscape width */
+  padding: 0.2in;
+}
 
+/* Adjust table column widths for landscape logistics report */
+.logistics-report-table th,
+.logistics-report-table td {
+  padding: 6px 12px; /* Increased horizontal padding */
+}
+
+.logistics-report-table th:nth-child(1), /* MONTH/WEEK */
+.logistics-report-table td:nth-child(1) {
+  width: 12%;
+  text-align: left;
+}
+
+.logistics-report-table th:nth-child(2), /* NO OF ORDERS */
+.logistics-report-table td:nth-child(2) {
+  width: 12%;
+  text-align: right;
+}
+
+.logistics-report-table th:nth-child(3), /* FULFILLED ON TIME */
+.logistics-report-table td:nth-child(3) {
+  width: 15%;
+  text-align: right;
+}
+
+.logistics-report-table th:nth-child(4), /* FULFILLED LATE */
+.logistics-report-table td:nth-child(4) {
+  width: 15%;
+  text-align: right;
+}
+
+.logistics-report-table th:nth-child(5), /* CANCELLED */
+.logistics-report-table td:nth-child(5) {
+  width: 12%;
+  text-align: right;
+}
+
+.logistics-report-table th:nth-child(6), /* ALERTS ISSUED */
+.logistics-report-table td:nth-child(6) {
+  width: 12%;
+  text-align: right;
+}
+
+.logistics-report-table th:nth-child(7), /* FULFILLMENT RATE */
+.logistics-report-table td:nth-child(7) {
+  width: 15%;
+  text-align: right;
+}
+
+/* Ensure headers are centered regardless of data alignment */
+.logistics-report-table th {
+  text-align: center;
+}
+
+/* Adjust spacing for landscape */
+.logistics-department {
+  margin: 15px 0;
+}
+
+.logistics-department h3 {
+  font-size: 12px;
+  text-align: left;
+}
 
 /* Print specific styles */
 @media print {
