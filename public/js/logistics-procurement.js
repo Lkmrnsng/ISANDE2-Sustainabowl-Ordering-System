@@ -79,11 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
         form.appendChild(itemsSection);
         
         // Add date picker
-        const dateInput = document.createElement('input');
-        dateInput.type = 'date';
-        dateInput.className = 'form-control';
-        dateInput.required = true;
-        const dateGroup = createFormGroup('Incoming Date:', dateInput);
+        const dateGroup = createFormGroup('Incoming Date:', createDateInput());
         form.appendChild(dateGroup);
 
         content.insertBefore(form, content.querySelector('button'));
@@ -144,6 +140,51 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initialize();
 });
+
+// Function to create the completed procurement form group
+async function initializeCompletedForm(procurementID) {
+    const procurement = allProcurements.find(p => p.procurementID == procurementID);
+    if (!procurement) {
+        console.error('Procurement not found');
+        return;
+    }
+
+    const overlay = document.getElementById('completed-overlay');
+    overlay.style.display = 'flex';
+    document.getElementById('overlay-name').textContent = ` - ${procurementID}`;
+
+    // Clear existing form if any
+    const existingForm = document.getElementById('completed-form');
+    if (existingForm) {
+        existingForm.remove();
+    }
+
+    // Create new form
+    const form = document.createElement('form');
+    form.id = 'completed-form';
+    
+    // Add received date input
+    const dateGroup = createFormGroup('Received Date:', createDateInput());
+    form.appendChild(dateGroup);
+    
+    // Add items section
+    const itemsSection = document.createElement('div');
+    itemsSection.id = 'received-items-section';
+    
+    procurement.bookedItems.forEach((item, index) => {
+        const itemRow = createReceivedItemRow(item, index);
+        itemsSection.appendChild(itemRow);
+    });
+    
+    form.appendChild(itemsSection);
+    
+    // Add data attribute for procurement ID
+    form.dataset.procurementId = procurementID;
+    
+    // Insert form before save button
+    const content = overlay.querySelector('.overlay-content');
+    content.insertBefore(form, content.querySelector('.save-btn'));
+}
 
 // Fetch the json procurements data from the server
 async function getProcurementsJson() {
@@ -216,25 +257,46 @@ function updateProcurementsTable() {
             <td>${procurement.incomingDate}</td>
             <td>${itemString}</td>
             <td>
-                <select class="status-dropdown">
-                    <option value="Booked" ${procurement.status === 'Booked' ? 'selected' : ''}>Booked</option>
-                    <option value="Cancelled" ${procurement.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
-                    <option value="Completed" ${procurement.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                <select class="status-dropdown" ${procurement.status === 'Cancelled' ? 'disabled' : ''}>
+                    <option class="select-option" value="Booked" ${procurement.status === 'Booked' ? 'selected' : ''}>Booked</option>
+                    <option class="select-option" value="Cancelled" ${procurement.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                    <option class="select-option" value="Completed" ${procurement.status === 'Completed' ? 'selected' : ''}>Completed</option>
                 </select>
             </td>
         `;
 
         // Add click event listener to the dropdown
-        const dropdown = row.querySelector('.status-dropdown');
-        dropdown.addEventListener('change', (event) => {
-            const selectedValue = event.target.value;
-            console.log(`Status for procurement ${procurement.procurementID} changed to: ${selectedValue}`);
-            // Additional logic for handling the status change can go here
-
-            // when clicked, open alert. ask: are you sure?
-            // if ok, proceed to update db
-            // animation so the user knows db is updated
-            // if completed, run initialized tables again
+        const dropdowns = document.querySelectorAll('.status-dropdown');
+        dropdowns.forEach(dropdown => {
+            dropdown.addEventListener('change', async (event) => {
+                const row = event.target.closest('tr');
+                const procurementID = row.cells[0].textContent;
+                const selectedValue = event.target.value;
+                
+                if (selectedValue === 'Completed') {
+                    // Reset dropdown to previous value temporarily
+                    event.target.value = 'Booked';
+                    
+                    if (confirm('Are you sure you want to mark this procurement as completed? This will require entering received quantities.')) {
+                        initializeCompletedForm(procurementID);
+                    }
+                } else if (selectedValue === 'Cancelled') {
+                    if (confirm('Are you sure you want to cancel this procurement?')) {
+                        try {
+                            await setProcurementStatus(procurementID, 'Cancelled');
+                            await getProcurementsJson();
+                            updateProcurementsTable();
+                            updateCompletedTable();
+                            showMessage("Procurement cancelled successfully!");
+                        } catch (error) {
+                            console.error('Error updating procurement status:', error);
+                            alert('Failed to update procurement status');
+                        }
+                    } else {
+                        event.target.value = 'Booked'; 
+                    }
+                }
+            });
         });
         
         tbody.appendChild(row);
@@ -342,52 +404,20 @@ window.changeCompletedPage = function(delta) {
 };
 
 // Setter for procurement status
-async function setProcurementStatus (req, res) {
-    const procurementID = req.params.procurementID;
-    const { status } = req.body;
-        // add alert for changing status
-
-
-    try {
-        // const request = await Request.findOne({ requestID: requestID })
-
-        // if (!request) {
-        //     return res.status(404).json({
-        //         success: false,
-        //         message: 'Request not found'
-        //     });
-        // }
-
-        // // Update the request status
-        // await Request.updateOne({ requestID: requestID }, { $set: { status: status }});
-
-        // return res.status(200).json({
-        //     success: true,
-        //     message: 'Request status updated successfully',
-        //     request: {
-        //         id: request._id,
-        //         status: status,
-        //     }
-        // });
-    } catch (error) {
-        console.error('Error updating procurement status:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Internal server error'
-        });
+async function setProcurementStatus(procurementID, status) {
+    const response = await fetch(`/logistics/api/procurement-status/${procurementID}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: status })
+    });
+    
+    if (!response.ok) {
+        throw new Error('Failed to update procurement status');
     }
-};
-
-// Initialize the completed overlay using the procurementID of the row just clicked
-function initializeCompletedForm() {
-    const overlay = document.getElementById('completed-overlay');
-    const content = overlay.querySelector('.overlay-content');
-    const form = document.createElement('form');
-    form.id = 'completed-form';
-
-    // TODO: for every item in the procurement, create a form group that asks for the amount discarded. automatically load the amount accepted based on the amount booked
-
-    content.insertBefore(form, content.querySelector('button'));
+    
+    return await response.json();
 }
 
 // Return an html div given the form label and input
@@ -400,6 +430,16 @@ function createFormGroup(labelText, input) {
     group.appendChild(label);
     group.appendChild(input);
     return group;
+}
+
+// Create a date input element
+function createDateInput() {
+    const dateInput = document.createElement('input');
+    dateInput.type = 'date';
+    dateInput.className = 'form-control';
+    dateInput.required = true;
+    dateInput.value = new Date().toISOString().split('T')[0];
+    return dateInput;
 }
 
 // Add a new row to the items section
@@ -429,7 +469,7 @@ function addItemRow(container) {
     // Add number input for qty
     const qtyInput = document.createElement('input');
     qtyInput.type = 'number';
-    qtyInput.className = 'form-control';
+    qtyInput.className = 'form-control qty-input';
     qtyInput.min = '1';
     qtyInput.required = true;
     qtyInput.placeholder = 'Quantity in kg';
@@ -438,7 +478,7 @@ function addItemRow(container) {
     // Add number input for kg
     const costInput = document.createElement('input');
     costInput.type = 'number';
-    costInput.className = 'form-control';
+    costInput.className = 'form-control cost-input';
     costInput.min = '1';
     costInput.required = true;
     costInput.placeholder = 'Cost per kg in Pesos';
@@ -457,6 +497,66 @@ function addItemRow(container) {
     container.insertBefore(row, container.querySelector('.add-row-btn'));
 }
 
+// Create a row for received item
+function createReceivedItemRow(item, index) {
+    const row = document.createElement('div');
+    row.className = 'received-item-row';
+    
+    const nameLabel = document.createElement('div');
+    nameLabel.className = 'item-name';
+    nameLabel.textContent = item.itemName;
+    
+    const bookedQty = document.createElement('div');
+    bookedQty.className = 'booked-qty';
+    bookedQty.textContent = `Booked: ${item.quantityShipping}kg`;
+    
+    const discardedGroup = document.createElement('div');
+    discardedGroup.className = 'input-group';
+    
+    const discardedLabel = document.createElement('label');
+    discardedLabel.textContent = 'Discarded:';
+    
+    const discardedInput = document.createElement('input');
+    discardedInput.type = 'number';
+    discardedInput.min = '0';
+    discardedInput.max = item.quantityShipping;
+    discardedInput.value = '0';
+    discardedInput.className = 'form-control discarded-input';
+    discardedInput.dataset.itemIndex = index;
+    discardedInput.addEventListener('input', updateAcceptedQuantity);
+    
+    const acceptedDisplay = document.createElement('div');
+    acceptedDisplay.className = 'accepted-display';
+    acceptedDisplay.innerHTML = `<span>Accepted: </span><span class="accepted-qty">${item.quantityShipping}</span>kg`;
+    
+    discardedGroup.appendChild(discardedLabel);
+    discardedGroup.appendChild(discardedInput);
+    
+    row.appendChild(nameLabel);
+    row.appendChild(bookedQty);
+    row.appendChild(discardedGroup);
+    row.appendChild(acceptedDisplay);
+    
+    return row;
+}
+
+// Update accepted quantity when discarded amount changes
+function updateAcceptedQuantity(event) {
+    const row = event.target.closest('.received-item-row');
+    const bookedQty = parseInt(row.querySelector('.booked-qty').textContent.match(/\d+/)[0]);
+    const discardedQty = parseInt(event.target.value) || 0;
+    
+    // Validate discarded quantity
+    if (discardedQty < 0) {
+        event.target.value = 0;
+    } else if (discardedQty > bookedQty) {
+        event.target.value = bookedQty;
+    }
+    
+    const acceptedQty = bookedQty - parseInt(event.target.value);
+    row.querySelector('.accepted-qty').textContent = acceptedQty;
+}
+
 // Collect all data from input fields and send to db
 async function createProcurement() {
     const form = document.getElementById('procurement-form');
@@ -469,7 +569,8 @@ async function createProcurement() {
         agency: form.querySelector('select').value,
         items: Array.from(form.querySelectorAll('.item-row')).map(row => ({
             item: row.querySelector('select').value,
-            quantity: parseInt(row.querySelector('input[type="number"]').value)
+            quantity: parseInt(row.querySelector('.qty-input').value),
+            cost: parseInt(row.querySelector('.cost-input').value)
         })),
         incomingDate: form.querySelector('input[type="date"]').value
     };
@@ -487,6 +588,56 @@ async function createProcurement() {
     closeOverlay();
     showMessage("Procurement added successfully!");
     updateProcurementsTable();
+}
+
+// Save completed procurement details
+async function saveCompletedProcurement() {
+    const form = document.getElementById('completed-form');
+    if (!form) {
+        console.error('Completed form not found');
+        return;
+    }
+    
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    const procurementID = form.dataset.procurementId;
+    const receivedDate = form.querySelector('input[type="date"]').value;
+    
+    const receivedItems = Array.from(form.querySelectorAll('.received-item-row')).map(row => ({
+        itemName: row.querySelector('.item-name').textContent,
+        quantityDiscarded: parseInt(row.querySelector('.discarded-input').value) || 0,
+        quantityAccepted: parseInt(row.querySelector('.accepted-qty').textContent)
+    }));
+    
+    const formData = {
+        procurementID,
+        receivedDate,
+        receivedItems,
+    };
+    
+    try {
+        const response = await fetch('/logistics/api/complete-procurement', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        });
+        
+        if (!response.ok) throw new Error('Failed to complete procurement');
+        
+        await getProcurementsJson();
+        closeCompletedOverlay();
+        showMessage("Procurement completed successfully!");
+        updateProcurementsTable();
+        updateCompletedTable();
+    } catch (error) {
+        console.error('Error completing procurement:', error);
+        alert('Failed to complete procurement');
+    }
 }
 
 // Open the procurement overlay when the "Create" button is clicked
@@ -512,10 +663,24 @@ function closeOverlay() {
     }
 }
 
+// Close completed overlay
+function closeCompletedOverlay() {
+    const overlay = document.getElementById('completed-overlay');
+    overlay.style.display = 'none';
+    
+    // Clear form
+    const form = document.getElementById('completed-form');
+    if (form) {
+        form.remove();
+    }
+}
+
 // Close overlay if clicked outside
 function closeOverlayOutside(event) {
     if (event.target.id === 'procurement-overlay') {
         closeOverlay();
+    } else if (event.target.id === 'completed-overlay') {
+        closeCompletedOverlay();
     }
 }
 

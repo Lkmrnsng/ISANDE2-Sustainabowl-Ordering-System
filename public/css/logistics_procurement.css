@@ -230,6 +230,10 @@
     color: #666;
 }
 
+#receipt-form {
+    margin-top: 1.5rem;
+}
+
 .form-group {
     margin-bottom: 1.5rem;
 }
@@ -240,6 +244,13 @@
     font-weight: 500;
 }
 
+.form-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
 .form-control {
     width: 25%;
     padding: 0.5rem;
@@ -247,11 +258,76 @@
     border-radius: 4px;
 }
 
+.items-container {
+    margin-top: 2rem;
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+}
+
 .item-row {
     display: flex;
     gap: 1rem;
     align-items: center;
     margin-bottom: 10px;
+}
+
+.item-name {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.item-quantity {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.item-inputs {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.input-group input {
+    width: 80px;
+    padding: 0.25rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.accepted-display {
+    color: #2c5282;
+    font-weight: 500;
+}
+
+.received-item-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem; 
+}
+
+.item-name {
+    flex: 1;
+}
+
+.booked-qty {
+    min-width: fit-content;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.accepted-display {
+    min-width: fit-content;
 }
 
 .add-row-btn {

@@ -79,10 +79,10 @@
     <!-- Completed Procurement Overlay -->
     <div id="completed-overlay" onclick="closeOverlayOutside(event)">
         <div class="overlay-content">
-            <i class="fa-solid fa-xmark" alt="Close" onclick="closeOverlay()"></i>
+            <i class="fa-solid fa-xmark" alt="Close" onclick="closeCompletedOverlay()"></i>
             <h2>Received Procurement Details<span id="overlay-name"></span></h2>
                 {{!-- the form input fields will be automatically loaded --}}
-            <button class="save-btn" onclick="createProcurement()">Save</button>
+            <button class="save-btn" onclick="saveCompletedProcurement()">Save</button>
         </div>
     </div>
 </div>

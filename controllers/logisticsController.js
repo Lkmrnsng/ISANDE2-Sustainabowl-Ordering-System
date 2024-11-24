@@ -368,24 +368,28 @@ async function createProcurement(agencyName, items, incomingDate) {
 // Convert the items array into a 2d array of itemID, qty
 async function processItems(items) {
     try {
-        const itemQuantityMap = new Map();
+        const itemMap = new Map();
         
         // Merge duplicates by adding quantities
-        items.forEach(({item, quantity}) => {
-            if (itemQuantityMap.has(item)) {
-                itemQuantityMap.set(item, itemQuantityMap.get(item) + quantity);
+        items.forEach(({item, quantity, cost}) => {
+            if (itemMap.has(item)) {
+                const existing = itemMap.get(item);
+                itemMap.set(item, {
+                    quantity: existing.quantity + quantity,
+                    cost: existing.cost + cost
+                });
             } else {
-                itemQuantityMap.set(item, quantity);
+                itemMap.set(item, { quantity, cost });
             }
         });
 
         // Convert the merged items into an array of promises to get item IDs
-        const itemPromises = Array.from(itemQuantityMap.entries()).map(async ([itemName, quantity]) => {
+        const itemPromises = Array.from(itemMap.entries()).map(async ([itemName, data]) => {
             const itemDoc = await Item.findOne({ itemName: itemName });
             if (!itemDoc) {
                 throw new Error(`Item not found: ${itemName}`);
             }
-            return [itemDoc.itemID, quantity];
+            return [ itemDoc.itemID, data.quantity, data.cost ];
         });
 
         const processedItems = await Promise.all(itemPromises);        
@@ -393,6 +397,83 @@ async function processItems(items) {
     } catch (error) {
         console.error('Error processing items:', error);
         throw error;
+    }
+}
+
+async function setProcurementStatus(req, res) {
+    const procurementID = req.params.procurementID;
+    const { status } = req.body;
+
+    try {
+        const procurement = await Procurement.findOne({ procurementID: procurementID })
+
+        if (!procurement) {
+            return res.status(404).json({
+                success: false,
+                message: 'Procurement not found'
+            });
+        }
+
+        // Update the request status
+        await Procurement.updateOne({ procurementID: procurementID }, { $set: { status: status }});
+
+        return res.status(200).json({
+            success: true,
+            message: 'Procurement status updated successfully',
+            procurement: {
+                id: procurement._id,
+                status: status,
+            }
+        });
+    } catch (error) {
+        console.error('Error updating procurement status:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
+
+async function completeProcurement(req, res) {
+    try {
+        const {
+            procurementID,
+            receivedDate,
+            receivedItems
+          } = req.body;
+
+        const procurement = await saveCompletedProcurement(procurementID, receivedDate, receivedItems);
+        res.status(200).json({ procurement: procurement });
+    } catch (err) {
+        console.error('Error saving to db:', err);
+        res.status(500).json({ error: 'Failed to save to db' });
+    }
+}
+
+async function saveCompletedProcurement(procurementID, receivedDate, receivedItems) {
+    try {
+        const formattedDate = receivedDate + "T00:00:00Z";
+        const itemsArray = [];
+
+        for (const item of receivedItems) {
+            const foundItem = await Item.findOne({ itemName: item.itemName });
+            const itemID = foundItem.itemID;
+            itemsArray.push([itemID, item.quantityAccepted, item.quantityDiscarded]);
+        }
+
+        await Procurement.updateOne({ procurementID: procurementID }, { $set: { 
+                receivedDate: formattedDate, 
+                receivedItems: itemsArray,
+                status: "Completed" }});
+
+        return {
+            statusCode: 200,
+            success: true,
+            message: 'Procurement completed successfully'
+        };
+    } catch (error) {
+        console.error('Error in saveCompletedProcurement:', error);
+        return null;
     }
 }
 
@@ -408,5 +489,7 @@ module.exports = {
     getProcurementJson,
     getAgenciesJson,
     getItemsJson,
-    submitProcurement
+    submitProcurement,
+    setProcurementStatus,
+    completeProcurement
 };
