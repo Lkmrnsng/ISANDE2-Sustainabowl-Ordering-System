@@ -2,7 +2,7 @@
     <div class="report-header">
         <h1>Sustainabowl</h1>
         <h2>MONTHLY ORDER REPORT</h2>
-        <h3>For the Month of {{month}} {{year}}</h3>
+        <p>For the Month of {{month}} {{year}}</p>
     </div>
 
     <div class="customer-info">
@@ -14,42 +14,42 @@
         <div class="stat-group">
             <div class="stat">
                 <label>NO. DELIVERIES</label>
-                <span>{{summary.totalDeliveries}}</span>
+                <span class="numeric">{{summary.totalDeliveries}}</span>
             </div>
             <div class="stat">
                 <label>NO. CANCELLED</label>
-                <span>{{summary.cancelledDeliveries}}</span>
+                <span class="numeric">{{summary.cancelledDeliveries}}</span>
             </div>
             <div class="stat">
                 <label>AVE. ORDER COST</label>
-                <span>₱{{formatReportNumbers (formatNumber summary.averageOrderCost 2)}}</span>
+                <span class="numeric">₱{{formatReportNumbers (formatNumber summary.averageOrderCost 2)}}</span>
             </div>
             <div class="stat">
                 <label>AVE. WEEKLY DELIVERIES</label>
-                <span>{{summary.averageWeeklyDeliveries}}</span>
+                <span class="numeric">{{summary.averageWeeklyDeliveries}}</span>
             </div>
         </div>
         <div class="stat-group">
-            <div class="stat">
+            <div class="stat common-items" style="grid-column: span 2;">
                 <label>COMMONLY BOUGHT</label>
-                <span>{{commonItems}}</span>
+                <span class="text">{{commonItems}}</span>
             </div>
-            <div class="stat">
+            <div class="stat common-schedule" style="grid-column: span 2;">
                 <label>COMMON SCHEDULE</label>
-                <span>{{commonSchedule}}</span>
+                <span class="text">{{commonSchedule}}</span>
             </div>
         </div>
     </div>
 
     <div class="order-history">
-        <h3>ORDER HISTORY</h3>
+        <div class="section-title">ORDER HISTORY</div>
         <table>
             <thead>
                 <tr>
                     <th>ORDER ID</th>
                     <th>REQUESTED</th>
                     <th>DELIVERED</th>
-                    <th>SCHEDULE</th>
+                    <th>SCHED</th>
                     <th>PRODUCE ORDERED</th>
                     <th>PAYMENT</th>
                     <th>TOTAL</th>
@@ -58,25 +58,25 @@
             <tbody>
                 {{#each orderSummary}}
                 <tr>
-                    <td>{{orderId}}</td>
-                    <td>{{formatDate requestDate}}</td>
-                    <td>{{formatDate deliveryDate}}</td>
-                    <td>{{schedule}}</td>
-                    <td>{{items}}</td>
-                    <td>{{payment}}</td>
-                    <td>₱{{formatReportNumbers (formatNumber total 2)}}</td>
+                    <td class="numeric">{{orderId}}</td>
+                    <td class="numeric">{{flexFormatDate requestDate "MM/DD/YY"}}</td>
+                    <td class="numeric">{{flexFormatDate deliveryDate "MM/DD/YY"}}</td>
+                    <td class="text">{{schedule}}</td>
+                    <td class="text">{{items}}</td>
+                    <td class="text">{{payment}}</td>
+                    <td class="numeric">₱{{formatReportNumbers (formatNumber total 2)}}</td>
                 </tr>
                 {{/each}}
                 <tr class="total-row">
                     <td colspan="6">TOTAL</td>
-                    <td>₱{{formatReportNumbers (formatNumber totalAmount 2)}}</td>
+                    <td class="numeric">₱{{formatReportNumbers (formatNumber totalAmount 2)}}</td>
                 </tr>
             </tbody>
         </table>
     </div>
 
     <div class="order-summary">
-        <h3>ORDER SUMMARY</h3>
+        <div class="section-title">ORDER SUMMARY</div>
         <table>
             <thead>
                 <tr>
@@ -88,20 +88,20 @@
             <tbody>
                 {{#each produceSummary}}
                 <tr>
-                    <td>{{name}}</td>
-                    <td>{{quantity}}</td>
-                    <td>₱{{formatReportNumbers (formatNumber cost 2)}}</td>
+                    <td class="text">{{name}}</td>
+                    <td class="numeric">{{quantity}}</td>
+                    <td class="numeric">₱{{formatReportNumbers (formatNumber cost 2)}}</td>
                 </tr>
                 {{/each}}
                 <tr class="total-row">
                     <td colspan="2">TOTAL</td>
-                    <td>₱{{formatReportNumbers (formatNumber totalAmount 2)}}</td>
+                    <td class="numeric">₱{{formatReportNumbers (formatNumber totalAmount 2)}}</td>
                 </tr>
             </tbody>
         </table>
     </div>
 
     <div class="report-footer">
-        <p>Generated: {{generatedDate}}</p>
+        <p>Generated: {{flexFormatDate generatedDate "MM/DD/YY"}}</p>
     </div>
 </div>

@@ -106,10 +106,41 @@
                 </div>
             </div>
 
-            <a href="/reports/customer" class="button-link" style="margin-top: 50px;">Generate Monthly Report</a>
+                <div style="margin-top: 50px;">
+                    <button class="button-link" onclick="showReportModal()">Generate Monthly Report</button>
+                </div>
         </div>
     </div>
 </div>
+
+<!-- MODAL-->
+<div id="reportModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h3>Generate Monthly Report</h3>
+        <div class="form-group">
+            <label>Select Month:</label>
+            <select id="reportMonth">
+                <option value="Jan">January</option>
+                <option value="Feb">February</option>
+                <option value="Mar">March</option>
+                <option value="Apr">April</option>
+                <option value="May">May</option>
+                <option value="Jun">June</option>
+                <option value="Jul">July</option>
+                <option value="Aug">August</option>
+                <option value="Sep">September</option>
+                <option value="Oct">October</option>
+                <option value="Nov">November</option>
+                <option value="Dec">December</option>
+            </select>
+        </div>
+        <div class="modal-actions">
+            <button class="cancel-btn" onclick="closeReportModal()">Cancel</button>
+            <button class="submit-btn" onclick="generateReport()">Generate</button>
+        </div>
+    </div>
+</div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -191,4 +222,37 @@
             }
         }
     });
+
+
+    const currentMonth = new Date().toLocaleString('default', { month: 'short' });
+        const monthSelect = document.getElementById('reportMonth');
+        if (monthSelect) {
+            Array.from(monthSelect.options).forEach(option => {
+                if (option.value === currentMonth) {
+                    option.selected = true;
+                }
+            });
+        }
+
+    function showReportModal() {
+        document.getElementById('reportModal').style.display = 'block';
+    }
+
+    function closeReportModal() {
+        document.getElementById('reportModal').style.display = 'none';
+    }
+
+    function generateReport() {
+        const month = document.getElementById('reportMonth').value;
+        window.location.href = `/reports/customer/${month}`;
+        closeReportModal();
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('reportModal');
+        if (event.target === modal) {
+            closeReportModal();
+        }
+    }
 </script>
