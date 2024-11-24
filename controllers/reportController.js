@@ -273,7 +273,7 @@ const reportController = {
             const weeks = {};
             for (const order of orders) {
                 const orderDate = new Date(order.deliveryDate);
-                const weekNum = Math.ceil((orderDate.getDate() - orderDate.getDay() + 1) / 7);
+                const weekNum = getWeekNumber(orderDate);
                 console.log(`Order ID: ${order.OrderID} - Order Date: ${orderDate.toISOString()} - Week Number: ${weekNum}`);
 
                 if (!weeks[weekNum]) {
@@ -288,21 +288,22 @@ const reportController = {
                 }
                 weeks[weekNum].noOfOrders++;
 
-                // Look at the Deliveries Table if a delivery is made for this order
+                // Check delivery status
                 if (order.status === 'Delivered') {
                     try {
-                        // Get all deliveries linked to an order, sort by date with the latest first
-                        const deliveries = await Delivery.find({ orderID: order.OrderID }).sort({ deliveryDate: -1 });
-
-                        // Get only the isComplete = true deliveries
-                        const completedDeliveries = deliveries.filter(delivery => delivery.isComplete === true);
-
-                        // Get the latest delivery
-                        const latestDelivery = completedDeliveries[0] || null;
+                        const deliveries = await Delivery.find({ orderID: order.OrderID })
+                            .sort({ deliveryDate: -1 });
+                        const completedDeliveries = deliveries.filter(d => d.isComplete === true);
+                        const latestDelivery = completedDeliveries[0];
 
                         if (latestDelivery) {
                             const scheduledDate = new Date(order.deliveryDate);
                             const actualDeliveryDate = new Date(latestDelivery.deliveryDate);
+                            
+                            // Compare dates without time
+                            scheduledDate.setHours(0, 0, 0, 0);
+                            actualDeliveryDate.setHours(0, 0, 0, 0);
+                            
                             if (actualDeliveryDate <= scheduledDate) {
                                 weeks[weekNum].fulfilledOnTime++;
                             } else {
@@ -310,7 +311,7 @@ const reportController = {
                             }
                         }
                     } catch (error) {
-                        console.error(`Error fetching delivery for order ${order._id}:`, error);
+                        console.error(`Error fetching delivery for order ${order.OrderID}:`, error);
                     }
                 } else if (order.status === 'Cancelled') {
                     weeks[weekNum].cancelled++;
@@ -318,18 +319,21 @@ const reportController = {
             }
 
             // Calculate fulfillment rates and format weeks data
-            const weeklyData = Object.entries(weeks).map(([weekNum, data]) => {
-                const total = data.fulfilledOnTime + data.fulfilledLate + data.cancelled;
-                const fulfillmentRate = total > 0
-                    ? (((data.fulfilledOnTime + data.fulfilledLate)/ total) * 100).toFixed(2)
-                    : 0;
+            const weeklyData = Object.entries(weeks)
+                .sort(([a], [b]) => parseInt(a) - parseInt(b)) // Sort by week number
+                .map(([weekNum, data]) => {
+                    const total = data.noOfOrders;
+                    const fulfilled = data.fulfilledOnTime + data.fulfilledLate;
+                    const fulfillmentRate = total > 0
+                        ? ((fulfilled / total) * 100).toFixed(2)
+                        : '0.00';
 
-                return {
-                    week: `WEEK ${weekNum}`,
-                    ...data,
-                    fulfillmentRate: `${fulfillmentRate}%`
-                };
-            });
+                    return {
+                        week: `WEEK ${weekNum}`,
+                        ...data,
+                        fulfillmentRate: `${fulfillmentRate}%`
+                    };
+                });
 
             // Calculate monthly totals
             const monthlyTotals = {
@@ -350,22 +354,23 @@ const reportController = {
             }
 
             // Calculate monthly fulfillment rate
-            const monthlyTotal = monthlyTotals.fulfilledOnTime + monthlyTotals.fulfilledLate + monthlyTotals.cancelled;
+            const monthlyTotal = monthlyTotals.noOfOrders;
+            const monthlyFulfilled = monthlyTotals.fulfilledOnTime + monthlyTotals.fulfilledLate;
             monthlyTotals.fulfillmentRate = monthlyTotal > 0
-                ? `${((monthlyTotals.fulfilledOnTime / monthlyTotal) * 100).toFixed(2)}%`
+                ? `${((monthlyFulfilled / monthlyTotal) * 100).toFixed(2)}%`
                 : '0.00%';
 
             res.render('reports/logistics-report', {
                 title: 'Order Fulfillment Report',
                 css: ['report_landscape.css'],
-                layout: 'report',
+                layout: 'report-landscape',
                 month,
                 year,
                 weeklyData,
                 monthlyTotals,
                 generatedDate: new Date().toLocaleDateString(),
                 downloadUrl: `/reports/logistics/${month}/download/tool`,
-                
+                user: await User.findOne({ userID: req.session.userId })
             });
         } catch (error) {
             console.error('Error generating logistics report:', error);
@@ -375,7 +380,6 @@ const reportController = {
 
     async downloadLogisticsReportUsingTool(req, res) {
         try {
-
             const month = req.params.month || new Date().toLocaleString('en-US', { month: 'short' });
             const year = new Date().getFullYear();
 
@@ -396,7 +400,8 @@ const reportController = {
             const weeks = {};
             for (const order of orders) {
                 const orderDate = new Date(order.deliveryDate);
-                const weekNum = Math.ceil((orderDate.getDate() - orderDate.getDay() + 1) / 7);
+                const weekNum = getWeekNumber(orderDate);
+
                 if (!weeks[weekNum]) {
                     weeks[weekNum] = {
                         noOfOrders: 0,
@@ -409,21 +414,22 @@ const reportController = {
                 }
                 weeks[weekNum].noOfOrders++;
 
-                // Look at the Deliveries Table if a delivery is made for this order
+                // Check delivery status
                 if (order.status === 'Delivered') {
                     try {
-                        // Get all deliveries linked to an order, sort by date with the latest first
-                        const deliveries = await Delivery.find({ orderID: order.OrderID }).sort({ deliveryDate: -1 });
-
-                        // Get only the isComplete = true deliveries
-                        const completedDeliveries = deliveries.filter(delivery => delivery.isComplete === true);
-
-                        // Get the latest delivery
-                        const latestDelivery = completedDeliveries[0] || null;
+                        const deliveries = await Delivery.find({ orderID: order.OrderID })
+                            .sort({ deliveryDate: -1 });
+                        const completedDeliveries = deliveries.filter(d => d.isComplete === true);
+                        const latestDelivery = completedDeliveries[0];
 
                         if (latestDelivery) {
                             const scheduledDate = new Date(order.deliveryDate);
                             const actualDeliveryDate = new Date(latestDelivery.deliveryDate);
+                            
+                            // Compare dates without time
+                            scheduledDate.setHours(0, 0, 0, 0);
+                            actualDeliveryDate.setHours(0, 0, 0, 0);
+                            
                             if (actualDeliveryDate <= scheduledDate) {
                                 weeks[weekNum].fulfilledOnTime++;
                             } else {
@@ -431,7 +437,7 @@ const reportController = {
                             }
                         }
                     } catch (error) {
-                        console.error(`Error fetching delivery for order ${order._id}:`, error);
+                        console.error(`Error fetching delivery for order ${order.OrderID}:`, error);
                     }
                 } else if (order.status === 'Cancelled') {
                     weeks[weekNum].cancelled++;
@@ -439,18 +445,21 @@ const reportController = {
             }
 
             // Calculate fulfillment rates and format weeks data
-            const weeklyData = Object.entries(weeks).map(([weekNum, data]) => {
-                const total = data.fulfilledOnTime + data.fulfilledLate + data.cancelled;
-                const fulfillmentRate = total > 0
-                    ? ((data.fulfilledOnTime + data.fulfilledLate / total) * 100).toFixed(2)
-                    : 0;
+            const weeklyData = Object.entries(weeks)
+                .sort(([a], [b]) => parseInt(a) - parseInt(b)) // Sort by week number
+                .map(([weekNum, data]) => {
+                    const total = data.noOfOrders;
+                    const fulfilled = data.fulfilledOnTime + data.fulfilledLate;
+                    const fulfillmentRate = total > 0
+                        ? ((fulfilled / total) * 100).toFixed(2)
+                        : '0.00';
 
-                return {
-                    week: `WEEK ${weekNum}`,
-                    ...data,
-                    fulfillmentRate: `${fulfillmentRate}%`
-                };
-            });
+                    return {
+                        week: `WEEK ${weekNum}`,
+                        ...data,
+                        fulfillmentRate: `${fulfillmentRate}%`
+                    };
+                });
 
             // Calculate monthly totals
             const monthlyTotals = {
@@ -471,9 +480,10 @@ const reportController = {
             }
 
             // Calculate monthly fulfillment rate
-            const monthlyTotal = monthlyTotals.fulfilledOnTime + monthlyTotals.fulfilledLate + monthlyTotals.cancelled;
+            const monthlyTotal = monthlyTotals.noOfOrders;
+            const monthlyFulfilled = monthlyTotals.fulfilledOnTime + monthlyTotals.fulfilledLate;
             monthlyTotals.fulfillmentRate = monthlyTotal > 0
-                ? `${((monthlyTotals.fulfilledOnTime / monthlyTotal) * 100).toFixed(2)}%`
+                ? `${((monthlyFulfilled / monthlyTotal) * 100).toFixed(2)}%`
                 : '0.00%';
 
             res.render('reports/logistics-report', {
@@ -485,8 +495,8 @@ const reportController = {
                 weeklyData,
                 monthlyTotals,
                 generatedDate: new Date().toLocaleDateString(),
-                isDownload: true,
-                
+                isDownload: true, // This flag triggers the PDF download in the template
+                user: await User.findOne({ userID: req.session.userId })
             });
         } catch (error) {
             console.error('Error downloading logistics report:', error);
@@ -515,6 +525,15 @@ function getCommonSchedule(orders) {
     });
     return Object.entries(schedules)
         .sort(([,a], [,b]) => b - a)[0]?.[0] || 'N/A';
+}
+
+function getWeekNumber(date) {
+    const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+    const dayOffset = firstDayOfMonth.getDay(); // 0 for Sunday, 1 for Monday, etc.
+    
+    // Adjust date to account for partial first week
+    const adjustedDate = date.getDate() + dayOffset - 1;
+    return Math.ceil(adjustedDate / 7);
 }
 
 
