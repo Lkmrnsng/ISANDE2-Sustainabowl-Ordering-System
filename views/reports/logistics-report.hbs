@@ -1,0 +1,73 @@
+<div class="report">
+    <div class="report-header">
+        <h1>SUSTAINABOWL</h1>
+        <h2>ORDER FULFILLMENT REPORT</h2>
+        <p>For the Month of {{month}} {{year}}</p>
+    </div>
+
+    <div class="logistics-department">
+        <h3>LOGISTICS DEPARTMENT</h3>
+    </div>
+
+    <div class="summary-stats">
+        <div class="section-title">DATA SUMMARY</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>MONTH</th>
+                    <th>NO OF ORDERS</th>
+                    <th>FULFILLED ON TIME</th>
+                    <th>FULFILLED LATE</th>
+                    <th>CANCELLED</th>
+                    <th>ALERTS ISSUED</th>
+                    <th>FULFILLMENT RATE</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text">{{month}}</td>
+                    <td class="numeric">{{monthlyTotals.noOfOrders}}</td>
+                    <td class="numeric">{{monthlyTotals.fulfilledOnTime}}</td>
+                    <td class="numeric">{{monthlyTotals.fulfilledLate}}</td>
+                    <td class="numeric">{{monthlyTotals.cancelled}}</td>
+                    <td class="numeric">{{monthlyTotals.alertsIssued}}</td>
+                    <td class="numeric">{{monthlyTotals.fulfillmentRate}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="weekly-data">
+        <div class="section-title">{{month}} ORDER DATA</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>WEEK</th>
+                    <th>NO OF ORDERS</th>
+                    <th>FULFILLED ON TIME</th>
+                    <th>FULFILLED LATE</th>
+                    <th>CANCELLED</th>
+                    <th>ALERTS ISSUED</th>
+                    <th>FULFILLMENT RATE</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each weeklyData}}
+                <tr>
+                    <td class="text">{{week}}</td>
+                    <td class="numeric">{{noOfOrders}}</td>
+                    <td class="numeric">{{fulfilledOnTime}}</td>
+                    <td class="numeric">{{fulfilledLate}}</td>
+                    <td class="numeric">{{cancelled}}</td>
+                    <td class="numeric">{{alertsIssued}}</td>
+                    <td class="numeric">{{fulfillmentRate}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="report-footer">
+        <p>Generated: {{flexFormatDate generatedDate "MM/DD/YY"}}, by {{user.name}}</p>
+    </div>
+</div>

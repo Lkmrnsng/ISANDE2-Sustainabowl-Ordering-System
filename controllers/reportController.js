@@ -248,9 +248,222 @@ const reportController = {
             console.error('Error downloading report:', error);
             res.status(500).send('Error downloading report');
         }
+    },
+    async getLogisticsReport (req, res) {
+        try {
+            const month = req.params.month || new Date().toLocaleString('en-US', { month: 'short' });
+            const year = new Date().getFullYear();
+            
+            // Get the start and end date for the selected month
+            const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(month);
+            const startDate = new Date(year, monthIndex, 1);
+            const endDate = new Date(year, monthIndex + 1, 0);
+    
+            // Get all orders for the month
+            const orders = await Order.find({
+                deliveryDate: {
+                    $gte: startDate.toISOString(),
+                    $lte: endDate.toISOString()
+                }
+            }).sort({ deliveryDate: 1 });
+
+            console.log(orders);
+    
+            // Group orders by week
+            const weeks = {};
+            orders.forEach(order => {
+                const orderDate = new Date(order.deliveryDate);
+                const weekNum = Math.ceil(orderDate.getDate() / 7);
+                if (!weeks[weekNum]) {
+                    weeks[weekNum] = {
+                        noOfOrders: 0,
+                        fulfilledOnTime: 0,
+                        fulfilledLate: 0,
+                        cancelled: 0,
+                        alertsIssued: 0,
+                        fulfillmentRate: 0
+                    };
+                }
+    
+                weeks[weekNum].noOfOrders++;
+                
+                if (order.status === 'Delivered') {
+                    // Check if delivered on time (you may need to adjust this logic based on your business rules)
+                    const scheduledDate = new Date(order.deliveryDate);
+                    const actualDeliveryDate = new Date(order.deliveryDate); // We might need to add an actualDeliveryDate field to your Order model
+                    if (actualDeliveryDate <= scheduledDate) {
+                        weeks[weekNum].fulfilledOnTime++;
+                    } else {
+                        weeks[weekNum].fulfilledLate++;
+                    }
+                } else if (order.status === 'Cancelled') {
+                    weeks[weekNum].cancelled++;
+                }
+            });
+    
+            // Calculate fulfillment rates and format weeks data
+            const weeklyData = Object.entries(weeks).map(([weekNum, data]) => {
+                const total = data.fulfilledOnTime + data.fulfilledLate + data.cancelled;
+                const fulfillmentRate = total > 0 
+                    ? ((data.fulfilledOnTime / total) * 100).toFixed(2) 
+                    : 0;
+    
+                return {
+                    week: `WEEK ${weekNum}`,
+                    ...data,
+                    fulfillmentRate: `${fulfillmentRate}%`
+                };
+            });
+    
+            // Calculate monthly totals
+            const monthlyTotals = {
+                noOfOrders: 0,
+                fulfilledOnTime: 0,
+                fulfilledLate: 0,
+                cancelled: 0,
+                alertsIssued: 0,
+                fulfillmentRate: '0.00%'
+            };
+    
+            weeklyData.forEach(week => {
+                monthlyTotals.noOfOrders += week.noOfOrders;
+                monthlyTotals.fulfilledOnTime += week.fulfilledOnTime;
+                monthlyTotals.fulfilledLate += week.fulfilledLate;
+                monthlyTotals.cancelled += week.cancelled;
+                monthlyTotals.alertsIssued += week.alertsIssued;
+            });
+    
+            // Calculate monthly fulfillment rate
+            const monthlyTotal = monthlyTotals.fulfilledOnTime + monthlyTotals.fulfilledLate + monthlyTotals.cancelled;
+            monthlyTotals.fulfillmentRate = monthlyTotal > 0 
+                ? `${((monthlyTotals.fulfilledOnTime / monthlyTotal) * 100).toFixed(2)}%`
+                : '0.00%';
+    
+            res.render('reports/logistics-report', {
+                title: 'Order Fulfillment Report',
+                css: ['report.css'],
+                layout: 'report',
+                month,
+                year,
+                weeklyData,
+                monthlyTotals,
+                generatedDate: new Date().toLocaleDateString(),
+                downloadUrl: `/reports/logistics/${month}/download/tool`
+            });
+    
+        } catch (error) {
+            console.error('Error generating logistics report:', error);
+            res.status(500).send('Error generating logistics report');
+        }
+    },
+    
+    async downloadLogisticsReportUsingTool (req, res) {
+        try {
+            const month = req.params.month || new Date().toLocaleString('en-US', { month: 'short' });
+            const year = new Date().getFullYear();
+            
+            // Get the start and end date for the selected month
+            const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(month);
+            const startDate = new Date(year, monthIndex, 1);
+            const endDate = new Date(year, monthIndex + 1, 0);
+    
+            // Get all orders for the month
+            const orders = await Order.find({
+                deliveryDate: {
+                    $gte: startDate.toISOString(),
+                    $lte: endDate.toISOString()
+                }
+            }).sort({ deliveryDate: 1 });
+
+            console.log(orders);
+    
+            // Group orders by week
+            const weeks = {};
+            orders.forEach(order => {
+                const orderDate = new Date(order.deliveryDate);
+                const weekNum = Math.ceil(orderDate.getDate() / 7);
+                if (!weeks[weekNum]) {
+                    weeks[weekNum] = {
+                        noOfOrders: 0,
+                        fulfilledOnTime: 0,
+                        fulfilledLate: 0,
+                        cancelled: 0,
+                        alertsIssued: 0,
+                        fulfillmentRate: 0
+                    };
+                }
+    
+                weeks[weekNum].noOfOrders++;
+                
+                if (order.status === 'Delivered') {
+                    // Check if delivered on time
+                    const scheduledDate = new Date(order.deliveryDate);
+                    const actualDeliveryDate = new Date(order.deliveryDate);
+                    if (actualDeliveryDate <= scheduledDate) {
+                        weeks[weekNum].fulfilledOnTime++;
+                    } else {
+                        weeks[weekNum].fulfilledLate++;
+                    }
+                } else if (order.status === 'Cancelled') {
+                    weeks[weekNum].cancelled++;
+                }
+            });
+    
+            // Calculate fulfillment rates and format weeks data
+            const weeklyData = Object.entries(weeks).map(([weekNum, data]) => {
+                const total = data.fulfilledOnTime + data.fulfilledLate + data.cancelled;
+                const fulfillmentRate = total > 0 
+                    ? ((data.fulfilledOnTime / total) * 100).toFixed(2) 
+                    : 0;
+    
+                return {
+                    week: `WEEK ${weekNum}`,
+                    ...data,
+                    fulfillmentRate: `${fulfillmentRate}%`
+                };
+            });
+    
+            // Calculate monthly totals
+            const monthlyTotals = {
+                noOfOrders: 0,
+                fulfilledOnTime: 0,
+                fulfilledLate: 0,
+                cancelled: 0,
+                alertsIssued: 0,
+                fulfillmentRate: '0.00%'
+            };
+    
+            weeklyData.forEach(week => {
+                monthlyTotals.noOfOrders += week.noOfOrders;
+                monthlyTotals.fulfilledOnTime += week.fulfilledOnTime;
+                monthlyTotals.fulfilledLate += week.fulfilledLate;
+                monthlyTotals.cancelled += week.cancelled;
+                monthlyTotals.alertsIssued += week.alertsIssued;
+            });
+    
+            // Calculate monthly fulfillment rate
+            const monthlyTotal = monthlyTotals.fulfilledOnTime + monthlyTotals.fulfilledLate + monthlyTotals.cancelled;
+            monthlyTotals.fulfillmentRate = monthlyTotal > 0 
+                ? `${((monthlyTotals.fulfilledOnTime / monthlyTotal) * 100).toFixed(2)}%`
+                : '0.00%';
+    
+            res.render('reports/logistics-report', {
+                title: 'Order Fulfillment Report',
+                css: ['report.css'],
+                layout: 'report',
+                month,
+                year,
+                weeklyData,
+                monthlyTotals,
+                generatedDate: new Date().toLocaleDateString(),
+                isDownload: true
+            });
+    
+        } catch (error) {
+            console.error('Error downloading logistics report:', error);
+            res.status(500).send('Error downloading logistics report');
+        }
     }
-
-
 
 };
 
