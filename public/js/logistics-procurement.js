@@ -265,7 +265,16 @@ function updateProcurementsTable() {
             </td>
         `;
 
-        // Add click event listener to the dropdown
+        tbody.appendChild(row);
+
+        // Remove any existing event listeners
+        const oldDropdowns = document.querySelectorAll('.status-dropdown');
+        oldDropdowns.forEach(dropdown => {
+            const clone = dropdown.cloneNode(true);
+            dropdown.parentNode.replaceChild(clone, dropdown);
+        });
+
+        // Add new click event listener to the dropdown
         const dropdowns = document.querySelectorAll('.status-dropdown');
         dropdowns.forEach(dropdown => {
             dropdown.addEventListener('change', async (event) => {
@@ -299,7 +308,6 @@ function updateProcurementsTable() {
             });
         });
         
-        tbody.appendChild(row);
         count = 0;
         itemString = "";
     });
@@ -582,7 +590,7 @@ async function createProcurement() {
         },
         body: JSON.stringify(formData),
       });
-      if (!response.ok) throw new Error('Failed to fetch partner details');
+      if (!response.ok) throw new Error('Failed to create procurement');
     
     await getProcurementsJson();
     closeOverlay();

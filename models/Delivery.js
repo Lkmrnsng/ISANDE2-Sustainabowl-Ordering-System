@@ -5,7 +5,7 @@ const DeliverySchema = new mongoose.Schema({
     orderID: { type: String }, // 40001
     isComplete: { type: Boolean, default: false },
     isPaid: { type: Boolean, default: false },
-    deliveryDate: { type: String }, 
+    deliveredOn: { type: String }, 
 });
 
 const Delivery = mongoose.model('Delivery', DeliverySchema);

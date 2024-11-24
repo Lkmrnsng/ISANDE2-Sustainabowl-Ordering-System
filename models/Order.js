@@ -4,7 +4,7 @@ const OrderSchema = new mongoose.Schema({
     OrderID: { type: Number }, //40001 onwards format   
     requestID: { type: Number }, 
     status: { type: String }, // Waiting Approval, Preparing, Dispatched, Delivered or Cancelled
-        items: [{
+    items: [{
         itemID: { type: Number },
         quantity: { type: Number }
     }],

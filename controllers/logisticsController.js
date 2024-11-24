@@ -3,6 +3,7 @@ const Order = require('../models/Order');
 const Item = require('../models/Item');
 const Procurement = require('../models/Procurement');
 const Agency = require('../models/Agency');
+const Delivery = require('../models/Delivery');
 
 // Fetch the logistics dashboard
 async function getDashboardView(req, res) {
@@ -205,6 +206,17 @@ async function getProcurementJson(req, res) {
     }
 }
 
+// Get the orders data and return as a JSON
+async function getOrdersJson(req, res) {
+    try {
+        const orders = await getOrderData();
+        res.json(orders);
+    } catch (err) {
+        console.error('Error fetching orders:', err);
+        res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+}
+
 // Get the list of agencies for procurement dropdown as a JSON
 async function getAgenciesJson(req, res) {
     try {
@@ -272,6 +284,40 @@ async function getProcurementData() {
         return compiledData;
     } catch (error) {
         console.log("Error in getProcurementData: ", error);
+    }
+}
+
+// Fetch orders data from the db
+async function getOrderData() {
+    try {
+        const orders = await Order.find({}).sort({ deliveryDate: 1 });
+        const compiledData = [];
+        
+        for (const order of orders) {
+            const itemsArray = [];
+
+            for (const item of order.items) {
+                const foundItem = await Item.findOne({ itemID: item.itemID });
+                itemsArray.push([foundItem.itemName, item.quantity]);
+            }
+
+            compiledData.push({
+                orderID: order.OrderID,
+                requestID: order.requestID,
+                status: order.status,
+                customizations: order.customizations,
+                items: itemsArray,
+                deliveryDate: order.deliveryDate,
+                deliveryAddress: order.deliveryAddress,
+                deliveryTimeRange: order.deliveryTimeRange,
+                pointPersonID: order.pointPersonID,
+                paymentMethod: order.paymentMethod
+            });
+        }
+
+        return compiledData;
+    } catch (error) {
+        console.log("Error in getOrderData: ", error);
     }
 }
 
@@ -365,6 +411,31 @@ async function createProcurement(agencyName, items, incomingDate) {
     }
 }
 
+// Create a new delivery in db
+async function createDelivery(req, res) {
+    const orderID = req.params.orderID;
+
+    try {
+        const deliveryID = await Delivery.countDocuments() + 70001;
+                
+        const delivery = await Delivery.create({
+            deliveryID: deliveryID,
+            orderID: orderID,
+            isComplete: false,
+            isPaid: false,
+            deliveredOn: ""
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Delivery created successfully',
+        });
+    } catch (error) {
+        console.error('Error in createDelivery:', error);
+        return null;
+    }
+}
+
 // Convert the items array into a 2d array of itemID, qty
 async function processItems(items) {
     try {
@@ -400,6 +471,7 @@ async function processItems(items) {
     }
 }
 
+// Setter for procurement status
 async function setProcurementStatus(req, res) {
     const procurementID = req.params.procurementID;
     const { status } = req.body;
@@ -434,6 +506,42 @@ async function setProcurementStatus(req, res) {
     }
 }
 
+// Setter for order status
+async function setOrderStatus(req, res) {
+    const orderID = req.params.orderID;
+    const { status } = req.body;
+
+    try {
+        const order = await Order.findOne({ OrderID: orderID })
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: 'Order not found'
+            });
+        }
+
+        // Update the request status
+        await Order.updateOne({ OrderID: orderID }, { $set: { status: status }});
+
+        return res.status(200).json({
+            success: true,
+            message: 'Order status updated successfully',
+            order: {
+                id: order._id,
+                status: status,
+            }
+        });
+    } catch (error) {
+        console.error('Error updating order status:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
+
+// Update procurement with received details
 async function completeProcurement(req, res) {
     try {
         const {
@@ -450,6 +558,7 @@ async function completeProcurement(req, res) {
     }
 }
 
+// Update the db using received data
 async function saveCompletedProcurement(procurementID, receivedDate, receivedItems) {
     try {
         const formattedDate = receivedDate + "T00:00:00Z";
@@ -487,9 +596,12 @@ module.exports = {
     getProcurementView,
     getSendAlertView,
     getProcurementJson,
+    getOrdersJson,
     getAgenciesJson,
     getItemsJson,
     submitProcurement,
     setProcurementStatus,
-    completeProcurement
+    setOrderStatus,
+    completeProcurement,
+    createDelivery
 };

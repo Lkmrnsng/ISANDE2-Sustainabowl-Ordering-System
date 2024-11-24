@@ -15,8 +15,11 @@ router.get('/sendalert', logisticsController.getSendAlertView);
 router.get('/api/procurements', logisticsController.getProcurementJson);
 router.get('/api/agencies', logisticsController.getAgenciesJson);
 router.get('/api/items', logisticsController.getItemsJson);
+router.get('/api/orders', logisticsController.getOrdersJson);
 router.post('/api/submit-procurement', logisticsController.submitProcurement);
 router.post('/api/complete-procurement', logisticsController.completeProcurement);
+router.post('/api/create-delivery/:orderID', logisticsController.createDelivery);
 router.put('/api/procurement-status/:procurementID', logisticsController.setProcurementStatus);
+router.put('/api/order-status/:orderID', logisticsController.setOrderStatus);
 
 module.exports = router;

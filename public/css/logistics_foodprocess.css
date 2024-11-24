@@ -1,72 +1,49 @@
+/* Main layout */
 .main-layout {
     display: flex;
 }
 
-
-.dashboard-container {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 100px;
+.processing-container {
+    margin-left: 220px;
     padding: 20px;
-}
-
-.food-processing {
-    display: flex;
-    justify-content: space-between;
+    margin-top: 100px;
     width: 100%;
 }
 
-.processing-list, .processing-details {
-    width: 48%;  /* Reduced width slightly to allow space for margin */
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Tables */
+.processing-table-container {
     background-color: #F5F5F5;
-    padding: 30px; /* Padding for inside spacing */
+    padding: 20px;
     border-radius: 8px;
-    margin-right: 20px; /* Adds space between the boxes */
+    margin-bottom: 20px;
 }
 
-.processing-details {
-    margin-left: 20px; /* Adds space between the boxes */
-}
-
-h2 {
-    font-size: 26px;
-    margin-bottom: 25px;
-}
-
-.processing-table, .produce-table {
+.processing-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.processing-table th, .processing-table td,
-.produce-table th, .produce-table td {
+.processing-table th,
+.processing-table td {
     padding: 15px;
     text-align: left;
     border-bottom: 1px solid #ddd;
-    height: 50px;
 }
 
-.processing-table th, .produce-table th {
+.processing-table th {
+    background-color: var(--turquoise);
+    color: white;
     font-weight: bold;
 }
 
-button.request-id-btn, .details-btn {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    color: var(--turquoise);
-}
-
-button.request-id-btn:hover, .details-btn:hover {
-    text-decoration: underline;
-}
-
-.alert-icon {
-    color: var(--magenta);
-    font-weight: bold;
-    margin-left: 10px;
-}
-
+/* Pagination */
 .pagination {
     display: flex;
     justify-content: space-between;
@@ -74,72 +51,79 @@ button.request-id-btn:hover, .details-btn:hover {
     margin-top: 20px;
 }
 
-button.prev-page-btn, button.next-page-btn {
-    background-color: var(--green);
-    border: none;
-    color: white;
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-.actions {
+.pagination-controls {
     display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-}
-
-button.cancel-btn, button.complete-btn {
-    background-color: var(--magenta);
-    border: none;
-    color: white;
-    padding: 12px 24px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-button.complete-btn {
-    background-color: var(--green);
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-}
-
-.modal-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.close-btn {
-    align-self: flex-end;
-    cursor: pointer;
-    font-size: 24px;
-}
-
-.details-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
 
-.modal-actions {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    margin-top: 20px;
+.prev-page-btn,
+.next-page-btn {
+    background-color: var(--green);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
-.hidden {
-    display: none;
+.prev-page-btn:disabled,
+.next-page-btn:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+}
+
+.navigation-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  
+  .navigation-buttons svg{
+    display: flex;
+  }
+
+  .pagination button {
+    padding: 0.5rem 0.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .pagination button:hover {
+    background: var(--green);
+  }
+
+  .status-dropdown {
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease-in-out;
+    min-width: 120px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+.status-dropdown:hover {
+    border-color: #cbd5e0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.status-dropdown:focus {
+    border-color: #a0aec0;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+}
+
+.status-dropdown option {
+    padding: 8px;
+    font-size: 14px;
 }
