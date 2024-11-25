@@ -5,16 +5,25 @@ const Order = require('../models/Order');
 
 exports.createAlert = async (data) => {
     try {
+        // Map the incoming data to match required fields
+        // This handles both direct alert creation and batch creation from the alert page
+        const alertData = {
+            category: data.concernType || data.category, // Handle both naming conventions
+            details: data.details,
+            orders: Array.isArray(data.orders) ? data.orders : [data.orderID], // Handle both single and multiple orders
+            userType: data.byCustomer ? 'Customer' : req.session.userType, // Use session for Sales/Logistics
+        };
+
         // Validate required fields
         const requiredFields = ['category', 'details', 'orders', 'userType'];
         for (const field of requiredFields) {
-            if (!data[field]) {
+            if (!alertData[field]) {
                 throw new Error(`Missing required field: ${field}`);
             }
         }
 
         //Get Orders from orders array
-        const orders = await Order.find({ OrderID: { $in: data.orders } });
+        const orders = await Order.find({ OrderID: { $in: alertData.orders } });
 
         //Get Request IDs from orders
         const requestIds = [...new Set(orders.map(order => order.requestID))];
@@ -24,43 +33,45 @@ exports.createAlert = async (data) => {
         
         const alert = new Alert({
             alertID: await getNextAlertId(),
-            category: data.category,
-            details: data.details,
+            category: alertData.category,
+            details: alertData.details,
             dateCreated: new Date().toISOString(),
-            orders: data.orders,
-            userType: data.userType
+            orders: alertData.orders,
+            userType: alertData.userType
         });
 
-        // Handle cancellations
-        if (data.cancelRequest) {
-            await Request.findManyAndUpdate(
-                { requestID: { $in: requestIds } },
-                { status: 'Cancelled' }
-            );
-        }
+        // Handle cancellations - check both data.cancelOrders (from page) and data.cancelOrder (from direct creation)
+        if (data.cancelOrder || data.cancelOrders) {
+            if (data.cancelRequest) {
+                await Request.updateMany(
+                    { requestID: { $in: requestIds } },
+                    { status: 'Cancelled' }
+                );
+            }
 
-        if (data.cancelOrder && orders.length > 0) {
-            await Order.findManyAndUpdate(
-                { OrderID: { $in: data.orders } },
+            await Order.updateMany(
+                { OrderID: { $in: alertData.orders } },
                 { status: 'Cancelled' }
             );
         }
 
         // Create system message for each request in requests
-        for (const request of requests) {
+        const messagePromises = requests.map(request => {
             const message = new Message({
                 senderID: request.pointPersonID,
-                recipientID: request.customerID,
-                message: `⚠️ System-generated Alert: [${data.category} from ${data.userType}] Reason: ${data.details}`,
-                dateSent: new Date().toISOString(),
+                receiverID: request.customerID,
+                message: `⚠️ System-generated Alert: [${alertData.category} from ${alertData.userType}] Reason: ${alertData.details}`,
+                date: new Date(),
                 requestID: request.requestID
             });
 
-            await message.save(); // Save message
-        }
+            return message.save();
+        });
 
+        // Save everything
         await Promise.all([
-            alert.save()
+            alert.save(),
+            ...messagePromises
         ]);
 
         return alert;

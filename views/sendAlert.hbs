@@ -1,0 +1,111 @@
+<div class="alerts-container">
+    <div class="alerts-section">
+        <h2>Send Alerts / Concerns</h2>
+        <p>Send alerts about delays, cancellations, or reminders to notify affected users</p>
+
+        <div class="alerts-table-section">
+            <div class="table-controls">
+                <div class="controls-left">
+                    <select id="statusFilter" class="filter-select">
+                        <option value="all">All Status</option>
+                        <option value="Preparing">Status: Preparing</option>
+                        <option value="Dispatched">Status: Dispatched</option>
+                        <option value="Delivered">Status: Delivered</option>
+                    </select>
+
+                    <select id="sortBy" class="filter-select">
+                        <option value="dateDesc">Latest Orders</option>
+                        <option value="dateAsc">Oldest Orders</option>
+                    </select>
+                </div>
+                <button class="send-alert-btn">Send Alert</button>
+            </div>
+
+            <table class="alerts-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll"></th>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Delivery Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each orders}}
+                    <tr>
+                        <td><input type="checkbox" class="order-checkbox" value="{{this.OrderID}}"></td>
+                        <td>{{this.OrderID}}</td>
+                        <td>{{this.customerName}}</td>
+                        <td>{{formatDate this.deliveryDate}}</td>
+                        <td>
+                            <span class="status-badge" data-status="{{this.status}}">
+                                {{this.status}}
+                            </span>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+
+            <div class="table-pagination">
+                <span>Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+                <div class="pagination-controls">
+                    <button id="prevPage" class="page-btn">Previous</button>
+                    <button id="nextPage" class="page-btn">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Send Alert Modal -->
+<div id="alertModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Send Alert</h3>
+            <span class="close-modal">&times;</span>
+        </div>
+        
+        <form id="alertForm">
+            <div class="form-group">
+                <label>Alert Type</label>
+                <select id="alertType" name="alertType" required>
+                    <option value="" disabled selected>Select Alert Type</option>
+                    <option value="Delay">Delay</option>
+                    <option value="Cancellation">Cancellation</option>
+                    <option value="Reminder">Notice/Reminder</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Details</label>
+                <textarea 
+                    id="alertDetails" 
+                    name="alertDetails" 
+                    rows="4" 
+                    placeholder="Provide details about the alert..."
+                    required></textarea>
+            </div>
+
+            <div id="selectedOrders" class="form-group">
+                <label>Selected Orders</label>
+                <div class="selected-orders-list">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-checkbox">
+                    <input type="checkbox" id="cancelOrders" name="cancelOrders">
+                    <label for="cancelOrders">Cancel selected orders</label>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn">Cancel</button>
+                <button type="submit" class="submit-btn">Send Alert</button>
+            </div>
+        </form>
+    </div>
+</div>
