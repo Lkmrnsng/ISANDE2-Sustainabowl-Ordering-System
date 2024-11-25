@@ -1,25 +1,24 @@
 <div class="main-layout">
-
     <main class="dashboard-container">
         <div class="metrics-overview">
             <div class="metric-card">
-                <h2>Monthly Expenses:</h2>
-                <p>₱95,000</p>
-                <span>↑ 2.1%</span>
+                <h2>Monthly Procurement Expenses:</h2>
+                <p>₱{{format_number stats.procurementExpenses}}</p>
+                {{!-- <span>↑ 2.1%</span> --}}
             </div>
             <div class="metric-card">
-                <h2>Deliveries Completed:</h2>
-                <p>14 this month</p>
-                <span>↑ 0.8%</span>
+                <h2>Pending Procurements:</h2>
+                <p>{{stats.pendingProcurements}}</p>
+                {{!-- <span>↑ 0.8%</span> --}}
             </div>
             <div class="metric-card">
-                <h2>Unpackaged Deliveries:</h2>
-                <p>4</p>
+                <h2>Pending Foodprocessing:</h2>
+                <p>{{stats.pendingFoodprocessing}}</p>
             </div>
             <div class="metric-card">
-                <h2>Active Shipments:</h2>
-                <p>24</p>
-                <span>↑ 42%</span>
+                <h2>Unpaid Deliveries:</h2>
+                <p>{{stats.unpaidDeliveries}}</p>
+                {{!-- <span>↑ 42%</span> --}}
             </div>
 
         </div>
@@ -143,50 +142,48 @@
     </div>
 
     <div class="section">
-        <div class="section-header">
-            <h2 class="section-title">Delivery Tasks</h2>
-            <input type="search" class="search-bar" placeholder="Search...">
+        <div class="header-section">
+            <h2>Deliveries</h2>
+            <div class="controls">
+                <div class="filters">
+                    <select id="sortByDelivery" class="sort-btn" onchange="sortDeliveries()">
+                        <option value="none">Sort by</option>
+                        <option value="deliverBy">Deliver By</option>
+                        <option value="deliveredOn">Delivered On</option>
+                        <option value="paymentStatus">Payment Status</option>
+                    </select>
+                </div>
+            </div>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Request ID</th>
-                    <th>Weight (kg)</th>
-                    <th>Delivery Status</th>
-                    <th>Payment Status</th>
-                    <th>Deliver By</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1000001</td>
-                    <td>55</td>
-                    <td>Not Booked</td>
-                    <td>Not Paid</td>
-                    <td>July 31, 2024</td>
-                    <td>
-                        <button class="action-button">Book Delivery</button>
-                        <span class="status-pill status-complete">Complete</span>
-                        <span class="info-icon">ⓘ</span>
-                    </td>
-                </tr>
-                <!-- Repeat similar rows -->
-            </tbody>
-        </table>
-        <div class="pagination">
-            <span>Page 1 of 3</span>
-            <div class="navigation-buttons">
-                <button id="prevWeek" class="nav-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                </button>
-                <button id="nextWeek" class="nav-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                </button>
+        <div class="delivery-table-container">
+            <table class="delivery-table">
+                <thead>
+                    <tr>
+                        <th>Delivery ID</th>
+                        <th>Weight</th>
+                        <th>Items</th>
+                        <th>Deliver By</th>
+                        <th>Delivered On</th>
+                        <th>Payment Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{!-- This will be automatically populated by the js file --}}
+                </tbody>
+            </table>
+            <div class="pagination">
+                <span>Page <span id="currentDeliveryPage">1</span> of <span id="totalDeliveryPages">1</span></span>
+                <div class="pagination-controls">
+                    <button id="prevDeliveryPage" class="nav-button" onclick="changeDeliveryPage(-1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    <button id="nextDeliveryPage" class="nav-button" onclick="changeDeliveryPage(1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-
     </main>
 </div>
 

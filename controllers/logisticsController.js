@@ -8,74 +8,15 @@ const Delivery = require('../models/Delivery');
 // Fetch the logistics dashboard
 async function getDashboardView(req, res) {
     try {
-        const logisticsId = parseInt(req.session.userId); // Convert to number since userID is stored as number
-
-        // Fetch requests for this logistics
-        const originalRequests = await Request.find({ logisticsID: logisticsId }).sort({ requestID: -1 });
-        
-        if (originalRequests.length === 0) {
-            return res.render('logistics_dashboard', {
-                title: 'Dashboard',
-                css: ['logisales_dashboard.css'],
-                layout: 'logistics',
-                requests: [],
-                active: 'dashboard'
-            });
-        }
-
-        const orderIDs = originalRequests.map(request => request.requestID);
-        const orders = await Order.find({ requestID: { $in: orderIDs } });
-        
-        // Process the requests
-        const processedRequests = await Promise.all(originalRequests.map(async (request) => {
-            let deliveryDates = [];
-            let deliveriesCount = 0;
-            let totalItemsBreakdown = [];
-            let itemNames = [];
-
-            const requestOrders = orders.filter(order => order.requestID === request.requestID);
-
-            for (const order of requestOrders) {
-                if (order.deliveryDate) {
-                    deliveryDates.push(order.deliveryDate);
-                }
-                deliveriesCount++;
-
-                for (const item of order.items) {
-                    const itemDetails = await Item.findOne({ itemID: item.itemID });
-                    const itemIndex = totalItemsBreakdown.findIndex(i => i.itemID === item.itemID);
-                    if (itemIndex === -1) {
-                        totalItemsBreakdown.push({ 
-                            itemID: item.itemID, 
-                            quantity: item.quantity, 
-                            itemName: itemDetails ? itemDetails.itemName : 'Unknown Item',
-                            itemPrice: itemDetails ? itemDetails.itemPrice : 0
-                        });
-                        if (itemDetails) {
-                            itemNames.push(itemDetails.itemName);
-                        }
-                    } else {
-                        totalItemsBreakdown[itemIndex].quantity += item.quantity;
-                    }
-                }
-            }
-
-            return {
-                requestID: request.requestID,
-                requestDate: request.requestDate,
-                deliveryDates,
-                deliveriesCount,
-                totalItemsBreakdown,
-                itemNames
-            };
-        }));
+        const stats = (await getDashboardStats())[0];
 
         res.render('logistics_dashboard', {
             title: 'Dashboard',
-            css: ['logistics_dashboard.css'],
+            css: ['logisales_dashboard.css'],
             layout: 'logistics',
-            requests: processedRequests,
-            active: 'dashboard'
+            requests: [],
+            active: 'dashboard',
+            stats: stats
         });
     }
     catch (error) {
@@ -195,6 +136,81 @@ async function getSendAlertView (req, res) {
     }
 }
 
+// Call the methods to compute the Logistics Dashboard statistics
+async function getDashboardStats() {
+    const statsArray = [];
+    const procurementExpenses = await getprocurementExpenses();
+    const pendingProcurements = await getpendingProcurements();
+    const pendingFoodprocessing = await getpendingFoodprocessing();
+    const unpaidDeliveries = await getunpaidDeliveries();
+
+    statsArray.push({
+        procurementExpenses: procurementExpenses.toString(),
+        pendingProcurements: pendingProcurements.toString(),
+        pendingFoodprocessing: pendingFoodprocessing.toString(),
+        unpaidDeliveries: unpaidDeliveries.toString()
+    })
+
+    return statsArray;
+}
+
+// Calculate the total procurement expenses this month
+async function getprocurementExpenses() {
+    try {
+        const currentYear = new Date().getUTCFullYear();
+        const currentMonth = new Date().getUTCMonth() + 1;
+        const procurements = await Procurement.find({
+            incomingDate: { $regex: new RegExp(`${currentYear}-${currentMonth.toString().padStart(2, '0')}`) }
+        });
+        
+        let totalExpenses = 0;
+        procurements.forEach(procurement => {
+            procurement.bookedItems.forEach(item => {
+                const itemExpense = item[1] * item[2];
+                totalExpenses += itemExpense;
+            });
+        });
+
+        return totalExpenses;
+    } catch (err) {
+        console.error('Error in getprocurementExpenses:', err);
+        return 0;
+    }
+}
+
+// Calculate the total number of pending procurements
+async function getpendingProcurements() {
+    try {
+        const procurements = await Procurement.find({ status: "Booked" });
+        return procurements.length;
+    } catch (err) {
+        console.error('Error in getpendingProcurements:', err);
+        return 0;
+    }
+}
+
+// Calculate the total number of pending food processing
+async function getpendingFoodprocessing() {
+    try {
+        const orders = await Order.find({ status: "Processing" });
+        return orders.length;
+    } catch (err) {
+        console.error('Error in getpendingFoodprocessing:', err);
+        return 0;
+    }
+}
+
+// Calculate the total number of pending procurements
+async function getunpaidDeliveries() {
+    try {
+        const deliveries = await Delivery.find({ isPaid: false });
+        return deliveries.length;
+    } catch (err) {
+        console.error('Error in getunpaidDeliveries:', err);
+        return 0;
+    }
+}
+
 // Get the procurements data and return as a JSON
 async function getProcurementJson(req, res) {
     try {
@@ -236,6 +252,17 @@ async function getItemsJson(req, res) {
     } catch (err) {
         console.error('Error fetching items:', err);
         res.status(500).json({ error: 'Failed to fetch items' });
+    }
+}
+
+// Get the list of deliveries as a JSON
+async function getDeliveriesJson(req, res) {
+    try {
+        const deliveries = await getDeliveriesData();
+        res.json(deliveries);
+    } catch (err) {
+        console.error('Error fetching deliveries:', err);
+        res.status(500).json({ error: 'Failed to fetch deliveries' });
     }
 }
 
@@ -345,7 +372,7 @@ async function getAgenciesData() {
 }
 
 // Fetch items data from the db
-async function getItemsData(req, res) {
+async function getItemsData() {
     try {
         const items = await Item.find({}).sort({ itemID: 1 });
         const compiledData = [];
@@ -365,6 +392,37 @@ async function getItemsData(req, res) {
         return compiledData;
     } catch (err) {
         console.error('Error fetching items:', err);
+    }
+}
+
+// Fetch deliveries data by mapping across models
+async function getDeliveriesData() {
+    try {
+        const deliveries = await Delivery.find({}).sort({ deliverID: 1 });
+        const compiledData = [];
+        
+        for (const delivery of deliveries) {
+            const foundOrder = await Order.findOne({ OrderID: delivery.orderID });
+            const deliverBy = foundOrder.deliveryDate;
+            const itemsArray = [];
+
+            for (const item of foundOrder.items) {
+                const foundItem = await Item.findOne({ itemID: item.itemID });
+                itemsArray.push([foundItem.itemName, item.quantity]);
+            }
+            
+            compiledData.push({
+                deliveryID: delivery.deliveryID,
+                isPaid: delivery.isPaid,
+                deliveredOn: delivery.deliveredOn,
+                deliverBy: deliverBy,
+                items: itemsArray
+            });
+        }
+
+        return compiledData;
+    } catch (error) {
+        console.log("Error in getDeliveriesData: ", error);
     }
 }
 
@@ -541,6 +599,41 @@ async function setOrderStatus(req, res) {
     }
 }
 
+// Setter for delivery status
+async function setDeliveryStatus(req, res) {
+    const deliveryID = req.params.deliveryID;
+    const { status } = req.body;
+
+    try {
+        const delivery = await Delivery.findOne({ deliveryID: deliveryID });
+
+        if (!delivery) {
+            return res.status(404).json({
+                success: false,
+                message: 'delivery not found'
+            });
+        }
+
+        // Update the delivery status
+        await Delivery.updateOne({ deliveryID: deliveryID }, { $set: { isPaid: status }});
+
+        return res.status(200).json({
+            success: true,
+            message: 'Delivery status updated successfully',
+            delivery: {
+                id: delivery._id,
+                status: status,
+            }
+        });
+    } catch (error) {
+        console.error('Error updating delivery status:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
+
 // Update procurement with received details
 async function completeProcurement(req, res) {
     try {
@@ -552,6 +645,23 @@ async function completeProcurement(req, res) {
 
         const procurement = await saveCompletedProcurement(procurementID, receivedDate, receivedItems);
         res.status(200).json({ procurement: procurement });
+    } catch (err) {
+        console.error('Error saving to db:', err);
+        res.status(500).json({ error: 'Failed to save to db' });
+    }
+}
+
+// Update delivery with received details
+async function completeDelivery(req, res) {
+    try {
+        const {
+            deliveryID,
+            deliveredOn,
+            isPaidChecked
+        } = req.body;
+
+        const delivery = await saveCompletedDelivery(deliveryID, deliveredOn, isPaidChecked);
+        res.status(200).json({ delivery: delivery });
     } catch (err) {
         console.error('Error saving to db:', err);
         res.status(500).json({ error: 'Failed to save to db' });
@@ -586,6 +696,33 @@ async function saveCompletedProcurement(procurementID, receivedDate, receivedIte
     }
 }
 
+// Update the db using received data
+async function saveCompletedDelivery(deliveryID, deliveredOn, isPaidChecked) {
+    try {
+        const formattedDate = deliveredOn + "T00:00:00Z";
+
+        if (isPaidChecked) {
+            await Delivery.updateOne({ deliveryID: deliveryID }, { $set: { 
+                deliveredOn: formattedDate, 
+                isPaid: true
+            }});
+        } else {
+            await Delivery.updateOne({ deliveryID: deliveryID }, { $set: { 
+                deliveredOn: formattedDate, 
+            }});
+        }
+
+        return {
+            statusCode: 200,
+            success: true,
+            message: 'Delivery completed successfully'
+        };
+    } catch (error) {
+        console.error('Error in saveCompletedDelivery:', error);
+        return null;
+    }
+}
+
 module.exports = {
     getDashboardView,
     getCalendarView,
@@ -599,9 +736,12 @@ module.exports = {
     getOrdersJson,
     getAgenciesJson,
     getItemsJson,
+    getDeliveriesJson,
     submitProcurement,
     setProcurementStatus,
     setOrderStatus,
+    setDeliveryStatus,
     completeProcurement,
+    completeDelivery,
     createDelivery
 };

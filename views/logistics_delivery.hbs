@@ -1,91 +1,59 @@
 <div class="main-layout">
-
-
-    <main class="dashboard-container">
-        <div class="delivery-tasks">
-            <h2>Delivery Tasks</h2>
+    <main class="delivery-container">
+        <div class="header-section">
+            <h2>Deliveries</h2>
+            <div class="controls">
+                <div class="filters">
+                    <select id="sortByDelivery" class="sort-btn" onchange="sortDeliveries()">
+                        <option value="none">Sort by</option>
+                        <option value="deliverBy">Deliver By</option>
+                        <option value="deliveredOn">Delivered On</option>
+                        <option value="paymentStatus">Payment Status</option>
+                    </select>
+                </div>
+            </div>
+            <button class="complete-btn" onclick="openOverlay()">Complete Delivery</button> 
+        </div>
+        <div class="delivery-table-container">
             <table class="delivery-table">
                 <thead>
                     <tr>
-                        <th>Request ID</th>
-                        <th>Weight (kg)</th>
-                        <th>Delivery Status</th>
-                        <th>Payment Status</th>
+                        <th></th>
+                        <th>Delivery ID</th>
+                        <th>Weight</th>
+                        <th>Items</th>
                         <th>Deliver By</th>
-                        <th>Actions</th>
+                        <th>Delivered On</th>
+                        <th>Payment Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {{!-- {{#each deliveryTasks as |task|}}
-                    <tr>
-                        <td>{{task.requestId}}</td>
-                        <td>{{task.weight}}</td>
-                        <td>{{task.deliveryStatus}}</td>
-                        <td>{{task.paymentStatus}}</td>
-                        <td>{{task.deliverBy}}</td>
-                        <td>
-                            <button class="action-btn book-btn">Book Delivery</button>
-                            <button class="action-btn complete-btn">Complete</button>
-                            {{#if task.alertIcon}}
-                                <i class="alert-icon">!</i>
-                            {{/if}}
-                        </td>
-                    </tr>
-                    {{/each}} --}}
-                    <!-- Sample data -->
-                    <tr>
-                        <td>REQ001</td>
-                        <td>150</td>
-                        <td>Pending</td>
-                        <td>Unpaid</td>
-                        <td>2024-10-02</td>
-                        <td>
-                            <button class="action-btn book-btn">Book Delivery</button>
-                            <button class="action-btn complete-btn">Complete</button>
-                            <i class="alert-icon">!</i>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>REQ002</td>
-                        <td>75</td>
-                        <td>Dispatched</td>
-                        <td>Paid</td>
-                        <td>2024-10-05</td>
-                        <td>
-                            <button class="action-btn complete-btn">Complete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>REQ003</td>
-                        <td>300</td>
-                        <td>Pending</td>
-                        <td>Unpaid</td>
-                        <td>2024-10-03</td>
-                        <td>
-                            <button class="action-btn book-btn">Book Delivery</button>
-                            <button class="action-btn complete-btn">Complete</button>
-                            <i class="alert-icon">!</i>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>REQ004</td>
-                        <td>120</td>
-                        <td>Delivered</td>
-                        <td>Paid</td>
-                        <td>2024-10-01</td>
-                        <td>
-                            <button class="action-btn complete-btn" disabled>Complete</button>
-                        </td>
-                    </tr>
+                    {{!-- This will be automatically populated by the js file --}}
                 </tbody>
             </table>
             <div class="pagination">
-                <button class="prev-page-btn">&lt;</button>
-                <span>Page 1 of 3</span>
-                <button class="next-page-btn">&gt;</button>
+                <span>Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+                <div class="pagination-controls">
+                    <button id="prevPage" class="nav-button" onclick="changePage(-1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    <button id="nextPage" class="nav-button" onclick="changePage(1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </div>
             </div>
         </div>
     </main>
+
+    <!-- Complete Delivery Overlay -->
+    <div id="delivery-overlay" onclick="closeOverlayOutside(event)">
+        <div class="overlay-content">
+            <i class="fa-solid fa-xmark" alt="Close" onclick="closeOverlay()"></i>
+            <h2>Input Date Delivered for Delivery <span id="overlay-name"></span></h2>
+                {{!-- the form input fields will be automatically loaded --}}
+            <button class="save-btn" onclick="completeDelivery()">Save</button>
+        </div>
+    </div>
 </div>
 
 <script src="/js/logistics-delivery.js"></script>

@@ -1,9 +1,12 @@
 const procurementsPerPage = 7;
 const processingPerPage = 7;
+const deliveriesPerPage = 7;
 let currentProcurementPage = 1;
 let currentProcessingPage = 1;
+let currentDeliveryPage = 1;
 let allProcurements = [];
 let processingOrders = [];
+let allDeliveries = [];
 
 document.addEventListener('DOMContentLoaded', function() {
     // Load the page for the first time
@@ -14,6 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
             updateProcurementsTable();
             await getOrdersJson();
             updateProcessingTable();
+            await getDeliveriesJson();
+            updateDeliveriesTable();
         } else {
             console.log("Table not found");
         }
@@ -95,6 +100,41 @@ document.addEventListener('DOMContentLoaded', function() {
             processingOrders = orders.filter(order => order.status === "Processing");
         } catch (err) {
             console.error('Error initializing orders:', err);
+        }
+    }
+
+    // Fetch the json deliveries data from the server
+    async function getDeliveriesJson() {
+        try {
+            const response = await fetch('/logistics/api/deliveries');
+            if (!response.ok) throw new Error('Failed to fetch deliveries data');
+            const data = await response.json();
+            const deliveries = [];
+
+            const compiledData = data.map(row => ({
+                deliveryID: row.deliveryID,
+                isPaid: row.isPaid,
+                deliveredOn: row.deliveredOn,
+                deliverBy: row.deliverBy,
+                items: row.items
+            }));
+
+            for (const unit of compiledData) {
+                deliverBy = unit.deliverBy.split('T')[0];
+                deliveredOn = unit.deliveredOn.split('T')[0];
+                
+                deliveries.push({
+                    deliveryID: unit.deliveryID,
+                    isPaid: unit.isPaid,
+                    deliveredOn: deliveredOn || "",
+                    deliverBy: deliverBy,
+                    items: unit.items
+                })
+            }
+
+            allDeliveries = deliveries.sort((a, b) => a.deliveredOn === "" ? -1 : b.deliveredOn === "" ? 1 : new Date(a.deliveredOn) - new Date(b.deliveredOn));
+        } catch (err) {
+            console.error('Error initializing deliveries:', err);
         }
     }
 
@@ -209,6 +249,68 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Using the current contents of allDeliveries, clear and update the processing table
+    function updateDeliveriesTable() {
+        const tbody = document.querySelector('.delivery-table').querySelector('tbody');
+        const startIndex = (currentDeliveryPage - 1) * deliveriesPerPage;
+        const endIndex = Math.min(startIndex + deliveriesPerPage, allDeliveries.length);
+        const pageData = allDeliveries.slice(startIndex, endIndex);
+
+        // Clear existing rows
+        tbody.innerHTML = '';
+
+        // Add new rows
+        pageData.forEach(delivery => {
+            const row = document.createElement('tr');
+            let itemString = "";
+            let weight = 0;
+            let count = 0;
+
+            // For items string, format as "items (qty)"
+            for (const item of delivery.items) {
+                if (count === 0) {
+                    itemString = `${item[0]} (${item[1]}kg)`;
+                    weight += item[1];
+                } else {
+                    itemString += `, ${item[0]} (${item[1]}kg)`;
+                    weight += item[1];
+                }
+                count++;
+            }
+
+            const isPaid = delivery.isPaid ? "Paid" : "Not Paid";
+
+            row.innerHTML = `
+                <td>${delivery.deliveryID}</td>
+                <td>${weight}kg</td>
+                <td>${itemString}</td>
+                <td>${delivery.deliverBy}</td>
+                <td>${delivery.deliveredOn}</td>
+                <td>${isPaid}</td>
+            `;
+
+            tbody.appendChild(row);
+
+            count = 0;
+            weight = 0;
+            itemString = "";
+        });
+
+        // Update pagination controls
+        const totalDeliveryPages = Math.ceil(allDeliveries.length / deliveriesPerPage);
+        document.getElementById('currentDeliveryPage').textContent = currentDeliveryPage;
+        document.getElementById('totalDeliveryPages').textContent = totalDeliveryPages;
+        document.getElementById('prevDeliveryPage').disabled = currentDeliveryPage === 1;
+        document.getElementById('nextDeliveryPage').disabled = currentDeliveryPage === totalDeliveryPages || allDeliveries.length === 0;
+
+        // Handle empty state
+        if (allDeliveries.length === 0) {
+            const emptyRow = document.createElement('tr');
+            emptyRow.innerHTML = '<td colspan="5" class="text-center">No deliveries found</td>';
+            tbody.appendChild(emptyRow);
+        }
+    }
+
     // Update functions and pagination handlers (existing implementation)
     window.changeProcurementPage = function(delta) {
         const totalProcurementPages = Math.ceil(allProcurements.length / procurementsPerPage);
@@ -230,6 +332,37 @@ document.addEventListener('DOMContentLoaded', function() {
             updateProcessingTable();
         }
     };
+
+    // Change page function
+    window.changeDeliveryPage = function(delta) {
+        const totalDeliveryPages = Math.ceil(allDeliveries.length / deliveriesPerPage);
+        const newPage = currentDeliveryPage + delta;
+        
+        if (newPage >= 1 && newPage <= totalDeliveryPages) {
+            currentDeliveryPage = newPage;
+            updateDeliveriesTable();
+        }
+    };
+
+    // Sort deliveries
+    window.sortDeliveries = function() {
+        const sortBy = document.getElementById('sortByDelivery').value;
+        
+        switch(sortBy) {
+            case 'deliverBy':
+                allDeliveries.sort((a, b) => new Date(a.deliverBy) - new Date(b.deliverBy));
+                break;
+            case 'deliveredOn':
+                allDeliveries.sort((a, b) => a.deliveredOn === "" ? -1 : b.deliveredOn === "" ? 1 : new Date(a.deliveredOn) - new Date(b.deliveredOn));
+                break;
+            case 'paymentStatus':
+                allDeliveries.sort((a, b) => a.isPaid === b.isPaid ? 0 : a.isPaid ? 1 : -1);
+                break;
+        }
+
+        currentPage = 1;
+        updateDeliveriesTable();
+    }
 
     initializeTables();
 });
