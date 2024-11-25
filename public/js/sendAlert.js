@@ -299,9 +299,17 @@ async function handleAlertSubmission(e) {
 
         showNotification('Alert sent successfully', 'success');
         closeModal();
+
+        // Reset selected orders
+        state.selectedOrders.clear();
+        elements.selectAllCheckbox.checked = false;
+        document.querySelectorAll('.order-checkbox').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+
         await Promise.all([
             refreshOrders(),
-            loadMyAlerts() // Refresh my alerts after sending new one
+            loadMyAlerts()
         ]);
 
     } catch (error) {
