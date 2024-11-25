@@ -59,8 +59,8 @@
                 {{#each orderSummary}}
                 <tr>
                     <td class="numeric">{{orderId}}</td>
-                    <td class="numeric">{{flexFormatDate requestDate "MM/DD/YY"}}</td>
-                    <td class="numeric">{{flexFormatDate deliveryDate "MM/DD/YY"}}</td>
+                    <td class="numeric">{{CMORFormatDate requestDate "MM/DD/YY"}}</td>
+                    <td class="numeric">{{CMORFormatDate deliveryDate "MM/DD/YY"}}</td>
                     <td class="text">{{schedule}}</td>
                     <td class="text">{{items}}</td>
                     <td class="text">{{payment}}</td>
@@ -102,6 +102,6 @@
     </div>
 
     <div class="report-footer">
-        <p>Generated: {{flexFormatDate generatedDate "MM/DD/YY"}}</p>
+        <p>Generated: {{CMORFormatDate generatedDate "MM/DD/YY"}}</p>
     </div>
 </div>

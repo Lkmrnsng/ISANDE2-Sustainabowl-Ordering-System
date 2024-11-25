@@ -1,3 +1,4 @@
+
 /* Dependencies */
 const express = require('express'); // Import Express, allows you to create a server and routes
 const exphbs = require('express-handlebars'); // Import Express-Handlebars, allows you to create views
@@ -121,8 +122,8 @@ const hbs = exphbs.create({
             });
         },
 
-        flexFormatDate: function(date, format) {
-            if (!date) return '';
+        CMORFormatDate: function(date, format) {
+            if (!date) return 'N/A';
             const d = new Date(date);
             if (isNaN(d.getTime())) return '';
             

@@ -5,7 +5,7 @@
       "details": "Delivery delayed by 2 hours due to traffic congestion",
       "dateCreated": "2024-11-20T08:30:00Z",
       "orders": [40001, 40002],
-      "userType": "Logistics"
+      "createdById": 10003
     },
     {
       "alertID": 90002,
@@ -13,7 +13,7 @@
       "details": "Order cancelled due to insufficient stock",
       "dateCreated": "2024-11-20T10:15:00Z", 
       "orders": [40003],
-      "userType": "Sales"
+      "createdById": 10002
     },
     {
       "alertID": 90003,
@@ -21,7 +21,7 @@
       "details": "Payment deadline approaching for order #40004",
       "dateCreated": "2024-11-21T09:00:00Z",
       "orders": [40004],
-      "userType": "Sales"
+      "createdById": 10002
     },
     {
       "alertID": 90004,
@@ -29,7 +29,7 @@
       "details": "Processing delayed due to equipment maintenance",
       "dateCreated": "2024-11-21T14:30:00Z",
       "orders": [40005, 40006],
-      "userType": "Logistics"
+      "createdById": 10003
     },
     {
       "alertID": 90005,
@@ -37,6 +37,6 @@
       "details": "Order cancelled by Customer",
       "dateCreated": "2024-11-22T11:45:00Z",
       "orders": [40007],
-      "userType": "Customer"
+      "createdById": 10001
     }
   ]

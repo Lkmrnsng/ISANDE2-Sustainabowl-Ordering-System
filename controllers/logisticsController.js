@@ -120,21 +120,6 @@ async function getProcurementView (req, res) {
     }
 }
 
-//getSendAlertView
-async function getSendAlertView (req, res) {
-    try {
-        res.render('logistics_sendalert', {
-            title: 'Send Alert',
-            css: ['logistics_sendalert.css'],
-            layout: 'logistics',
-            active: 'sendalert'
-        });
-    }
-    catch (error) {
-        console.error(error);
-        res.status(500).send("Error fetching send alert.");
-    }
-}
 
 // Call the methods to compute the Logistics Dashboard statistics
 async function getDashboardStats() {
@@ -731,7 +716,6 @@ module.exports = {
     getWarehouseView,
     getPartnersView,
     getProcurementView,
-    getSendAlertView,
     getProcurementJson,
     getOrdersJson,
     getAgenciesJson,
