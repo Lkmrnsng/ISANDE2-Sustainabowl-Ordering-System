@@ -1,56 +1,137 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Cache DOM elements
   const elements = {
-      table: document.querySelector('.alerts-table'),
-      statusFilter: document.getElementById('statusFilter'),
-      sortSelect: document.getElementById('sortBy'),
-      selectAllCheckbox: document.getElementById('selectAll'),
-      alertModal: document.getElementById('alertModal'),
-      alertForm: document.getElementById('alertForm'),
-      selectedOrdersList: document.querySelector('.selected-orders-list'),
-      prevPageBtn: document.getElementById('prevPage'),
-      nextPageBtn: document.getElementById('nextPage'),
-      currentPageSpan: document.getElementById('currentPage'),
-      totalPagesSpan: document.getElementById('totalPages'),
-      sendAlertBtn: document.querySelector('.send-alert-btn'),
-      cancelOrdersCheckbox: document.getElementById('cancelOrders'),
-      alertTypeSelect: document.getElementById('alertType')
-  };
+    table: document.querySelector('.alerts-table'),
+    statusFilter: document.getElementById('statusFilter'),
+    sortSelect: document.getElementById('sortBy'),
+    selectAllCheckbox: document.getElementById('selectAll'),
+    alertModal: document.getElementById('alertModal'),
+    alertForm: document.getElementById('alertForm'),
+    selectedOrdersList: document.querySelector('.selected-orders-list'),
+    prevPageBtn: document.getElementById('prevPage'),
+    nextPageBtn: document.getElementById('nextPage'),
+    currentPageSpan: document.getElementById('currentPage'),
+    totalPagesSpan: document.getElementById('totalPages'),
+    sendAlertBtn: document.querySelector('.send-alert-btn'),
+    cancelOrdersCheckbox: document.getElementById('cancelOrders'),
+    alertTypeSelect: document.getElementById('alertType'),
+    myAlertsTableBody: document.getElementById('myAlertsTableBody'),
+    deleteConfirmModal: document.getElementById('deleteConfirmModal')
+};
 
-  // State management
-  const state = {
-      currentPage: 1,
-      itemsPerPage: 10,
-      filteredOrders: [],
-      selectedOrders: new Set(),
-      originalOrders: [] // Will store the unfiltered orders data
-  };
+    // State management
+    const state = {
+        currentPage: 1,
+        itemsPerPage: 10,
+        filteredOrders: [],
+        selectedOrders: new Set(),
+        originalOrders: [], // Will store the unfiltered orders data
+        alertToDelete: null // Store alert ID pending deletion
+    };
 
   // Initialize event listeners
   function initializeEventListeners() {
-      // Filter and sort handlers
-      elements.statusFilter.addEventListener('change', handleFiltersChange);
-      elements.sortSelect.addEventListener('change', handleFiltersChange);
+    // Previous event listeners remain the same
+    elements.statusFilter.addEventListener('change', handleFiltersChange);
+    elements.sortSelect.addEventListener('change', handleFiltersChange);
+    elements.selectAllCheckbox.addEventListener('change', handleSelectAll);
+    elements.table.addEventListener('change', handleCheckboxChange);
+    elements.sendAlertBtn.addEventListener('click', openModal);
+    document.querySelector('.close-modal').addEventListener('click', closeModal);
+    document.querySelector('.cancel-btn').addEventListener('click', closeModal);
+    elements.alertForm.addEventListener('submit', handleAlertSubmission);
+    elements.prevPageBtn.addEventListener('click', () => changePage(-1));
+    elements.nextPageBtn.addEventListener('click', () => changePage(1));
+    elements.alertTypeSelect.addEventListener('change', handleAlertTypeChange);
 
-      // Checkbox handlers
-      elements.selectAllCheckbox.addEventListener('change', handleSelectAll);
-      elements.table.addEventListener('change', handleCheckboxChange);
+    // Delete confirmation modal event listeners
+    document.querySelectorAll('.close-modal').forEach(button => {
+        button.addEventListener('click', closeDeleteModal);
+    });
+    elements.deleteConfirmModal.querySelector('.cancel-btn').addEventListener('click', closeDeleteModal);
+    elements.deleteConfirmModal.querySelector('.delete-btn').addEventListener('click', confirmDelete);
+}
 
-      // Modal handlers
-      elements.sendAlertBtn.addEventListener('click', openModal);
-      document.querySelector('.close-modal').addEventListener('click', closeModal);
-      document.querySelector('.cancel-btn').addEventListener('click', closeModal);
+    // Load my alerts
+    async function loadMyAlerts() {
+        try {
+            const response = await fetch('/alert/my-alerts');
+            if (!response.ok) throw new Error('Failed to fetch alerts');
+            const data = await response.json();
+            
+            if (data.success) {
+                displayMyAlerts(data.alerts);
+            }
+        } catch (error) {
+            console.error('Error loading alerts:', error);
+            showNotification('Failed to load alerts', 'error');
+        }
+    }
 
-      // Form submission
-      elements.alertForm.addEventListener('submit', handleAlertSubmission);
+    // Display my alerts in table
+    function displayMyAlerts(alerts) {
+        if (!elements.myAlertsTableBody) return;
 
-      // Pagination handlers
-      elements.prevPageBtn.addEventListener('click', () => changePage(-1));
-      elements.nextPageBtn.addEventListener('click', () => changePage(1));
+        const alertsHtml = alerts.map(alert => `
+            <tr data-alert-id="${alert.alertID}">
+                <td>${formatDate(alert.dateCreated)}</td>
+                <td>
+                    <span class="category-badge" data-category="${alert.category}">
+                        ${alert.category}
+                    </span>
+                </td>
+                <td>${alert.details}</td>
+                <td>${alert.orders.join(', ')}</td>
+                <td>
+                    <button class="delete-alert-btn" onclick="initiateDelete(${alert.alertID})">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        `).join('');
 
-      // Alert type change handler
-      elements.alertTypeSelect.addEventListener('change', handleAlertTypeChange);
-  }
+        elements.myAlertsTableBody.innerHTML = alertsHtml;
+    }
+
+    // Delete alert functions
+    window.initiateDelete = function(alertId) {
+        state.alertToDelete = alertId;
+        elements.deleteConfirmModal.style.display = 'block';
+    };
+
+    function closeDeleteModal() {
+        elements.deleteConfirmModal.style.display = 'none';
+        state.alertToDelete = null;
+    }
+
+    async function confirmDelete() {
+        if (!state.alertToDelete) return;
+
+        try {
+            const response = await fetch(`/alert/delete/${state.alertToDelete}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete alert');
+            }
+
+            const row = elements.myAlertsTableBody.querySelector(`tr[data-alert-id="${state.alertToDelete}"]`);
+            if (row) {
+                row.classList.add('fade-out');
+                setTimeout(() => {
+                    row.remove();
+                }, 300);
+            }
+
+            showNotification('Alert deleted successfully', 'success');
+            closeDeleteModal();
+        } catch (error) {
+            console.error('Error deleting alert:', error);
+            showNotification('Failed to delete alert', 'error');
+        }
+    }
+
 
   // Handle filters change
   function handleFiltersChange() {
@@ -191,19 +272,19 @@ document.addEventListener('DOMContentLoaded', function() {
       }
   }
 
-  // Handle alert submission
-  async function handleAlertSubmission(e) {
-      e.preventDefault();
+// Handle alert submission
+async function handleAlertSubmission(e) {
+    e.preventDefault();
 
-      try {
-          const formData = {
-              concernType: elements.alertTypeSelect.value,
-              details: document.getElementById('alertDetails').value,
-              orderIds: Array.from(state.selectedOrders),
-              cancelOrders: elements.cancelOrdersCheckbox.checked
-          };
+    try {
+        const formData = {
+            concernType: elements.alertTypeSelect.value,
+            details: document.getElementById('alertDetails').value,
+            orders: Array.from(state.selectedOrders),
+            cancelOrders: elements.cancelOrdersCheckbox.checked
+        };
 
-          const response = await fetch('/alert/create-batch', {
+        const response = await fetch('/alert/create-batch', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -211,24 +292,28 @@ document.addEventListener('DOMContentLoaded', function() {
             body: JSON.stringify(formData)
         });
 
-          if (!response.ok) {
-              throw new Error('Failed to send alert');
-          }
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to send alert');
+        }
 
-          showNotification('Alert sent successfully', 'success');
-          closeModal();
-          await refreshOrders(); // Refresh the orders list
+        showNotification('Alert sent successfully', 'success');
+        closeModal();
+        await Promise.all([
+            refreshOrders(),
+            loadMyAlerts() // Refresh my alerts after sending new one
+        ]);
 
-      } catch (error) {
-          console.error('Error sending alert:', error);
-          showNotification(error.message, 'error');
-      }
-  }
+    } catch (error) {
+        console.error('Error sending alert:', error);
+        showNotification(error.message, 'error');
+    }
+}
 
   // Refresh orders data
   async function refreshOrders() {
       try {
-          const response = await fetch('/api/orders');
+          const response = await fetch('/alert/api/orders');
           if (!response.ok) throw new Error('Failed to fetch orders');
           
           state.originalOrders = await response.json();
@@ -264,14 +349,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initialize the page
   async function initialize() {
-      try {
-          await refreshOrders();
-          initializeEventListeners();
-      } catch (error) {
-          console.error('Error initializing page:', error);
-          showNotification('Failed to load orders', 'error');
-      }
-  }
+    try {
+        await Promise.all([
+            refreshOrders(),
+            loadMyAlerts()
+        ]);
+        initializeEventListeners();
+    } catch (error) {
+        console.error('Error initializing page:', error);
+        showNotification('Failed to load data', 'error');
+    }
+}
+
+    // Utility function for formatting dates
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
 
   // Start the application
   initialize();

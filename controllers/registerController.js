@@ -14,9 +14,9 @@ async function uploadUser(req, res) {
     const accType = "Customer"; // Only Sustainabowl can directly employe Sales and Logistics staff
 
     if(exists.length === 0) {
-        //Determine what the last userID is
-        const numUsers = await User.countDocuments();
-        const newUserID = 10001 + parseInt(numUsers);
+        const highestUserID = await User.findOne().sort({ userID: -1 });
+        console.log('Highest User ID:', highestUserID.userID);
+        const newUserID = highestUserID ? parseInt(highestUserID.userID) + 1 : 20001;
 
         try {
             User.create({

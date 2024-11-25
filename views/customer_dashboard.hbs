@@ -1,8 +1,9 @@
 <div class="dashboard-container">
-    {{#if (eq (length requests) 0)}}
-        <p>You have no requests at the moment</p>
-    {{else}}
+
     <div class="content-container">
+    {{#if (eq (length requests) 0)}}
+        <p>You have no requests at the moment. Start a new request for fresh produce <a href="/marketplace" class="word-link">here</a></p>
+    {{else}}
         <div class="main-section">
             <div class="header-section">
                 <h1>Track Your Requests</h1>
@@ -79,8 +80,9 @@
 
             </div>
         </div>
+        {{/if}}
     </div>
-    {{/if}}
+    
 
     
 </div>

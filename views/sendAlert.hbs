@@ -3,14 +3,35 @@
         <h2>Send Alerts / Concerns</h2>
         <p>Send alerts about delays, cancellations, or reminders to notify affected users</p>
 
+        <!-- My Alerts Section -->
+        <div class="my-alerts-section">
+            <h3>My Alerts</h3>
+            <table class="my-alerts-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Details</th>
+                        <th>Orders</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="myAlertsTableBody">
+                    <!-- Will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
         <div class="alerts-table-section">
             <div class="table-controls">
                 <div class="controls-left">
                     <select id="statusFilter" class="filter-select">
                         <option value="all">All Status</option>
+                        <option value="Waiting Approval">Status: Waiting Approval</option>
                         <option value="Preparing">Status: Preparing</option>
                         <option value="Dispatched">Status: Dispatched</option>
                         <option value="Delivered">Status: Delivered</option>
+                        <option value="Cancelled">Status: Cancelled</option>
                     </select>
 
                     <select id="sortBy" class="filter-select">
@@ -107,5 +128,20 @@
                 <button type="submit" class="submit-btn">Send Alert</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteConfirmModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Confirm Delete</h3>
+            <span class="close-modal">&times;</span>
+        </div>
+        <p>Are you sure you want to delete this alert? This action cannot be undone.</p>
+        <div class="modal-actions">
+            <button type="button" class="cancel-btn">Cancel</button>
+            <button type="button" class="delete-btn">Delete</button>
+        </div>
     </div>
 </div>

@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const alertController = require('../controllers/alertController');
 const Order = require('../models/Order');
-
+const User = require('../models/User');
+const Alert = require('../models/Alert');
 // Middleware to ensure user is authenticated
 const isAuthenticated = (req, res, next) => {
     if (!req.session.userId) {
@@ -22,32 +23,54 @@ const isSalesOrLogistics = (req, res, next) => {
 // Get notifications
 router.get('/notifications', isAuthenticated, alertController.getNotifications);
 
-// Create alert
+// Get my alerts (alerts created by the current user)
+router.get('/my-alerts', isAuthenticated, isSalesOrLogistics, async (req, res) => {
+    try {
+        const alerts = await Alert.find({ createdById: req.session.userId })
+            .sort({ dateCreated: -1 });
+        res.json({ success: true, alerts });
+    } catch (error) {
+        console.error('Error fetching alerts:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch alerts' });
+    }
+});
+
+// Delete alert
+router.delete('/delete/:alertId', isAuthenticated, isSalesOrLogistics, async (req, res) => {
+    try {
+        await alertController.deleteAlert(
+            parseInt(req.params.alertId),
+            req.session.userId,
+            req.session.userType
+        );
+        res.json({ success: true, message: 'Alert deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting alert:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Create alert with creator ID
 router.post('/create', isAuthenticated, async (req, res) => {
     try {
-        const alert = await alertController.createAlert(req.body);
+        const alertData = {
+            ...req.body,
+            createdById: req.session.userId,
+            userType: req.session.userType
+        };
+        const alert = await alertController.createAlert(alertData);
         res.json({ success: true, alert });
     } catch (error) {
         console.error('Error creating alert:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Failed to create alert'
-        });
+        res.status(500).json({ success: false, message: 'Failed to create alert' });
     }
 });
 
 // Get the send alert page (only for Sales and Logistics)
 router.get('/send', isAuthenticated, isSalesOrLogistics, async (req, res) => {
     try {
-        // Get non-cancelled orders with customer details
+        // Get all orders with customer details, without status filter
         const orders = await Order.aggregate([
-            {
-                $match: { 
-                    status: { 
-                        $nin: ['Cancelled', 'Delivered']
-                    }
-                }
-            },
             {
                 $lookup: {
                     from: 'users',
@@ -101,7 +124,8 @@ router.get('/send', isAuthenticated, isSalesOrLogistics, async (req, res) => {
             css: ['sendAlert.css'],
             layout: req.session.userType.toLowerCase(),
             orders,
-            active: 'sendalert'
+            active: 'sendalert',
+            js: ['sendAlert.js']
         });
 
     } catch (err) {
@@ -113,39 +137,43 @@ router.get('/send', isAuthenticated, isSalesOrLogistics, async (req, res) => {
     }
 });
 
-// Create multiple alerts for batch orders
+// Create batch alerts
 router.post('/create-batch', isAuthenticated, isSalesOrLogistics, async (req, res) => {
     try {
-        const { concernType, details, orderIds, cancelOrders } = req.body;
+        const { concernType, details, orders, cancelOrders } = req.body;
+
+        if (!orders || !Array.isArray(orders)) {
+            throw new Error('Invalid or missing orders array');
+        }
 
         // Get orders with their customer IDs
-        const orders = await Order.aggregate([
+        const orderDetails = await Order.aggregate([
             {
                 $match: {
-                    OrderID: { $in: orderIds.map(id => parseInt(id)) }
+                    OrderID: { $in: orders.map(id => parseInt(id)) }
                 }
             },
             {
                 $lookup: {
-                    from: 'requests',  // Look up the requests collection
+                    from: 'requests',
                     localField: 'requestID',
-                    foreignField: 'requestID', 
+                    foreignField: 'requestID',
                     as: 'requestDetails'
                 }
             },
             {
-                $unwind: '$requestDetails'  // Since lookup returns an array
+                $unwind: '$requestDetails'
             },
             {
                 $project: {
                     OrderID: 1,
-                    customerID: '$requestDetails.customerID'  // Get customerID from request
+                    customerID: '$requestDetails.customerID'
                 }
             }
         ]);
 
         // Group orders by customerID
-        const ordersByCustomer = orders.reduce((acc, order) => {
+        const ordersByCustomer = orderDetails.reduce((acc, order) => {
             const customerId = order.customerID;
             if (!acc[customerId]) {
                 acc[customerId] = [];
@@ -160,8 +188,10 @@ router.post('/create-batch', isAuthenticated, isSalesOrLogistics, async (req, re
                 concernType,
                 details,
                 orders: customerOrders,
-                cancelOrder: cancelOrders,
+                cancelOrders: cancelOrders,
                 byCustomer: false,
+                userType: req.session.userType,
+                createdById: req.session.userId,
                 customerId: parseInt(customerId)
             });
         });
@@ -171,24 +201,14 @@ router.post('/create-batch', isAuthenticated, isSalesOrLogistics, async (req, re
 
     } catch (error) {
         console.error('Error creating batch alerts:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Failed to send alerts' 
-        });
+        res.status(500).json({ success: false, message: 'Failed to send alerts' });
     }
 });
 
 // Get orders for alert page
-router.get('/orders', isAuthenticated, isSalesOrLogistics, async (req, res) => {
+router.get('/api/orders', isAuthenticated, isSalesOrLogistics, async (req, res) => {
     try {
         const orders = await Order.aggregate([
-            {
-                $match: { 
-                    status: { 
-                        $nin: ['Cancelled', 'Delivered']
-                    }
-                }
-            },
             {
                 $lookup: {
                     from: 'requests',
