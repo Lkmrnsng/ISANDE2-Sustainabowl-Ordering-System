@@ -121,8 +121,8 @@ const hbs = exphbs.create({
             });
         },
 
-        flexFormatDate: function(date, format) {
-            if (!date) return '';
+        CMORFormatDate: function(date, format) {
+            if (!date) return 'N/A';
             const d = new Date(date);
             if (isNaN(d.getTime())) return '';
             

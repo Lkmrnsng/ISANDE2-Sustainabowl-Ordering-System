@@ -22,7 +22,7 @@ const reportController = {
             const startDate = new Date(year, monthIndex, 1);
             const endDate = new Date(year, monthIndex + 1, 0);
     
-            // Then get all orders linked to these requests and filter by delivery date for the selected month
+            // Then get all orders linked to these requests for this month
             const orders = await Order.find({
                 requestID: { $in: requests.map(req => req.requestID) },
                 deliveryDate: {
@@ -30,14 +30,28 @@ const reportController = {
                     $lte: endDate.toISOString()
                 }
             }).sort({ deliveryDate: 1 });
-    
-            // Calculate summary statistics
+            
+            
             const summary = {
-                totalDeliveries: orders.length,
-                cancelledDeliveries: orders.filter(o => o.status === 'Cancelled').length,
+                totalDeliveries: 0,
+                cancelledDeliveries: 0,
                 averageOrderCost: 0,
-                averageWeeklyDeliveries: Math.ceil(orders.length / 4),
+                averageWeeklyDeliveries: 0,
             };
+            
+            // Process order statuses
+            for (const order of orders) {
+                const status = await getOrderStatus(order);
+                if (status.isDelivered) {
+                    summary.totalDeliveries++;
+                } else if (order.status === 'Cancelled') {
+                    summary.cancelledDeliveries++;
+                }
+            }
+
+            
+            
+            summary.averageWeeklyDeliveries = Math.ceil(summary.totalDeliveries / 4);
             
             // Calculate average order cost
             if (orders.length > 0) {
@@ -75,14 +89,15 @@ const reportController = {
                         cost: item.quantity * (itemDetails ? itemDetails.itemPrice : 0)
                     };
                 }));
-    
+            
                 // Find the corresponding request to get info if needed
                 const request = requests.find(req => req.requestID === order.requestID);
-    
+                const orderStatus = await getOrderStatus(order);
+            
                 return {
                     orderId: order.OrderID,
                     requestDate: request ? request.requestDate : null,
-                    deliveryDate: order.deliveryDate,
+                    deliveryDate: orderStatus.deliveryDate || null,
                     schedule: order.deliveryTimeRange,
                     items: items.map(i => i.name).join(', '),
                     payment: order.paymentMethod,
@@ -152,14 +167,26 @@ const reportController = {
                     $lte: endDate.toISOString()
                 }
             }).sort({ deliveryDate: 1 });
-    
-            // Calculate summary statistics
+            
+            
             const summary = {
-                totalDeliveries: orders.length,
-                cancelledDeliveries: orders.filter(o => o.status === 'Cancelled').length,
+                totalDeliveries: 0,
+                cancelledDeliveries: 0,
                 averageOrderCost: 0,
-                averageWeeklyDeliveries: Math.ceil(orders.length / 4),
+                averageWeeklyDeliveries: 0,
             };
+            
+            // Process order statuses
+            for (const order of orders) {
+                const status = await getOrderStatus(order);
+                if (status.isDelivered) {
+                    summary.totalDeliveries++;
+                } else if (order.status === 'Cancelled') {
+                    summary.cancelledDeliveries++;
+                }
+            }
+            
+            summary.averageWeeklyDeliveries = Math.ceil(summary.totalDeliveries / 4);
             
             // Calculate average order cost
             if (orders.length > 0) {
@@ -186,7 +213,7 @@ const reportController = {
                         return item ? item.itemName : 'Unknown Item';
                     })
             );
-    
+
             // Calculate order summary
             const orderSummary = await Promise.all(orders.map(async order => {
                 const items = await Promise.all(order.items.map(async item => {
@@ -197,13 +224,15 @@ const reportController = {
                         cost: item.quantity * (itemDetails ? itemDetails.itemPrice : 0)
                     };
                 }));
-    
+            
+                // Find the corresponding request to get info if needed
                 const request = requests.find(req => req.requestID === order.requestID);
-    
+                const orderStatus = await getOrderStatus(order);
+            
                 return {
                     orderId: order.OrderID,
                     requestDate: request ? request.requestDate : null,
-                    deliveryDate: order.deliveryDate,
+                    deliveryDate: orderStatus.deliveryDate || null,
                     schedule: order.deliveryTimeRange,
                     items: items.map(i => i.name).join(', '),
                     payment: order.paymentMethod,
@@ -274,7 +303,7 @@ const reportController = {
             for (const order of orders) {
                 const orderDate = new Date(order.deliveryDate);
                 const weekNum = getWeekNumber(orderDate);
-                console.log(`Order ID: ${order.OrderID} - Order Date: ${orderDate.toISOString()} - Week Number: ${weekNum}`);
+                //console.log(`Order ID: ${order.OrderID} - Order Date: ${orderDate.toISOString()} - Week Number: ${weekNum}`);
 
                 if (!weeks[weekNum]) {
                     weeks[weekNum] = {
@@ -290,28 +319,22 @@ const reportController = {
 
                 // Check delivery status
                 if (order.status === 'Delivered') {
-                    try {
-                        const deliveries = await Delivery.find({ orderID: order.OrderID })
-                            .sort({ deliveryDate: -1 });
-                        const completedDeliveries = deliveries.filter(d => d.isComplete === true);
-                        const latestDelivery = completedDeliveries[0];
-
-                        if (latestDelivery) {
-                            const scheduledDate = new Date(order.deliveryDate);
-                            const actualDeliveryDate = new Date(latestDelivery.deliveryDate);
-                            
-                            // Compare dates without time
-                            scheduledDate.setHours(0, 0, 0, 0);
-                            actualDeliveryDate.setHours(0, 0, 0, 0);
-                            
-                            if (actualDeliveryDate <= scheduledDate) {
-                                weeks[weekNum].fulfilledOnTime++;
-                            } else {
-                                weeks[weekNum].fulfilledLate++;
-                            }
+                    const delivery = await Delivery.findOne({ orderID: order.OrderID.toString() })
+                        .sort({ deliveredOn: -1 });
+                
+                    if (delivery) {
+                        const scheduledDate = new Date(order.deliveryDate);
+                        const actualDeliveryDate = new Date(delivery.deliveredOn);
+                        
+                        // Compare dates without time
+                        scheduledDate.setHours(0, 0, 0, 0);
+                        actualDeliveryDate.setHours(0, 0, 0, 0);
+                        
+                        if (actualDeliveryDate <= scheduledDate) {
+                            weeks[weekNum].fulfilledOnTime++;
+                        } else {
+                            weeks[weekNum].fulfilledLate++;
                         }
-                    } catch (error) {
-                        console.error(`Error fetching delivery for order ${order.OrderID}:`, error);
                     }
                 } else if (order.status === 'Cancelled') {
                     weeks[weekNum].cancelled++;
@@ -416,28 +439,22 @@ const reportController = {
 
                 // Check delivery status
                 if (order.status === 'Delivered') {
-                    try {
-                        const deliveries = await Delivery.find({ orderID: order.OrderID })
-                            .sort({ deliveryDate: -1 });
-                        const completedDeliveries = deliveries.filter(d => d.isComplete === true);
-                        const latestDelivery = completedDeliveries[0];
-
-                        if (latestDelivery) {
-                            const scheduledDate = new Date(order.deliveryDate);
-                            const actualDeliveryDate = new Date(latestDelivery.deliveryDate);
-                            
-                            // Compare dates without time
-                            scheduledDate.setHours(0, 0, 0, 0);
-                            actualDeliveryDate.setHours(0, 0, 0, 0);
-                            
-                            if (actualDeliveryDate <= scheduledDate) {
-                                weeks[weekNum].fulfilledOnTime++;
-                            } else {
-                                weeks[weekNum].fulfilledLate++;
-                            }
+                    const delivery = await Delivery.findOne({ orderID: order.OrderID.toString() })
+                        .sort({ deliveredOn: -1 });
+                
+                    if (delivery) {
+                        const scheduledDate = new Date(order.deliveryDate);
+                        const actualDeliveryDate = new Date(delivery.deliveredOn);
+                        
+                        // Compare dates without time
+                        scheduledDate.setHours(0, 0, 0, 0);
+                        actualDeliveryDate.setHours(0, 0, 0, 0);
+                        
+                        if (actualDeliveryDate <= scheduledDate) {
+                            weeks[weekNum].fulfilledOnTime++;
+                        } else {
+                            weeks[weekNum].fulfilledLate++;
                         }
-                    } catch (error) {
-                        console.error(`Error fetching delivery for order ${order.OrderID}:`, error);
                     }
                 } else if (order.status === 'Cancelled') {
                     weeks[weekNum].cancelled++;
@@ -534,12 +551,36 @@ function getWeekNumber(date) {
     // Adjust date to account for partial first week
     const adjustedDate = date.getDate() + dayOffset - 1;
     return Math.ceil(adjustedDate / 7);
+    
 }
 
 
+async function getOrderStatus(order) {
+    // Check for any delivery regardless of order status
+    const delivery = await Delivery.findOne({ orderID: order.OrderID.toString() })
+        .sort({ deliveredOn: -1 });
+    
+    if (delivery && delivery.deliveredOn) {  // Only consider it delivered if deliveredOn has a value
+        const scheduledDate = new Date(order.deliveryDate);
+        const actualDeliveryDate = new Date(delivery.deliveredOn);
+        
+        // Compare dates without time
+        scheduledDate.setHours(0, 0, 0, 0);
+        actualDeliveryDate.setHours(0, 0, 0, 0);
+        
+        return {
+            isDelivered: true,
+            isLate: actualDeliveryDate > scheduledDate,
+            deliveryDate: delivery.deliveredOn
+        };
+    }
 
-
-
+    return {
+        isDelivered: false,
+        isLate: false,
+        deliveryDate: null
+    };
+}
 
 
 module.exports = reportController;
