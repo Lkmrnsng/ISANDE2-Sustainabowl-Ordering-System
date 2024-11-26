@@ -77,9 +77,9 @@ async function getWarehouseView (req, res) {
     try {
         res.render('logistics_warehouse', {
             title: 'Warehouse',
-            css: ['logistics_warehouse.css'],
+            css: ['logisales_dashboard.css'],
             layout: 'logistics',
-            active: 'warehouse'
+            active: 'warehouseinventory'
         });
     }
     catch (error) {
@@ -251,6 +251,17 @@ async function getDeliveriesJson(req, res) {
     }
 }
 
+// Get the inventory data and return as a JSON
+async function getInventoryJson(req, res) {
+    try {
+        const inventory = await getInventoryData();
+        res.json(inventory);
+    } catch (err) {
+        console.error('Error fetching inventory:', err);
+        res.status(500).json({ error: 'Failed to fetch inventory' });
+    }
+}
+
 // Fetch procurements data by mapping across models
 async function getProcurementData() {
     try {
@@ -408,6 +419,50 @@ async function getDeliveriesData() {
         return compiledData;
     } catch (error) {
         console.log("Error in getDeliveriesData: ", error);
+    }
+}
+
+// Fetch the data needed for the Sales Dashboard - Warehouse Inventory table
+async function getInventoryData() {
+    try {
+        const items = await Item.find({});
+        
+        const pendingOrders = await Order.find({ 
+            status: { $in: ['Waiting Approval', 'Preparing'] }
+        });
+        
+        const reservedQuantities = {};
+        
+        pendingOrders.forEach(order => {
+            if (order.items && Array.isArray(order.items)) {
+                order.items.forEach(orderItem => {
+                    if (orderItem.itemID != null) {
+                        reservedQuantities[orderItem.itemID] = 
+                            (reservedQuantities[orderItem.itemID] || 0) + (orderItem.quantity || 0);
+                    }
+                });
+            }
+        });
+
+        items.sort((a, b) => a.itemCategory.localeCompare(b.itemCategory));
+        
+        // Map items with calculated reserved quantities
+        return items.map(item => {
+            const reserved = reservedQuantities[item.itemID] || 0;
+            const total = item.itemStock || 0;
+            const available = Math.max(0, total - reserved);
+            
+            return {
+                particular: item.itemName || 'Unnamed Item',
+                type: item.itemCategory,
+                available: available,
+                reserved: reserved,
+                total: total
+            };
+        });
+    } catch (err) {
+        console.error('Error fetching inventory:', err);
+        throw err;
     }
 }
 
@@ -721,6 +776,7 @@ module.exports = {
     getAgenciesJson,
     getItemsJson,
     getDeliveriesJson,
+    getInventoryJson,
     submitProcurement,
     setProcurementStatus,
     setOrderStatus,

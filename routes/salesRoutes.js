@@ -14,6 +14,7 @@ router.get('/calendar', salesController.getCalendarPage);
 router.get('/api/sidebar/:requestID', salesController.getRequestSidebarJson);
 router.get('/api/partners', salesController.getPartnerJson);
 router.get('/api/requests', salesController.getRequestJson);
+router.get('/api/inventory', salesController.getInventoryJson);
 router.put('/api/requests/:requestID', salesController.setRequestStatus);
 router.put('/api/orders/:orderID', salesController.setOrderStatus);
 

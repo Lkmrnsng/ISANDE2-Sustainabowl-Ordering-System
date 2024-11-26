@@ -1,13 +1,25 @@
 <!-- Warehouse Inventory Section -->
-
-
         <section class="inventory" style="display: flex; flex-direction: column; margin-left: 250px;">
             <h2>Warehouse Inventory</h2>
+            <div class="controls">
+                <div class="filters">
+                    <select id="sortByInventory" class="sort-btn" onchange="sortInventory()">
+                        <option value="none">Sort by</option>
+                        <option value="typeAsc">Type A-Z</option>
+                        <option value="typeDesc">Type Z-A</option>
+                        <option value="availableDesc">Available Desc</option>
+                        <option value="reservedDesc">Reserved Desc</option>
+                        <option value="totalDesc">Total Desc</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="data-container">
-                <table>
+                <table id="inventory-table">
                     <thead>
                         <tr>
                             <th>Particular</th>
+                            <th>Type</th>
                             <th>Available (kg)</th>
                             <th>Reserved (kg)</th>
                             <th>Total (kg)</th>
@@ -17,6 +29,7 @@
                         {{#each inventory}}
                         <tr>
                             <td>{{particular}}</td>
+                            <td>{{type}}</td>
                             <td>{{available}}</td>
                             <td>{{reserved}}</td>
                             <td>{{total}}</td>
@@ -26,14 +39,16 @@
                 </table>
             </div>
             <div class="pagination">
-                <span>Page <span id="currentInventoryPage">1</span> of <span id="totalInventoryPages">1</span></span>
+                <span>Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
                 <div class="navigation-buttons">
-                    <button id="prevInventory" class="nav-button" onclick="changeInventoryPage(-1)">
+                    <button id="prevPage" class="nav-button" onclick="changePage(-1)">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                     </button>
-                    <button id="nextInventory" class="nav-button" onclick="changeInventoryPage(1)">
+                    <button id="nextPage" class="nav-button" onclick="changePage(1)">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                     </button>
                 </div>
             </div>
         </section>
+
+<script src="/js/sales-warehouseInventory.js"></script>

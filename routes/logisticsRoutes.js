@@ -16,6 +16,7 @@ router.get('/api/agencies', logisticsController.getAgenciesJson);
 router.get('/api/items', logisticsController.getItemsJson);
 router.get('/api/orders', logisticsController.getOrdersJson);
 router.get('/api/deliveries', logisticsController.getDeliveriesJson);
+router.get('/api/inventory', logisticsController.getInventoryJson);
 router.post('/api/submit-procurement', logisticsController.submitProcurement);
 router.post('/api/complete-procurement', logisticsController.completeProcurement);
 router.post('/api/complete-delivery', logisticsController.completeDelivery);

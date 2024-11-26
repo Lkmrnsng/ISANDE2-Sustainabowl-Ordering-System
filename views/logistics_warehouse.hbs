@@ -1,187 +1,46 @@
-<div class="main-layout">
-
-
-    <main class="warehouse-inventory-container">
-        <div class="warehouse-header">
+<!-- Warehouse Inventory Section -->
+        <section class="inventory" style="display: flex; width: 100%; flex-direction: column; margin-left: 100px;">
             <h2>Warehouse Inventory</h2>
-            <button class="import-button">Import <i class="plus-icon">+</i></button>
-        </div>
+            <div class="controls">
+                <div class="filters">
+                    <select id="sortByInventory" class="sort-btn" onchange="sortInventory()">
+                        <option value="none">Sort by</option>
+                        <option value="typeAsc">Type A-Z</option>
+                        <option value="typeDesc">Type Z-A</option>
+                        <option value="availableDesc">Available Desc</option>
+                        <option value="reservedDesc">Reserved Desc</option>
+                        <option value="totalDesc">Total Desc</option>
+                    </select>
+                </div>
+            </div>
 
-        <!-- Sample Categories and Data -->
-        <div class="inventory-category">
-            <h3>Leafy & Salad Vegetables</h3>
-            <table class="inventory-table">
-                <thead>
-                    <tr>
-                        <th>Particular</th>
-                        <th>Available (kg)</th>
-                        <th>Reserved (kg)</th>
-                        <th>Total (kg)</th>
-                        <th>Incoming (kg)</th>
-                        <th>Incoming Date</th>
-                        <th>Edit</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Lettuce</td>
-                        <td>50</td>
-                        <td>10</td>
-                        <td>60</td>
-                        <td>20</td>
-                        <td>2024-10-20</td>
-                        <td><i class="edit-icon">✏️</i></td>
-                    </tr>
-                    <tr>
-                        <td>Spinach</td>
-                        <td>30</td>
-                        <td>5</td>
-                        <td>35</td>
-                        <td>15</td>
-                        <td>2024-10-15</td>
-                        <td><i class="edit-icon">✏️</i></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+            <div class="data-container">
+                <table id="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Particular</th>
+                            <th>Type</th>
+                            <th>Available (kg)</th>
+                            <th>Reserved (kg)</th>
+                            <th>Total (kg)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{!-- This will be automatically populated by the js --}}
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <span>Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+                <div class="navigation-buttons">
+                    <button id="prevPage" class="nav-button" onclick="changePage(-1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    <button id="nextPage" class="nav-button" onclick="changePage(1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
 
-        <div class="inventory-category">
-            <h3>Root Vegetables</h3>
-            <table class="inventory-table">
-                <thead>
-                    <tr>
-                        <th>Particular</th>
-                        <th>Available (kg)</th>
-                        <th>Reserved (kg)</th>
-                        <th>Total (kg)</th>
-                        <th>Incoming (kg)</th>
-                        <th>Incoming Date</th>
-                        <th>Edit</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Carrot</td>
-                        <td>40</td>
-                        <td>8</td>
-                        <td>48</td>
-                        <td>25</td>
-                        <td>2024-10-18</td>
-                        <td><i class="edit-icon">✏️</i></td>
-                    </tr>
-                    <tr>
-                        <td>Beetroot</td>
-                        <td>20</td>
-                        <td>5</td>
-                        <td>25</td>
-                        <td>10</td>
-                        <td>2024-10-12</td>
-                        <td><i class="edit-icon">✏️</i></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="inventory-category">
-            <h3>Bulb Vegetables</h3>
-            <table class="inventory-table">
-                <thead>
-                    <tr>
-                        <th>Particular</th>
-                        <th>Available (kg)</th>
-                        <th>Reserved (kg)</th>
-                        <th>Total (kg)</th>
-                        <th>Incoming (kg)</th>
-                        <th>Incoming Date</th>
-                        <th>Edit</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Garlic</td>
-                        <td>60</td>
-                        <td>12</td>
-                        <td>72</td>
-                        <td>30</td>
-                        <td>2024-10-17</td>
-                        <td><i class="edit-icon">✏️</i></td>
-                    </tr>
-                    <tr>
-                        <td>Onion</td>
-                        <td>100</td>
-                        <td>20</td>
-                        <td>120</td>
-                        <td>50</td>
-                        <td>2024-10-16</td>
-                        <td><i class="edit-icon">✏️</i></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="inventory-category">
-            <h3>Stem Vegetables</h3>
-            <table class="inventory-table">
-                <thead>
-                    <tr>
-                        <th>Particular</th>
-                        <th>Available (kg)</th>
-                        <th>Reserved (kg)</th>
-                        <th>Total (kg)</th>
-                        <th>Incoming (kg)</th>
-                        <th>Incoming Date</th>
-                        <th>Edit</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Celery</td>
-                        <td>25</td>
-                        <td>5</td>
-                        <td>30</td>
-                        <td>10</td>
-                        <td>2024-10-14</td>
-                        <td><i class="edit-icon">✏️</i></td>
-                    </tr>
-                    <tr>
-                        <td>Asparagus</td>
-                        <td>10</td>
-                        <td>2</td>
-                        <td>12</td>
-                        <td>5</td>
-                        <td>2024-10-13</td>
-                        <td><i class="edit-icon">✏️</i></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </main>
-</div>
-
-<!-- Import JSON Pop-up Modal -->
-<div id="import-modal" class="modal">
-    <div class="modal-content">
-        <h3>Import Inventory</h3>
-        <p>Upload a JSON file to either overwrite or add to the existing inventory.</p>
-        <input type="file" accept=".json">
-        <div class="modal-actions">
-            <button class="cancel-btn">Cancel</button>
-            <button class="confirm-btn">Confirm</button>
-        </div>
-    </div>
-</div>
-
-<!-- Edit Quantity Pop-up Modal -->
-<div id="edit-modal" class="modal">
-    <div class="modal-content">
-        <h3>Edit Quantity</h3>
-        <label for="new-quantity">New Quantity (kg):</label>
-        <input type="number" id="new-quantity" min="0">
-        <div class="modal-actions">
-            <button class="cancel-btn">Cancel</button>
-            <button class="confirm-btn">Confirm</button>
-        </div>
-    </div>
-</div>
-
- <script src="/js/logistics_warehouse.js"></script>
+<script src="/js/logistics-warehouse.js"></script>

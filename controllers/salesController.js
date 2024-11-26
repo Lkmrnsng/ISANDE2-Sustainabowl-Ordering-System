@@ -323,6 +323,17 @@ async function getRequestJson(req, res) {
     }
 }
 
+// Get the inventory data and return as a JSON
+async function getInventoryJson(req, res) {
+    try {
+        const inventory = await getInventoryData();
+        res.json(inventory);
+    } catch (err) {
+        console.error('Error fetching inventory:', err);
+        res.status(500).json({ error: 'Failed to fetch inventory' });
+    }
+}
+
 // Fetch requests data by mapping across models
 async function getRequestData() {
     try {
@@ -353,7 +364,7 @@ async function getInventoryData() {
         const items = await Item.find({});
         
         const pendingOrders = await Order.find({ 
-            status: { $in: ['Waiting Approval', 'Preparing'] } // Based on your status values
+            status: { $in: ['Waiting Approval', 'Preparing'] }
         });
         
         const reservedQuantities = {};
@@ -368,6 +379,8 @@ async function getInventoryData() {
                 });
             }
         });
+
+        items.sort((a, b) => a.itemCategory.localeCompare(b.itemCategory));
         
         // Map items with calculated reserved quantities
         return items.map(item => {
@@ -377,6 +390,7 @@ async function getInventoryData() {
             
             return {
                 particular: item.itemName || 'Unnamed Item',
+                type: item.itemCategory,
                 available: available,
                 reserved: reserved,
                 total: total
@@ -642,6 +656,7 @@ module.exports = {
     getRequestStats,
     getWarehouseStats,
     getRequestJson,
+    getInventoryJson,
     getRequestData,
     getInventoryData,
     getPartnerJson,

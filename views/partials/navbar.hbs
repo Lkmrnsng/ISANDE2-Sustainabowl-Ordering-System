@@ -69,6 +69,25 @@
         const notificationMenu = document.getElementById('notification-menu');
         let notifications = [];
 
+        // Get viewed notifications from localStorage
+        function getViewedNotifications() {
+            const viewed = localStorage.getItem('viewedNotifications');
+            return viewed ? JSON.parse(viewed) : [];
+        }
+
+        // Save viewed notifications to localStorage
+        function saveViewedNotifications(alertIds) {
+            const viewed = getViewedNotifications();
+            const updatedViewed = [...new Set([...viewed, ...alertIds])];
+            localStorage.setItem('viewedNotifications', JSON.stringify(updatedViewed));
+        }
+
+        // Calculate unread notifications
+        function getUnreadCount(notifications) {
+            const viewedIds = getViewedNotifications();
+            return notifications.filter(notification => !viewedIds.includes(notification.alertID)).length;
+        }
+
         userIcon.addEventListener('click', function(event) {
             event.preventDefault();
             dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
@@ -76,9 +95,14 @@
 
         notificationBell.addEventListener('click', function(event) {
             event.preventDefault();
-            notificationMenu.style.display = notificationMenu.style.display === 'block' ? 'none' : 'block';
-            if (notificationMenu.style.display === 'block') {
-                loadNotifications();
+            const isOpening = notificationMenu.style.display !== 'block';
+            notificationMenu.style.display = isOpening ? 'block' : 'none';
+            
+            if (isOpening) {
+                // When opening the menu, mark all current notifications as viewed
+                const currentAlertIds = notifications.map(n => n.alertID);
+                saveViewedNotifications(currentAlertIds);
+                loadNotifications(); 
             }
         });
 
@@ -98,7 +122,8 @@
                 
                 if (data.success) {
                     notifications = data.notifications;
-                    updateNotificationUI(notifications);
+                    const unreadCount = getUnreadCount(notifications);
+                    updateNotificationUI(notifications, unreadCount);
                 }
             } catch (error) {
                 console.error('Error loading notifications:', error);
@@ -107,9 +132,10 @@
             }
         }
 
-        function updateNotificationUI(notifications) {
+        function updateNotificationUI(notifications, unreadCount) {
             const notificationList = document.getElementById('notification-list');
             const notificationCount = document.getElementById('notification-count');
+            const viewedIds = getViewedNotifications();
             
             if (notifications.length === 0) {
                 notificationList.innerHTML = '<div class="no-notifications">No notifications</div>';
@@ -117,11 +143,16 @@
                 return;
             }
 
-            notificationCount.textContent = notifications.length;
-            notificationCount.style.display = 'block';
+            // Only show count for unread notifications
+            if (unreadCount > 0) {
+                notificationCount.textContent = unreadCount;
+                notificationCount.style.display = 'block';
+            } else {
+                notificationCount.style.display = 'none';
+            }
 
             notificationList.innerHTML = notifications.map(notification => `
-                <div class="notification-item" onclick="handleNotificationClick()">
+                <div class="notification-item ${viewedIds.includes(notification.alertID) ? 'read' : 'unread'}" onclick="handleNotificationClick()">
                     <div class="notification-icon">
                         ${getNotificationIcon(notification.category)}
                     </div>
@@ -159,6 +190,32 @@
             return 'Just now';
         }
 
+        const style = document.createElement('style');
+        style.textContent = `
+            .notification-item.unread {
+                background-color: #f0f7ff;
+                font-weight: bold;
+            }
+
+            .notification-item.read {
+                background-color: #ffffff;
+                font-weight: normal;
+            }
+
+            .notification-count {
+                background-color: #ff4444;
+                color: white;
+                border-radius: 50%;
+                padding: 2px 6px;
+                font-size: 12px;
+                position: absolute;
+                top: -5px;
+                right: -5px;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initial load of notifications
         if (notificationBell) {
             loadNotifications();
         }
