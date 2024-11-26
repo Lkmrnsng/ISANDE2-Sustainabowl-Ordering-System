@@ -72,7 +72,7 @@ const cancelController = {
                     category: 'Cancellation',
                     details: reason,
                     orders: orderIds || [],
-                    userType: 'Customer'
+                    createdById: request.customerID || 0,
                 }),
                 Request.findOneAndUpdate(
                     { requestID: parseInt(requestId) },
@@ -128,7 +128,7 @@ const cancelController = {
                     category: 'Cancellation',
                     details: reason,
                     orders: [order.OrderID],
-                    userType: 'Customer'
+                    createdById: request.customerID || 0, 
                 }),
                 Order.findOneAndUpdate(
                     { OrderID: parseInt(orderId) },

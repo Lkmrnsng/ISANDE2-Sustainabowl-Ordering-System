@@ -229,7 +229,7 @@ tr {
 
 .logistics-report-table th:nth-child(6), /* ALERTS ISSUED */
 .logistics-report-table td:nth-child(6) {
-  width: 12%;
+  width: 18%;
   text-align: right;
 }
 

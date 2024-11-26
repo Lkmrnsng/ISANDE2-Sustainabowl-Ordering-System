@@ -3,6 +3,7 @@ const Request = require('../models/Request');
 const Order = require('../models/Order');
 const Item = require('../models/Item');
 const Delivery = require('../models/Delivery');
+const Alert = require('../models/Alert');
 
 const reportController = {
     async getCustomerReport(req, res) {
@@ -303,7 +304,6 @@ const reportController = {
             for (const order of orders) {
                 const orderDate = new Date(order.deliveryDate);
                 const weekNum = getWeekNumber(orderDate);
-                //console.log(`Order ID: ${order.OrderID} - Order Date: ${orderDate.toISOString()} - Week Number: ${weekNum}`);
 
                 if (!weeks[weekNum]) {
                     weeks[weekNum] = {
@@ -311,7 +311,7 @@ const reportController = {
                         fulfilledOnTime: 0,
                         fulfilledLate: 0,
                         cancelled: 0,
-                        alertsIssued: 0,
+                        cancelledByCustomer: 0,
                         fulfillmentRate: 0
                     };
                 }
@@ -338,6 +338,25 @@ const reportController = {
                     }
                 } else if (order.status === 'Cancelled') {
                     weeks[weekNum].cancelled++;
+                    
+                    // Get all customer IDs
+                    const customerUsers = await User.find({ usertype: 'Customer' });
+                    const customerIds = customerUsers.map(user => user.userID);
+
+                    // Check if cancellation was by customer
+                    const customerCancellation = await Alert.findOne({
+                        orders: order.OrderID,
+                        category: 'Cancellation',
+                        createdById: { $in: customerIds },
+                        dateCreated: {
+                            $gte: startDate.toISOString(),
+                            $lte: endDate.toISOString()
+                        }
+                    });
+
+                    if (customerCancellation) {
+                        weeks[weekNum].cancelledByCustomer++;
+                    }
                 }
             }
 
@@ -358,13 +377,15 @@ const reportController = {
                     };
                 });
 
+                console.log('Weekly data:', weeklyData);
+
             // Calculate monthly totals
             const monthlyTotals = {
                 noOfOrders: 0,
                 fulfilledOnTime: 0,
                 fulfilledLate: 0,
                 cancelled: 0,
-                alertsIssued: 0,
+                cancelledByCustomer: 0,
                 fulfillmentRate: '0.00%'
             };
 
@@ -373,7 +394,7 @@ const reportController = {
                 monthlyTotals.fulfilledOnTime += week.fulfilledOnTime;
                 monthlyTotals.fulfilledLate += week.fulfilledLate;
                 monthlyTotals.cancelled += week.cancelled;
-                monthlyTotals.alertsIssued += week.alertsIssued;
+                monthlyTotals.cancelledByCustomer += week.cancelledByCustomer;
             }
 
             // Calculate monthly fulfillment rate
@@ -419,47 +440,66 @@ const reportController = {
                 }
             }).sort({ deliveryDate: 1 });
 
-            // Group orders by week
-            const weeks = {};
-            for (const order of orders) {
-                const orderDate = new Date(order.deliveryDate);
-                const weekNum = getWeekNumber(orderDate);
+           // Group orders by week
+           const weeks = {};
+           for (const order of orders) {
+               const orderDate = new Date(order.deliveryDate);
+               const weekNum = getWeekNumber(orderDate);
 
-                if (!weeks[weekNum]) {
-                    weeks[weekNum] = {
-                        noOfOrders: 0,
-                        fulfilledOnTime: 0,
-                        fulfilledLate: 0,
-                        cancelled: 0,
-                        alertsIssued: 0,
-                        fulfillmentRate: 0
-                    };
-                }
-                weeks[weekNum].noOfOrders++;
+               if (!weeks[weekNum]) {
+                   weeks[weekNum] = {
+                       noOfOrders: 0,
+                       fulfilledOnTime: 0,
+                       fulfilledLate: 0,
+                       cancelled: 0,
+                       cancelledByCustomer: 0,
+                       fulfillmentRate: 0
+                   };
+               }
+               weeks[weekNum].noOfOrders++;
 
-                // Check delivery status
-                if (order.status === 'Delivered') {
-                    const delivery = await Delivery.findOne({ orderID: order.OrderID.toString() })
-                        .sort({ deliveredOn: -1 });
-                
-                    if (delivery) {
-                        const scheduledDate = new Date(order.deliveryDate);
-                        const actualDeliveryDate = new Date(delivery.deliveredOn);
-                        
-                        // Compare dates without time
-                        scheduledDate.setHours(0, 0, 0, 0);
-                        actualDeliveryDate.setHours(0, 0, 0, 0);
-                        
-                        if (actualDeliveryDate <= scheduledDate) {
-                            weeks[weekNum].fulfilledOnTime++;
-                        } else {
-                            weeks[weekNum].fulfilledLate++;
-                        }
-                    }
-                } else if (order.status === 'Cancelled') {
-                    weeks[weekNum].cancelled++;
-                }
-            }
+               // Check delivery status
+               if (order.status === 'Delivered') {
+                   const delivery = await Delivery.findOne({ orderID: order.OrderID.toString() })
+                       .sort({ deliveredOn: -1 });
+               
+                   if (delivery) {
+                       const scheduledDate = new Date(order.deliveryDate);
+                       const actualDeliveryDate = new Date(delivery.deliveredOn);
+                       
+                       // Compare dates without time
+                       scheduledDate.setHours(0, 0, 0, 0);
+                       actualDeliveryDate.setHours(0, 0, 0, 0);
+                       
+                       if (actualDeliveryDate <= scheduledDate) {
+                           weeks[weekNum].fulfilledOnTime++;
+                       } else {
+                           weeks[weekNum].fulfilledLate++;
+                       }
+                   }
+               } else if (order.status === 'Cancelled') {
+                   weeks[weekNum].cancelled++;
+                   
+                   // Get all customer IDs
+                   const customerUsers = await User.find({ usertype: 'Customer' });
+                   const customerIds = customerUsers.map(user => user.userID);
+
+                   // Check if cancellation was by customer
+                   const customerCancellation = await Alert.findOne({
+                       orders: order.OrderID,
+                       category: 'Cancellation',
+                       createdById: { $in: customerIds },
+                       dateCreated: {
+                           $gte: startDate.toISOString(),
+                           $lte: endDate.toISOString()
+                       }
+                   });
+
+                   if (customerCancellation) {
+                       weeks[weekNum].cancelledByCustomer++;
+                   }
+               }
+           }
 
             // Calculate fulfillment rates and format weeks data
             const weeklyData = Object.entries(weeks)
@@ -484,7 +524,7 @@ const reportController = {
                 fulfilledOnTime: 0,
                 fulfilledLate: 0,
                 cancelled: 0,
-                alertsIssued: 0,
+                cancelledByCustomer: 0,
                 fulfillmentRate: '0.00%'
             };
 
@@ -493,7 +533,7 @@ const reportController = {
                 monthlyTotals.fulfilledOnTime += week.fulfilledOnTime;
                 monthlyTotals.fulfilledLate += week.fulfilledLate;
                 monthlyTotals.cancelled += week.cancelled;
-                monthlyTotals.alertsIssued += week.alertsIssued;
+                monthlyTotals.cancelledByCustomer += week.cancelledByCustomer;
             }
 
             // Calculate monthly fulfillment rate

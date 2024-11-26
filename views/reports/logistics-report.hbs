@@ -19,7 +19,7 @@
                     <th>FULFILLED ON TIME</th>
                     <th>FULFILLED LATE</th>
                     <th>CANCELLED</th>
-                    <th>ALERTS ISSUED</th>
+                    <th>CANCELLED BY CUSTOMER</th>
                     <th>FULFILLMENT RATE</th>
                 </tr>
             </thead>
@@ -30,7 +30,7 @@
                     <td class="numeric">{{monthlyTotals.fulfilledOnTime}}</td>
                     <td class="numeric">{{monthlyTotals.fulfilledLate}}</td>
                     <td class="numeric">{{monthlyTotals.cancelled}}</td>
-                    <td class="numeric">{{monthlyTotals.alertsIssued}}</td>
+                    <td class="numeric">{{monthlyTotals.cancelledByCustomer}}</td>
                     <td class="numeric">{{monthlyTotals.fulfillmentRate}}</td>
                 </tr>
             </tbody>
@@ -47,7 +47,7 @@
                     <th>FULFILLED ON TIME</th>
                     <th>FULFILLED LATE</th>
                     <th>CANCELLED</th>
-                    <th>ALERTS ISSUED</th>
+                    <th>CANCELLED BY CUSTOMER</th>
                     <th>FULFILLMENT RATE</th>
                 </tr>
             </thead>
@@ -59,7 +59,7 @@
                     <td class="numeric">{{fulfilledOnTime}}</td>
                     <td class="numeric">{{fulfilledLate}}</td>
                     <td class="numeric">{{cancelled}}</td>
-                    <td class="numeric">{{alertsIssued}}</td>
+                    <td class="numeric">{{cancelledByCustomer}}</td>
                     <td class="numeric">{{fulfillmentRate}}</td>
                 </tr>
                 {{/each}}
@@ -68,6 +68,6 @@
     </div>
 
     <div class="report-footer">
-        <p>Generated: {{flexFormatDate generatedDate "MM/DD/YY"}}, by {{user.name}}</p>
+        <p>Generated: {{CMORFormatDate generatedDate "MM/DD/YY"}}, by {{user.name}}</p>
     </div>
 </div>
