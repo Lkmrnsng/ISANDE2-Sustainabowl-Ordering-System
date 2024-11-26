@@ -5,6 +5,7 @@ const Request = require('../models/Request');
 const Order = require('../models/Order');
 const Item = require('../models/Item');
 const User = require('../models/User');
+const { createAlert } = require('../controllers/alertController');
 
 // Consolidated auth middleware
 const authMiddleware = {
@@ -146,7 +147,6 @@ router.put('/api/order/:orderId',
                 return res.status(404).json({ error: 'Order not found' });
             }
 
-            // Keep the date as is from the client
             const updates = {
                 deliveryDate: req.body.deliveryDate,
                 deliveryTimeRange: req.body.deliveryTimeRange,
@@ -156,10 +156,25 @@ router.put('/api/order/:orderId',
                 items: req.body.items
             };
 
+            // Check if status is changing to Cancelled
+            const isBeingCancelled = order.status !== 'Cancelled' && updates.status === 'Cancelled';
+
             await Order.findOneAndUpdate(
                 { OrderID: parseInt(req.params.orderId) },
                 updates
             );
+
+            // Create cancellation alert if status changed to Cancelled
+            if (isBeingCancelled) {
+                await createAlert({
+                    concernType: 'Cancellation',
+                    details: `Order #${order.OrderID} cancelled by Sales`,
+                    orders: [order.OrderID],
+                    userType: 'Sales',
+                    byCustomer: false,
+                    createdById: req.session.userId
+                });
+            }
 
             res.json({ success: true, message: 'Order updated successfully' });
         } catch (error) {
@@ -186,12 +201,29 @@ router.put('/api/request/:requestId/orders',
                 items: req.body.items
             };
 
+            // Check which orders are being cancelled
+            const ordersBeingCancelled = orders.filter(order => 
+                order.status !== 'Cancelled' && updates.status === 'Cancelled'
+            );
+
             await Promise.all(orders.map(order => 
                 Order.findOneAndUpdate(
                     { OrderID: order.OrderID },
                     updates
                 )
             ));
+
+            // Create cancellation alert if any orders were cancelled
+            if (ordersBeingCancelled.length > 0) {
+                await createAlert({
+                    concernType: 'Cancellation',
+                    details: `Multiple orders cancelled by Sales: ${ordersBeingCancelled.map(o => o.OrderID).join(', ')}`,
+                    orders: ordersBeingCancelled.map(o => o.OrderID),
+                    userType: 'Sales',
+                    byCustomer: false,
+                    createdById: req.session.userId
+                });
+            }
 
             res.json({ success: true, message: 'All orders updated successfully' });
         } catch (error) {
@@ -205,7 +237,51 @@ router.put('/api/request/:requestId/status',
     authMiddleware.validateSession,
     authMiddleware.salesOnly,
     authMiddleware.validateRequest,
-    chatController.updateRequestStatus
+    async (req, res) => {
+        try {
+            const { status } = req.body;
+            const requestId = req.params.requestId;
+
+            const request = await Request.findOne({ requestID: requestId });
+            if (!request) {
+                return res.status(404).json({ error: 'Request not found' });
+            }
+
+            const isBeingCancelled = request.status !== 'Cancelled' && status === 'Cancelled';
+
+            // Update request status
+            await Request.findOneAndUpdate(
+                { requestID: requestId },
+                { status }
+            );
+
+            // Get associated orders if being cancelled
+            if (isBeingCancelled) {
+                const orders = await Order.find({ requestID: requestId });
+                
+                // Create cancellation alert
+                await createAlert({
+                    concernType: 'Cancellation',
+                    details: `Request #${requestId} and associated orders cancelled by Sales`,
+                    orders: orders.map(o => o.OrderID),
+                    userType: 'Sales',
+                    byCustomer: false,
+                    createdById: req.session.userId
+                });
+
+                // Update all associated orders to cancelled
+                await Order.updateMany(
+                    { requestID: requestId },
+                    { status: 'Cancelled' }
+                );
+            }
+
+            res.json({ success: true, status });
+        } catch (error) {
+            console.error('Error updating request status:', error);
+            res.status(500).json({ error: 'Failed to update status' });
+        }
+    }
 );
 
 // Get available items for sales

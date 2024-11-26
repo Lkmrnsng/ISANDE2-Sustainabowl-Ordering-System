@@ -1,30 +1,30 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // Cache DOM elements
-  const elements = {
-      chatMessages: document.getElementById('chatMessages'),
-      messageInput: document.getElementById('messageInput'),
-      sendButton: document.getElementById('sendMessage'),
-      requestItems: document.querySelectorAll('.request-item'),
-      orderSelect: document.getElementById('orderDateSelect'),
-      requestStatus: document.getElementById('requestStatus'),
-      saveCurrentOrder: document.getElementById('saveCurrentOrder'),
-      saveAllOrders: document.getElementById('saveAllOrders'),
-      itemsList: document.querySelector('.items-list'),
-      requestStatus: document.getElementById('requestStatus')
-  };
+    // Cache DOM elements
+    const elements = {
+        chatMessages: document.getElementById('chatMessages'),
+        messageInput: document.getElementById('messageInput'),
+        sendButton: document.getElementById('sendMessage'),
+        requestItems: document.querySelectorAll('.request-item'),
+        orderSelect: document.getElementById('orderDateSelect'),
+        requestStatus: document.getElementById('requestStatus'),
+        saveCurrentOrder: document.getElementById('saveCurrentOrder'),
+        saveAllOrders: document.getElementById('saveAllOrders'),
+        itemsList: document.querySelector('.items-list'),
+        requestStatus: document.getElementById('requestStatus')
+    };
 
-  // State management
-  const state = {
-      activeRequestId: null,
-      activeOrderId: null,
-      isRefreshing: false,
-      refreshTimeout: null,
-      messageQueue: [],
-      requestsData: new Map(), // Store request data
-      originalOrderData: null,
-      hasUnsavedChanges: false,
-      availableItems: []
-  };
+    // State management
+    const state = {
+        activeRequestId: null,
+        activeOrderId: null,
+        isRefreshing: false,
+        refreshTimeout: null,
+        messageQueue: [],
+        requestsData: new Map(),
+        originalOrderData: null,
+        hasUnsavedChanges: false,
+        availableItems: []
+    };
 
   
 
@@ -676,12 +676,26 @@ function collectOrderData() {
 
       // Add new item function
       window.addNewItem = function() {
+        // Get current order data
+        const currentOrder = state.requestsData.get(state.activeRequestId)
+            .orders.find(o => o.OrderID === parseInt(state.activeOrderId));
+        
+        // Filter out items that are already in the order
+        const availableItems = state.availableItems.filter(item => 
+            !currentOrder.items.some(orderItem => orderItem.itemID === item.itemID)
+        );
+
+        if (availableItems.length === 0) {
+            showError('All available items are already in this order');
+            return;
+        }
+
         const itemSelectionHTML = `
             <div class="item-selection-modal">
                 <div class="modal-content">
                     <h3>Add Item</h3>
                     <select id="itemSelect">
-                        ${state.availableItems.map(item => 
+                        ${availableItems.map(item => 
                             `<option value="${item.itemID}" data-price="${item.itemPrice}">${item.itemName}</option>`
                         ).join('')}
                     </select>
@@ -715,11 +729,21 @@ function collectOrderData() {
             .orders.find(o => o.OrderID === parseInt(state.activeOrderId));
         
         if (!currentOrder.items) currentOrder.items = [];
+        
+        // Check for duplicates one more time before adding
+        if (currentOrder.items.some(item => item.itemID === newItem.itemID)) {
+            showError('This item is already in the order');
+            closeItemModal();
+            return;
+        }
+
         currentOrder.items.push(newItem);
+        state.hasUnsavedChanges = true;
 
         // Update display
         updateOrderDisplay(currentOrder);
         closeItemModal();
+        showSuccess('Item added successfully');
     };
 
     // Remove item
@@ -728,7 +752,9 @@ function collectOrderData() {
             .orders.find(o => o.OrderID === parseInt(state.activeOrderId));
         
         currentOrder.items = currentOrder.items.filter(item => item.itemID !== itemId);
+        state.hasUnsavedChanges = true;
         updateOrderDisplay(currentOrder);
+        showSuccess('Item removed successfully');
     };
 
     // Close item modal
@@ -736,56 +762,57 @@ function collectOrderData() {
         const modal = document.querySelector('.item-selection-modal');
         if (modal) modal.remove();
     };
+
+    window.handleItemQuantityChange = function(e) {
+        const input = e.target;
+        const newQuantity = parseInt(input.value);
+        const itemRow = input.closest('.item') || input.closest('.salesitems');
+        
+        if (isNaN(newQuantity) || newQuantity < 0) {
+            input.value = input.dataset.previousValue || 1;
+            return;
+        }
+        
+        const priceElement = itemRow.querySelector('.item-price-detail');
+        const price = parseFloat(priceElement.dataset.price || priceElement.textContent.replace('₱', ''));
+        
+        // Calculate subtotal
+        const subtotal = price * newQuantity;
+        const subtotalElement = itemRow.querySelector('.item-subtotal');
+        if (subtotalElement) {
+            subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
+        }
+        
+        // Save previous value for reverting if needed
+        input.dataset.previousValue = newQuantity;
+        
+        // Update total by summing all subtotals
+        updateTotalAmount();
+    
+        // Set unsaved changes flag if in sales view
+        if (typeof state !== 'undefined' && state.hasUnsavedChanges !== undefined) {
+            state.hasUnsavedChanges = true;
+        }
+    };
+    
+    function updateTotalAmount() {
+        const itemRows = document.querySelectorAll('.item, .salesitems');
+        let total = 0;
+        
+        itemRows.forEach(row => {
+            const subtotalElement = row.querySelector('.item-subtotal');
+            if (subtotalElement) {
+                const subtotal = parseFloat(subtotalElement.textContent.replace('₱', ''));
+                if (!isNaN(subtotal)) {
+                    total += subtotal;
+                }
+            }
+        });
+        
+        const totalElement = document.querySelector('.total-amount');
+        if (totalElement) {
+            totalElement.textContent = `₱${total.toFixed(2)}`;
+        }
+    }
 });
 
-window.handleItemQuantityChange = function(e) {
-    const input = e.target;
-    const newQuantity = parseInt(input.value);
-    const itemRow = input.closest('.item') || input.closest('.salesitems');
-    
-    if (isNaN(newQuantity) || newQuantity < 0) {
-        input.value = input.dataset.previousValue || 1;
-        return;
-    }
-    
-    const priceElement = itemRow.querySelector('.item-price-detail');
-    const price = parseFloat(priceElement.dataset.price || priceElement.textContent.replace('₱', ''));
-    
-    // Calculate subtotal
-    const subtotal = price * newQuantity;
-    const subtotalElement = itemRow.querySelector('.item-subtotal');
-    if (subtotalElement) {
-        subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
-    }
-    
-    // Save previous value for reverting if needed
-    input.dataset.previousValue = newQuantity;
-    
-    // Update total by summing all subtotals
-    updateTotalAmount();
-
-    // Set unsaved changes flag if in sales view
-    if (typeof state !== 'undefined' && state.hasUnsavedChanges !== undefined) {
-        state.hasUnsavedChanges = true;
-    }
-};
-
-function updateTotalAmount() {
-    const itemRows = document.querySelectorAll('.item, .salesitems');
-    let total = 0;
-    
-    itemRows.forEach(row => {
-        const subtotalElement = row.querySelector('.item-subtotal');
-        if (subtotalElement) {
-            const subtotal = parseFloat(subtotalElement.textContent.replace('₱', ''));
-            if (!isNaN(subtotal)) {
-                total += subtotal;
-            }
-        }
-    });
-    
-    const totalElement = document.querySelector('.total-amount');
-    if (totalElement) {
-        totalElement.textContent = `₱${total.toFixed(2)}`;
-    }
-}
