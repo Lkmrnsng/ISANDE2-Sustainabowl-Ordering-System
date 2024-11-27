@@ -115,7 +115,7 @@
             }
         });
 
-        async function loadNotifications() {
+        window.loadNotifications = async function() {
             try {
                 const response = await fetch('/alert/notifications');
                 const data = await response.json();

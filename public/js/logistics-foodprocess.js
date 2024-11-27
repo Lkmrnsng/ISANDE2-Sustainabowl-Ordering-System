@@ -129,6 +129,7 @@ function updateProcessingTable() {
                     if (confirm('Are you sure you want to cancel this order?')) {
                         try {
                             await setOrderStatus(orderID, 'Cancelled');
+                            await createAlert(orderID, "Cancellation", "Order cancelled by Logistics");
                             await getOrdersJson();
                             updateProcessingTable();
                             showMessage("Order cancelled successfully!");
@@ -189,6 +190,36 @@ async function setOrderStatus(orderID, status) {
     }
     
     return await response.json();
+}
+
+// Create an alert object in the db
+async function createAlert(orderID, category, details) {
+    try {
+        const orderIDs = [ orderID ];
+
+        const formData = {
+            category: category,
+            details: details,
+            orders: orderIDs
+        };
+
+        const response = await fetch(`/alert/create`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify( formData )
+        });
+
+        if (!response.ok) throw new Error(`Failed to create alert`);
+        
+        if (window.loadNotifications) {
+            window.loadNotifications();
+        }
+    } catch (error) {
+        console.error('Error creating alert/s:', error);
+        alert('Failed to create one or more alerts');
+    }
 }
 
 // Change page function

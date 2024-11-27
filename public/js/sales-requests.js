@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // For every order in a request, set its status to 'Cancelled'
+    // For every order in a request, set its status to 'Cancelled', also create an alert
     window.cancelOrders = async function(requestID) {
         const orders = filteredData.filter(unit => unit.request.requestID.toString() === requestID.toString()).flatMap(unit => unit.orders) || [];
             
@@ -388,6 +388,8 @@ document.addEventListener('DOMContentLoaded', function() {
         );
     
         await Promise.all(orderCancelPromises);
+
+        await createAlert(orders, "Cancellation", "Order cancelled by Sales");
     };
 
     // Modify the MongoDB to set the request status
@@ -421,6 +423,40 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Failed to update order status:', error);
             throw error;
+        }
+    }
+
+    // Create an alert object in the db
+    async function createAlert(orders, category, details) {
+        try {
+            const orderIDs = [];
+
+            for(const order of orders) {
+                orderIDs.push(order.OrderID);
+            }
+
+            const formData = {
+                category: category,
+                details: details,
+                orders: orderIDs
+            };
+
+            const response = await fetch(`/alert/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify( formData )
+            });
+
+            if (!response.ok) throw new Error(`Failed to create alert`);
+
+            if (window.loadNotifications) {
+                window.loadNotifications();
+            }
+        } catch (error) {
+            console.error('Error creating alert/s:', error);
+            alert('Failed to create one or more alerts');
         }
     }
 
