@@ -5,8 +5,8 @@ let allDeliveries = [];
 document.addEventListener('DOMContentLoaded', function() {
     // Load the page for the first time
     async function initialize() {
-        const processingTable = document.querySelector('.delivery-table');
-        if (processingTable) {
+        const deliveryTable = document.querySelector('.delivery-table');
+        if (deliveryTable) {
             await getDeliveriesJson();
             updateDeliveriesTable();
             initializeDeliveryForm();

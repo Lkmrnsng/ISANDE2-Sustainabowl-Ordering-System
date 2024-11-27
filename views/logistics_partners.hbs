@@ -1,25 +1,22 @@
 <div class="main-layout">
-  <main class="dashboard-container">
-    <div class="partners-section">
+  <main class="agencies-container">
+    <div class="header-section">
       <h2>Logistics Partners</h2>
-      <div class="table-controls">
-        <div class="filter-sort">
-          <div class="dropdown">
-            <button class="filter-btn">Filter by</button>
-          </div>
-          <div class="dropdown">
-            <button class="sort-btn">Sort by</button>
-          </div>
-        </div>
-        <div class="search-bar">
-          <input type="text" placeholder="Search" />
-          <button class="search-icon">
-            <i class="fas fa-search"></i>
-          </button>
+      <div class="controls">
+        <div class="filters">
+          <select id="sortByAgency" class="sort-btn" onchange="sortAgencies()">
+            <option value="none">Sort by</option>
+            <option value="nameAsc">Name</option>
+            <option value="priceDesc">Price</option>
+            <option value="weightDesc">Max Weight</option>
+            <option value="perKgDesc">Price Per Kg</option>
+          </select>
         </div>
       </div>
+    </div>
 
-      <table class="logistics-table">
+    <div class="agency-table-container">
+      <table class="agency-table">
         <thead>
           <tr>
             <th>Name</th>
@@ -27,68 +24,61 @@
             <th>Location</th>
             <th>Price</th>
             <th>Max. Weight</th>
-            <th>Per Unit Computation</th>
+            <th>Price per Kg</th>
             <th>Latest Shipment Date</th>
-            <th></th>
           </tr>
         </thead>
         <tbody>
-          {{#each agencies}}
-          <tr {{#if @first}}class="highlighted"{{/if}}>
-            <td>{{name}}</td>
-            <td>
-              {{#if (isArray contactNo)}}
-                {{#each contactNo}}
-                  {{this}}<br>
-                {{/each}}
-              {{else}}
-                {{contactNo}}
-              {{/if}}
-            </td>
-            <td>{{location}}</td>
-            <td>₱{{price}}</td>
-            <td>{{maxWeight}} kg</td>
-            <td>{{perUnitComputation}}</td>
-            <td>{{latestShipmentDate}}</td>
-            <td>
-              <button class="more-options">...</button>
-              <button class="contact-btn">Contact</button>
-            </td>
-          </tr>
-          {{/each}}
+          {{!-- This will be automatically populated by the js --}}
         </tbody>
       </table>
-
-      <section class="agency-shipments">
-        <h2>Agency Shipments</h2>
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <h3>Shipment For This Week:</h3>
-            <p>{{shipmentMetrics.weeklyShipments}}</p>
-          </div>
-          <div class="metric-card">
-            <h3>Total Expected KG:</h3>
-            <p>{{shipmentMetrics.totalExpectedKg}} Kg</p>
-          </div>
-          <div class="metric-card">
-            <h3>On-Time Rate:</h3>
-            <p>{{shipmentMetrics.onTimeRate}}%</p>
-          </div>
-          <div class="metric-card">
-            <h3>Unbooked Shipments:</h3>
-            <p>{{shipmentMetrics.unbookedShipments}}</p>
-            <button class="procurement-btn">Procurement</button>
-          </div>
-          <div class="metric-card">
-            <h3>Completed Shipments:</h3>
-            <p>{{shipmentMetrics.completedShipments}}</p>
-          </div>
-          <div class="metric-card">
-            <h3>Average Amount Spent:</h3>
-            <p>₱{{shipmentMetrics.averageAmountSpent}}</p>
-          </div>
+      <div class="pagination">
+        <span>Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+        <div class="pagination-controls">
+          <button id="prevPage" class="nav-button" onclick="changePage(-1)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
+          </button>
+          <button id="nextPage" class="nav-button" onclick="changePage(1)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          </button>
         </div>
-      </section>
+      </div>
     </div>
+
+    <section class="agency-shipments">
+      <h2>Agency Shipments</h2>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <h3>Top Agency:</h3>
+          <p>{{stats.topAgency}}</p>
+        </div>
+        <div class="metric-card">
+          <h3>Monthly Procurement Expenses:</h3>
+          <p>₱ {{stats.procurementExpenses}}</p>
+        </div>
+        <div class="metric-card">
+          <h3>Pending Procurements:</h3>
+          <p>{{stats.pendingProcurements}}</p>
+        </div>
+        <div class="metric-card">
+          <h3>Total Incoming Kg</h3>
+          <p>{{stats.incomingKg}} this month</p>
+        </div>
+        <div class="metric-card">
+          <h3>Completed Shipments:</h3>
+          <p>{{stats.completedShipments}}</p>
+        </div>
+        <div class="metric-card">
+          <h3>TBA</h3>
+          <p>{{stats.tba}}</p>
+        </div>
+      </div>
+    </section>
   </main>
 </div>
+
+<script src="/js/logistics-partners.js"></script>

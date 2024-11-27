@@ -91,11 +91,14 @@ async function getWarehouseView (req, res) {
 //getPartnersView
 async function getPartnersView (req, res) {
     try {
+        const stats = (await getAgenciesStats())[0];
+
         res.render('logistics_partners', {
             title: 'Partners',
             css: ['logistics_partners.css'],
             layout: 'logistics',
-            active: 'partners'
+            active: 'partners', 
+            stats: stats
         });
     }
     catch (error) {
@@ -134,6 +137,28 @@ async function getDashboardStats() {
         pendingProcurements: pendingProcurements.toString(),
         pendingFoodprocessing: pendingFoodprocessing.toString(),
         unpaidDeliveries: unpaidDeliveries.toString()
+    })
+
+    return statsArray;
+}
+
+// Call the methods to compute the Logistics Partners statistics
+async function getAgenciesStats() {
+    const statsArray = [];
+    const topAgency = "Temp";
+    const procurementExpenses = await getprocurementExpenses();
+    const pendingProcurements = await getpendingProcurements();
+    const incomingKg = 100;
+    const completedShipments = 10;
+    const tba = 100;
+
+    statsArray.push({
+        topAgency: topAgency.toString(),
+        procurementExpenses: procurementExpenses.toString(),
+        pendingProcurements: pendingProcurements.toString(),
+        incomingKg: incomingKg.toString(),
+        completedShipments: completedShipments.toString(),
+        tba: tba.toString()
     })
 
     return statsArray;
