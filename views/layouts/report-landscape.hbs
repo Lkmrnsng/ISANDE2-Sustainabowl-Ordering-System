@@ -27,8 +27,8 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Customize the PDF options
         const opt = {
-            margin: [0.2, 0.1], // 0.5 inch margins
-            filename: 'order-report-{{month}}-{{year}}.pdf',
+            margin: [0.2,0.2], 
+            filename: 'generated-report-{{month}}-{{year}}.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
                 scale: 2,

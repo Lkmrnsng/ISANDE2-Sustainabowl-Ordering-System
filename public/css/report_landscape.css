@@ -254,6 +254,116 @@ tr {
   text-align: left;
 }
 
+
+
+
+/* Sales report specific styles */
+.sales-department {
+  margin: 15px 0;
+}
+
+.sales-department h3 {
+  font-size: 12px;
+  text-align: left;
+}
+
+/* Sales report table column widths */
+.sales-report-table th,
+.sales-report-table td {
+  padding: 6px 12px;
+}
+
+/* Data Summary table */
+.sales-report-table th:nth-child(1), /* MONTH */
+.sales-report-table td:nth-child(1) {
+  width: 10%;
+  text-align: left;
+}
+
+.sales-report-table th:nth-child(2), /* MOST SOLD ITEM */
+.sales-report-table td:nth-child(2) {
+  width: 15%;
+  text-align: left;
+}
+
+.sales-report-table th:nth-child(3), /* LEAST SOLD ITEM */
+.sales-report-table td:nth-child(3) {
+  width: 15%;
+  text-align: left;
+}
+
+.sales-report-table th:nth-child(4), /* TOTAL SOLD */
+.sales-report-table td:nth-child(4) {
+  width: 13%;
+  text-align: right;
+}
+
+.sales-report-table th:nth-child(5), /* TOTAL DISCARDED */
+.sales-report-table td:nth-child(5) {
+  width: 17%;
+  text-align: right;
+}
+
+.sales-report-table th:nth-child(6), /* TOTAL SALES */
+.sales-report-table td:nth-child(6) {
+  width: 15%;
+  text-align: right;
+}
+
+.sales-report-table th:nth-child(7), /* TOTAL REVENUE */
+.sales-report-table td:nth-child(7) {
+  width: 15%;
+  text-align: right;
+}
+
+/* Monthly Data table - same widths as above but different columns */
+.monthly-data .sales-report-table th:nth-child(1), /* ITEM */
+.monthly-data .sales-report-table td:nth-child(1) {
+  width: 11%;
+  text-align: left;
+}
+
+.monthly-data .sales-report-table th:nth-child(2), /* AVG PRICE */
+.monthly-data .sales-report-table td:nth-child(2) {
+  width: 15%;
+  text-align: right;
+}
+
+.monthly-data .sales-report-table th:nth-child(3), /* AVG COST */
+.monthly-data .sales-report-table td:nth-child(3) {
+  width: 15%;
+  text-align: right;
+}
+
+.monthly-data .sales-report-table th:nth-child(4), /* SOLD KG */
+.monthly-data .sales-report-table td:nth-child(4) {
+  width: 10%;
+  text-align: right;
+}
+
+.monthly-data .sales-report-table th:nth-child(5), /* DISCARDED KG */
+.monthly-data .sales-report-table td:nth-child(5) {
+  width: 12%;
+  text-align: right;
+}
+
+.monthly-data .sales-report-table th:nth-child(6), /* TOTAL SALES */
+.monthly-data .sales-report-table td:nth-child(6) {
+  width: 16%;
+  text-align: right;
+}
+
+.monthly-data .sales-report-table th:nth-child(7), /* TOTAL REVENUE */
+.monthly-data .sales-report-table td:nth-child(7) {
+  width: 18%;
+  text-align: right;
+}
+
+/* Ensure headers are centered regardless of data alignment */
+.sales-report-table th {
+  text-align: center;
+}
+
 /* Print specific styles */
 @media print {
   .report-container {

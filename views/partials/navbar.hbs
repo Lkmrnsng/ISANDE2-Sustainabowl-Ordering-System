@@ -160,7 +160,7 @@
                         <div class="notification-title">${notification.category}</div>
                         <div class="notification-message">${notification.details}</div>
                         <div class="notification-message">Affected Orders: ${notification.orders}</div>
-                        <div class="notification-time">${formatNotificationDate(notification.date)}</div>
+                        <div class="notification-time">${formatNotificationDate(notification)}</div>
                     </div>
                 </div>
             `).join('');
@@ -176,8 +176,9 @@
             return icons[category] || icons.default;
         }
 
-        function formatNotificationDate(dateString) {
-            const date = new Date(dateString);
+        function formatNotificationDate(notification) {
+            // Use dateCreated property instead of date
+            const date = new Date(notification.dateCreated);
             const now = new Date();
             const diff = now - date;
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
