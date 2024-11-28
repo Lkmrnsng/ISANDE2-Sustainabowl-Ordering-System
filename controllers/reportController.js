@@ -378,7 +378,6 @@ const reportController = {
                     };
                 });
 
-                console.log('Weekly data:', weeklyData);
 
             // Calculate monthly totals
             const monthlyTotals = {
@@ -581,17 +580,10 @@ const reportController = {
                 }
             }).sort({ deliveryDate: 1 });
 
-            console.log('Found Delivered Orders:', JSON.stringify(orders, null, 2));
     
             // Get current item prices and calculate averages from procurement
             const itemPrices = await calculateItemPrices();
 
-            console.log('Calculated Item Prices:', JSON.stringify(Array.from(itemPrices), null, 2));
-
-            console.log('Item Details Check:');
-            const items = await Item.find({});
-            console.log('All Items in Database:', items);
-            
             // Initialize monthly data
             let monthlyData = {
                 mostSoldItem: '',
@@ -607,13 +599,7 @@ const reportController = {
     
             // Process orders
             for (const order of orders) {
-                console.log('Processing Order:', order.OrderID);
                 for (const orderItem of order.items) {
-                    console.log('Processing Item:', {
-                        itemId: orderItem.itemID,
-                        quantity: orderItem.quantity,
-                        existingData: itemsData.get(orderItem.itemID)
-                    });
                     const itemId = orderItem.itemID;
                     if (!itemsData.has(itemId)) {
 
@@ -654,7 +640,6 @@ const reportController = {
                 status: 'Completed'
             });
 
-            console.log('Found Procurements:', JSON.stringify(procurements, null, 2));
     
             for (const procurement of procurements) {
                 for (const item of procurement.receivedItems) {
@@ -921,7 +906,6 @@ async function calculateItemPrices() {
     }).sort({ receivedDate: -1 });
 
     for (const procurement of procurements) {
-        console.log('Procurement Items:', procurement.bookedItems);
         for (const item of procurement.bookedItems) {
             const itemId = item[0]; // First element is itemID
             const qty = item[1];    // Second element is quantity
