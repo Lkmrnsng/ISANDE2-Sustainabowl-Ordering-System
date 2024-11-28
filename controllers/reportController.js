@@ -4,6 +4,7 @@ const Order = require('../models/Order');
 const Item = require('../models/Item');
 const Delivery = require('../models/Delivery');
 const Alert = require('../models/Alert');
+const Procurement = require('../models/Procurement');
 
 const reportController = {
     async getCustomerReport(req, res) {
@@ -559,6 +560,296 @@ const reportController = {
             console.error('Error downloading logistics report:', error);
             res.status(500).send('Error downloading logistics report');
         }
+    },
+
+    async getSalesReport(req, res) {
+        try {
+            const month = req.params.month || new Date().toLocaleString('en-US', { month: 'short' });
+            const year = new Date().getFullYear();
+    
+            // Get the start and end date for the selected month
+            const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(month);
+            const startDate = new Date(year, monthIndex, 1);
+            const endDate = new Date(year, monthIndex + 1, 0);
+    
+            // Get all delivered orders for the month
+            const orders = await Order.find({
+                status: 'Delivered',
+                deliveryDate: {
+                    $gte: startDate.toISOString(),
+                    $lte: endDate.toISOString()
+                }
+            }).sort({ deliveryDate: 1 });
+
+            console.log('Found Delivered Orders:', JSON.stringify(orders, null, 2));
+    
+            // Get current item prices and calculate averages from procurement
+            const itemPrices = await calculateItemPrices();
+
+            console.log('Calculated Item Prices:', JSON.stringify(Array.from(itemPrices), null, 2));
+
+            console.log('Item Details Check:');
+            const items = await Item.find({});
+            console.log('All Items in Database:', items);
+            
+            // Initialize monthly data
+            let monthlyData = {
+                mostSoldItem: '',
+                leastSoldItem: '',
+                totalSoldKg: 0,
+                totalDiscardedKg: 0,
+                totalSales: 0,
+                totalRevenue: 0
+            };
+    
+            // Initialize items data for the month
+            const itemsData = new Map();
+    
+            // Process orders
+            for (const order of orders) {
+                console.log('Processing Order:', order.OrderID);
+                for (const orderItem of order.items) {
+                    console.log('Processing Item:', {
+                        itemId: orderItem.itemID,
+                        quantity: orderItem.quantity,
+                        existingData: itemsData.get(orderItem.itemID)
+                    });
+                    const itemId = orderItem.itemID;
+                    if (!itemsData.has(itemId)) {
+
+                        const itemDetails = await Item.findOne({ itemID: itemId });
+                        const priceInfo = itemPrices.get(itemId);
+
+                        // If we have itemDetails but no procurement info, cost will be 60% of the price
+                        const defaultCost = itemDetails ? (itemDetails.itemPrice * 0.6) : 0;
+                        itemsData.set(itemId, {
+                            name: itemDetails ? itemDetails.itemName : 'Unknown Item',
+                            avgPrice: priceInfo ? priceInfo.price : (itemDetails ? itemDetails.itemPrice : 0),
+                            avgCost: priceInfo ? priceInfo.cost : defaultCost,
+                            soldKg: 0,
+                            discardedKg: 0,
+                            totalSales: 0,
+                            totalRevenue: 0
+                        });
+                    }
+    
+                    const itemData = itemsData.get(itemId);
+                    itemData.soldKg += orderItem.quantity;
+                    itemData.totalSales = itemData.soldKg * itemData.avgPrice;
+                    itemData.totalRevenue = itemData.totalSales - (itemData.soldKg * itemData.avgCost);
+    
+                    // Add to monthly totals
+                    monthlyData.totalSoldKg += orderItem.quantity;
+                    monthlyData.totalSales += orderItem.quantity * itemData.avgPrice;
+                    monthlyData.totalRevenue += orderItem.quantity * (itemData.avgPrice - itemData.avgCost);
+                }
+            }
+    
+            // Calculate discarded quantities from procurement
+            const procurements = await Procurement.find({
+                receivedDate: {
+                    $gte: startDate.toISOString(),
+                    $lte: endDate.toISOString()
+                },
+                status: 'Completed'
+            });
+
+            console.log('Found Procurements:', JSON.stringify(procurements, null, 2));
+    
+            for (const procurement of procurements) {
+                for (const item of procurement.receivedItems) {
+                    const itemId = item[0]; // First element is itemID
+                    const discardedQty = item[2]; // Third element is discarded quantity
+                    
+                    if (itemsData.has(itemId)) {
+                        const itemData = itemsData.get(itemId);
+                        itemData.discardedKg += discardedQty;
+                        monthlyData.totalDiscardedKg += discardedQty;
+                    }
+                }
+            }
+    
+            // Determine most and least sold items
+            let maxSold = 0;
+            let minSold = Infinity;
+            
+            itemsData.forEach((data, itemId) => {
+                if (data.soldKg > maxSold) {
+                    maxSold = data.soldKg;
+                    monthlyData.mostSoldItem = data.name;
+                }
+                if (data.soldKg < minSold) {
+                    minSold = data.soldKg;
+                    monthlyData.leastSoldItem = data.name;
+                }
+            });
+    
+            // Convert itemsData map to array for rendering
+            const itemsArray = Array.from(itemsData.entries()).map(([itemId, data]) => ({
+                itemName: data.name,
+                avgPrice: data.avgPrice,
+                avgCost: data.avgCost,
+                soldKg: data.soldKg,
+                discardedKg: data.discardedKg,
+                totalSales: data.totalSales,
+                totalRevenue: data.totalRevenue
+            }));
+    
+            res.render('reports/sales-report', {
+                title: 'Sales Performance Overview',
+                css: ['report_landscape.css'],
+                layout: 'report-landscape',
+                month,
+                year,
+                monthlyData,
+                itemsArray,
+                generatedDate: new Date().toLocaleDateString(),
+                downloadUrl: `/reports/sales/${month}/download/tool`,
+                user: await User.findOne({ userID: req.session.userId })
+            });
+    
+        } catch (error) {
+            console.error('Error generating sales report:', error);
+            res.status(500).send('Error generating sales report');
+        }
+    },
+
+    async downloadSalesReportUsingTool(req, res) {
+        try {
+            const month = req.params.month || new Date().toLocaleString('en-US', { month: 'short' });
+            const year = new Date().getFullYear();
+    
+            // Get the start and end date for the selected month
+            const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(month);
+            const startDate = new Date(year, monthIndex, 1);
+            const endDate = new Date(year, monthIndex + 1, 0);
+    
+            // Get all delivered orders for the month
+            const orders = await Order.find({
+                status: 'Delivered',
+                deliveryDate: {
+                    $gte: startDate.toISOString(),
+                    $lte: endDate.toISOString()
+                }
+            }).sort({ deliveryDate: 1 });
+    
+            // Get current item prices and calculate averages from procurement
+            const itemPrices = await calculateItemPrices();
+    
+            // Initialize monthly data
+            let monthlyData = {
+                mostSoldItem: '',
+                leastSoldItem: '',
+                totalSoldKg: 0,
+                totalDiscardedKg: 0,
+                totalSales: 0,
+                totalRevenue: 0
+            };
+    
+            // Initialize items data for the month
+            const itemsData = new Map();
+    
+            // Process orders
+            for (const order of orders) {
+                for (const orderItem of order.items) {
+                    const itemId = orderItem.itemID;
+                    if (!itemsData.has(itemId)) {
+                        const itemDetails = await Item.findOne({ itemID: itemId });
+                        const priceInfo = itemPrices.get(itemId);
+    
+                        // If we have itemDetails but no procurement info, cost will be 60% of the price
+                        const defaultCost = itemDetails ? (itemDetails.itemPrice * 0.6) : 0;
+                        itemsData.set(itemId, {
+                            name: itemDetails ? itemDetails.itemName : 'Unknown Item',
+                            avgPrice: priceInfo ? priceInfo.price : (itemDetails ? itemDetails.itemPrice : 0),
+                            avgCost: priceInfo ? priceInfo.cost : defaultCost,
+                            soldKg: 0,
+                            discardedKg: 0,
+                            totalSales: 0,
+                            totalRevenue: 0
+                        });
+                    }
+    
+                    const itemData = itemsData.get(itemId);
+                    itemData.soldKg += orderItem.quantity;
+                    itemData.totalSales = itemData.soldKg * itemData.avgPrice;
+                    itemData.totalRevenue = itemData.totalSales - (itemData.soldKg * itemData.avgCost);
+    
+                    // Add to monthly totals
+                    monthlyData.totalSoldKg += orderItem.quantity;
+                    monthlyData.totalSales += orderItem.quantity * itemData.avgPrice;
+                    monthlyData.totalRevenue += orderItem.quantity * (itemData.avgPrice - itemData.avgCost);
+                }
+            }
+    
+            // Calculate discarded quantities from procurement
+            const procurements = await Procurement.find({
+                receivedDate: {
+                    $gte: startDate.toISOString(),
+                    $lte: endDate.toISOString()
+                },
+                status: 'Completed'
+            });
+    
+            for (const procurement of procurements) {
+                for (const item of procurement.receivedItems) {
+                    const itemId = item[0]; // First element is itemID
+                    const discardedQty = item[2]; // Third element is discarded quantity
+                    
+                    if (itemsData.has(itemId)) {
+                        const itemData = itemsData.get(itemId);
+                        itemData.discardedKg += discardedQty;
+                        monthlyData.totalDiscardedKg += discardedQty;
+                    }
+                }
+            }
+    
+            // Determine most and least sold items
+            let maxSold = 0;
+            let minSold = Infinity;
+            
+            itemsData.forEach((data, itemId) => {
+                if (data.soldKg > maxSold) {
+                    maxSold = data.soldKg;
+                    monthlyData.mostSoldItem = data.name;
+                }
+                if (data.soldKg < minSold && data.soldKg > 0) {
+                    minSold = data.soldKg;
+                    monthlyData.leastSoldItem = data.name;
+                }
+            });
+    
+            // Convert itemsData map to array for rendering
+            const itemsArray = Array.from(itemsData.entries()).map(([itemId, data]) => ({
+                itemName: data.name,
+                avgPrice: data.avgPrice,
+                avgCost: data.avgCost,
+                soldKg: data.soldKg,
+                discardedKg: data.discardedKg,
+                totalSales: data.totalSales,
+                totalRevenue: data.totalRevenue
+            }));
+    
+            // Only include items that were either sold or had discards
+            const filteredItemsArray = itemsArray.filter(item => item.soldKg > 0 || item.discardedKg > 0);
+    
+            res.render('reports/sales-report', {
+                title: 'Sales Performance Overview',
+                css: ['report_landscape.css'],
+                layout: 'report-landscape',
+                month,
+                year,
+                monthlyData,
+                itemsArray: filteredItemsArray,
+                generatedDate: new Date().toLocaleDateString(),
+                isDownload: true,
+                user: await User.findOne({ userID: req.session.userId })
+            });
+    
+        } catch (error) {
+            console.error('Error downloading sales report:', error);
+            res.status(500).send('Error downloading sales report');
+        }
     }
 
 };
@@ -620,6 +911,45 @@ async function getOrderStatus(order) {
         isLate: false,
         deliveryDate: null
     };
+}
+
+async function calculateItemPrices() {
+    const itemPrices = new Map();
+    
+    const procurements = await Procurement.find({
+        status: 'Completed'
+    }).sort({ receivedDate: -1 });
+
+    for (const procurement of procurements) {
+        console.log('Procurement Items:', procurement.bookedItems);
+        for (const item of procurement.bookedItems) {
+            const itemId = item[0]; // First element is itemID
+            const qty = item[1];    // Second element is quantity
+            const costPerKg = item[2]; // Third element is cost per kg
+
+            if (!itemPrices.has(itemId)) {
+                // Get current selling price from Items collection
+                const itemDetails = await Item.findOne({ itemID: itemId });
+                itemPrices.set(itemId, {
+                    price: itemDetails?.itemPrice || 0,
+                    cost: costPerKg, // Now directly using the cost per kg
+                    totalQty: qty
+                });
+            } else {
+                // Update average cost per kg if multiple procurements exist
+                const current = itemPrices.get(itemId);
+                const totalQty = current.totalQty + qty;
+                const avgCost = ((current.cost * current.totalQty) + (costPerKg * qty)) / totalQty;
+                itemPrices.set(itemId, {
+                    price: current.price,
+                    cost: avgCost,
+                    totalQty: totalQty
+                });
+            }
+        }
+    }
+
+    return itemPrices;
 }
 
 

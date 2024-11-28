@@ -1,0 +1,73 @@
+<div class="report landscape">
+    <div class="report-header">
+        <h1>SUSTAINABOWL</h1>
+        <h2>SALES PERFORMANCE OVERVIEW</h2>
+        <p>For the Month of {{month}} {{year}}</p>
+    </div>
+
+    <div class="sales-department">
+        <h3>SALES DEPARTMENT</h3>
+    </div>
+
+    <div class="summary-stats">
+        <div class="section-title">DATA SUMMARY</div>
+        <table class="sales-report-table">
+            <thead>
+                <tr>
+                    <th>MONTH</th>
+                    <th>MOST SOLD ITEM</th>
+                    <th>LEAST SOLD ITEM</th>
+                    <th>TOTAL SOLD (KG)</th>
+                    <th>TOTAL DISCARDED (KG)</th>
+                    <th>TOTAL SALES</th>
+                    <th>TOTAL REVENUE</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text">{{month}}</td>
+                    <td class="text">{{monthlyData.mostSoldItem}}</td>
+                    <td class="text">{{monthlyData.leastSoldItem}}</td>
+                    <td class="numeric">{{monthlyData.totalSoldKg}}</td>
+                    <td class="numeric">{{monthlyData.totalDiscardedKg}}</td>
+                    <td class="numeric">₱{{formatReportNumbers (formatNumber monthlyData.totalSales 2)}}</td>
+                    <td class="numeric">₱{{formatReportNumbers (formatNumber monthlyData.totalRevenue 2)}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="monthly-data">
+        <div class="section-title">{{month}} SALES DATA</div>
+        <table class="sales-report-table">
+            <thead>
+                <tr>
+                    <th>ITEM</th>
+                    <th>AVERAGE PRICE (PHP/KG)</th>
+                    <th>AVERAGE COST (PHP/KG)</th>
+                    <th>SOLD (KG)</th>
+                    <th>DISCARDED (KG)</th>
+                    <th>TOTAL SALES PER ITEM</th>
+                    <th>TOTAL REVENUE PER ITEM</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each itemsArray}}
+                <tr>
+                    <td class="text">{{itemName}}</td>
+                    <td class="numeric">₱{{formatNumber avgPrice 2}}</td>
+                    <td class="numeric">₱{{formatNumber avgCost 2}}</td>
+                    <td class="numeric">{{soldKg}}</td>
+                    <td class="numeric">{{discardedKg}}</td>
+                    <td class="numeric">₱{{formatReportNumbers (formatNumber totalSales 2)}}</td>
+                    <td class="numeric">₱{{formatReportNumbers (formatNumber totalRevenue 2)}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="report-footer">
+        <p>Generated: {{CMORFormatDate generatedDate "MM/DD/YY"}}, by {{user.name}}</p>
+    </div>
+</div>
