@@ -11,9 +11,64 @@ document.addEventListener('DOMContentLoaded', function() {
             await getAgenciesJson();
             await getProcurementsJson();
             updateAgenciesTable();
+            initializeAgencyForm();
         } else {
             console.log("Table not found");
         }
+    }
+
+    // On page load, initialize the agency overlay
+    function initializeAgencyForm() {
+        const overlay = document.getElementById('agency-overlay');
+        const content = overlay.querySelector('.overlay-content');
+        const form = document.createElement('form');
+        form.id = 'agency-form';
+        
+        // Name input
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.id = 'agency-name';
+        nameInput.name = 'name';
+        nameInput.required = true;
+        form.appendChild(createFormGroup('Agency Name:', nameInput));
+        
+        // Contact input
+        const contactInput = document.createElement('input');
+        contactInput.type = 'tel';
+        contactInput.id = 'agency-contact';
+        contactInput.name = 'contact';
+        contactInput.pattern = "\\+63\\d{10}";
+        contactInput.placeholder = "+63XXXXXXXXXX";
+        contactInput.required = true;
+        form.appendChild(createFormGroup('Contact Number:', contactInput));
+        
+        // Location input
+        const locationInput = document.createElement('input');
+        locationInput.type = 'text';
+        locationInput.id = 'agency-location';
+        locationInput.name = 'location';
+        locationInput.required = true;
+        form.appendChild(createFormGroup('Location:', locationInput));
+        
+        // Price input
+        const priceInput = document.createElement('input');
+        priceInput.type = 'number';
+        priceInput.id = 'agency-price';
+        priceInput.name = 'price';
+        priceInput.min = '0';
+        priceInput.required = true;
+        form.appendChild(createFormGroup('Price per Truck (₱):', priceInput));
+        
+        // Max weight input
+        const weightInput = document.createElement('input');
+        weightInput.type = 'number';
+        weightInput.id = 'agency-weight';
+        weightInput.name = 'maxWeight';
+        weightInput.min = '0';
+        weightInput.required = true;
+        form.appendChild(createFormGroup('Max Weight (kg):', weightInput));
+
+        content.insertBefore(form, content.querySelector('button'));
     }
 
     initialize();
@@ -95,7 +150,7 @@ function updateAgenciesTable() {
             }
         }
         agencyProcurements.sort((a, b) => new Date(b.receivedDate) - new Date(a.receivedDate));
-        const latestDate = agencyProcurements[0]?.receivedDate.split('T')[0];
+        const latestDate = agencyProcurements[0]?.receivedDate.split('T')[0] || "N/A";
 
         row.innerHTML = `
             <td>${agency.name}</td>
@@ -158,3 +213,99 @@ window.changePage = function(delta) {
         updateAgenciesTable();
     }
 };
+
+// Collect all data from input fields and send to db
+async function createAgency() {
+    const form = document.getElementById('agency-form');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    const formData = {
+        name: document.getElementById('agency-name').value.trim(),
+        contact: document.getElementById('agency-contact').value.trim(),
+        location: document.getElementById('agency-location').value.trim(),
+        price: Number(document.getElementById('agency-price').value),
+        maxWeight: Number(document.getElementById('agency-weight').value)
+    };
+    
+    const response = await fetch('/logistics/api/create-agency', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) throw new Error('Failed to create agency');
+    
+    await getAgenciesJson();
+    closeOverlay();
+    showMessage("Agency added successfully!");
+    updateAgenciesTable();
+}
+
+// Return an html div given the form label and input
+function createFormGroup(labelText, input) {
+    const group = document.createElement('div');
+    group.className = 'form-group';
+    const label = document.createElement('label');
+    label.textContent = labelText;
+    
+    group.appendChild(label);
+    group.appendChild(input);
+    return group;
+}
+
+// Open the agency overlay when the "Create" button is clicked
+function openOverlay() {
+    const overlay = document.getElementById('agency-overlay');
+    overlay.style.display = 'flex';
+}
+
+// Close the agency overlay when the "Close" button is clicked
+function closeOverlay() {
+    const overlay = document.getElementById('agency-overlay');
+    overlay.style.display = 'none';
+    
+    // Reset the form
+    const form = document.getElementById('agency-form');
+    if (form) {
+        form.reset();
+    }
+}
+
+// Close overlay if clicked outside
+function closeOverlayOutside(event) {
+    if (event.target.id === 'agency-overlay') {
+        closeOverlay();
+    }
+}
+
+// Show message on the lower-right of screen
+function showMessage(message) {
+    let messageDiv = document.getElementById('success-message');
+    if (!messageDiv) {
+        messageDiv = document.createElement('div');
+        messageDiv.id = 'success-message';
+        messageDiv.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+        `;
+        document.body.appendChild(messageDiv);
+    }
+    
+    messageDiv.textContent = message;
+    messageDiv.style.display = 'block';
+    
+    setTimeout(() => {
+        messageDiv.style.display = 'none';
+    }, 2000);
+}

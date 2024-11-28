@@ -21,6 +21,7 @@ router.post('/api/submit-procurement', logisticsController.submitProcurement);
 router.post('/api/complete-procurement', logisticsController.completeProcurement);
 router.post('/api/complete-delivery', logisticsController.completeDelivery);
 router.post('/api/create-delivery/:orderID', logisticsController.createDelivery);
+router.post('/api/create-agency', logisticsController.createAgency);
 router.put('/api/procurement-status/:procurementID', logisticsController.setProcurementStatus);
 router.put('/api/order-status/:orderID', logisticsController.setOrderStatus);
 router.put('/api/delivery-status/:deliveryID', logisticsController.setDeliveryStatus);

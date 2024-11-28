@@ -662,6 +662,38 @@ async function createDelivery(req, res) {
     }
 }
 
+// Create a new agency in db
+async function createAgency(req, res) {
+    try {
+        const {
+            name,
+            contact,
+            location,
+            price,
+            maxWeight
+        } = req.body;
+
+        const agencyID = await Agency.countDocuments() + 80001;
+                
+        const agency = await Agency.create({
+            agencyID: agencyID,
+            name: name,
+            contact: contact,
+            location: location,
+            price: price,
+            maxWeight: maxWeight
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Agency created successfully',
+        });
+    } catch (error) {
+        console.error('Error in createAgency:', error);
+        return null;
+    }
+}
+
 // Convert the items array into a 2d array of itemID, qty
 async function processItems(items) {
     try {
@@ -911,5 +943,6 @@ module.exports = {
     setDeliveryStatus,
     completeProcurement,
     completeDelivery,
-    createDelivery
+    createDelivery,
+    createAgency
 };

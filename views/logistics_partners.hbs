@@ -13,6 +13,7 @@
           </select>
         </div>
       </div>
+      <button class="add-btn" onclick="openOverlay()">Add Agency +</button> 
     </div>
 
     <div class="agency-table-container">
@@ -79,6 +80,16 @@
       </div>
     </section>
   </main>
+
+  <!-- Create Agency Overlay -->
+  <div id="agency-overlay" onclick="closeOverlayOutside(event)">
+      <div class="overlay-content">
+          <i class="fa-solid fa-xmark" alt="Close" onclick="closeOverlay()"></i>
+          <h2>Add New Agency<span id="overlay-name"></span></h2>
+              {{!-- the form input fields will be automatically loaded --}}
+          <button class="save-btn" onclick="createAgency()">Save</button>
+      </div>
+  </div>
 </div>
 
 <script src="/js/logistics-partners.js"></script>
