@@ -58,7 +58,7 @@
         </div>
         <div class="metric-card">
           <h3>Monthly Procurement Expenses:</h3>
-          <p>₱ {{stats.procurementExpenses}}</p>
+          <p>₱{{format_number stats.procurementExpenses}}</p>
         </div>
         <div class="metric-card">
           <h3>Pending Procurements:</h3>
@@ -66,15 +66,15 @@
         </div>
         <div class="metric-card">
           <h3>Total Incoming Kg</h3>
-          <p>{{stats.incomingKg}} this month</p>
+          <p>{{stats.incomingKg}}kg this month</p>
         </div>
         <div class="metric-card">
           <h3>Completed Shipments:</h3>
-          <p>{{stats.completedShipments}}</p>
+          <p>{{stats.completedShipments}} this month</p>
         </div>
         <div class="metric-card">
-          <h3>TBA</h3>
-          <p>{{stats.tba}}</p>
+          <h3>On Time Rate</h3>
+          <p>{{stats.onTimeRate}}%</p>
         </div>
       </div>
     </section>

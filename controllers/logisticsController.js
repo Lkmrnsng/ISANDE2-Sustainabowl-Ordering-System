@@ -127,10 +127,10 @@ async function getProcurementView (req, res) {
 // Call the methods to compute the Logistics Dashboard statistics
 async function getDashboardStats() {
     const statsArray = [];
-    const procurementExpenses = await getprocurementExpenses();
-    const pendingProcurements = await getpendingProcurements();
-    const pendingFoodprocessing = await getpendingFoodprocessing();
-    const unpaidDeliveries = await getunpaidDeliveries();
+    const procurementExpenses = await getProcurementExpenses();
+    const pendingProcurements = await getPendingProcurements();
+    const pendingFoodprocessing = await getPendingFoodprocessing();
+    const unpaidDeliveries = await getUnpaidDeliveries();
 
     statsArray.push({
         procurementExpenses: procurementExpenses.toString(),
@@ -145,12 +145,12 @@ async function getDashboardStats() {
 // Call the methods to compute the Logistics Partners statistics
 async function getAgenciesStats() {
     const statsArray = [];
-    const topAgency = "Temp";
-    const procurementExpenses = await getprocurementExpenses();
-    const pendingProcurements = await getpendingProcurements();
-    const incomingKg = 100;
-    const completedShipments = 10;
-    const tba = 100;
+    const topAgency = await getTopAgency();
+    const procurementExpenses = await getProcurementExpenses();
+    const pendingProcurements = await getPendingProcurements();
+    const incomingKg = await getIncomingKg();
+    const completedShipments = await getCompletedShipments();
+    const onTimeRate = await getOnTimeRate();
 
     statsArray.push({
         topAgency: topAgency.toString(),
@@ -158,14 +158,46 @@ async function getAgenciesStats() {
         pendingProcurements: pendingProcurements.toString(),
         incomingKg: incomingKg.toString(),
         completedShipments: completedShipments.toString(),
-        tba: tba.toString()
+        onTimeRate: onTimeRate.toString()
     })
 
     return statsArray;
 }
 
+// Calculate the agency with the most procurements this month
+async function getTopAgency() {
+    try {
+        const currentYear = new Date().getUTCFullYear();
+        const currentMonth = new Date().getUTCMonth() + 1;
+        const procurements = await Procurement.find({
+            incomingDate: { $regex: new RegExp(`${currentYear}-${currentMonth.toString().padStart(2, '0')}`) }
+        });
+        const agencyArray = procurements.map(procurement => procurement.agencyID);
+
+        const findMostFrequent = (arr) => {
+            const frequencyMap = arr.reduce((acc, value) => {
+                acc[value] = (acc[value] || 0) + 1; // Count occurrences
+                return acc;
+            }, {});
+
+            // Find the key with the highest value in the frequency map
+            return Object.keys(frequencyMap).reduce((a, b) =>
+                frequencyMap[a] > frequencyMap[b] ? a : b
+            );
+        };
+
+        const topAgency = findMostFrequent(agencyArray);
+        const foundAgency = await Agency.findOne({ agencyID: topAgency });
+
+        return foundAgency.name;
+    } catch (err) {
+        console.error('Error in getTopAgency:', err);
+        return 0;
+    }
+}
+
 // Calculate the total procurement expenses this month
-async function getprocurementExpenses() {
+async function getProcurementExpenses() {
     try {
         const currentYear = new Date().getUTCFullYear();
         const currentMonth = new Date().getUTCMonth() + 1;
@@ -183,40 +215,111 @@ async function getprocurementExpenses() {
 
         return totalExpenses;
     } catch (err) {
-        console.error('Error in getprocurementExpenses:', err);
+        console.error('Error in getProcurementExpenses:', err);
         return 0;
     }
 }
 
 // Calculate the total number of pending procurements
-async function getpendingProcurements() {
+async function getPendingProcurements() {
     try {
         const procurements = await Procurement.find({ status: "Booked" });
         return procurements.length;
     } catch (err) {
-        console.error('Error in getpendingProcurements:', err);
+        console.error('Error in getPendingProcurements:', err);
         return 0;
     }
 }
 
 // Calculate the total number of pending food processing
-async function getpendingFoodprocessing() {
+async function getPendingFoodprocessing() {
     try {
         const orders = await Order.find({ status: "Processing" });
         return orders.length;
     } catch (err) {
-        console.error('Error in getpendingFoodprocessing:', err);
+        console.error('Error in getPendingFoodprocessing:', err);
         return 0;
     }
 }
 
 // Calculate the total number of pending procurements
-async function getunpaidDeliveries() {
+async function getUnpaidDeliveries() {
     try {
         const deliveries = await Delivery.find({ isPaid: false });
         return deliveries.length;
     } catch (err) {
-        console.error('Error in getunpaidDeliveries:', err);
+        console.error('Error in getUnpaidDeliveries:', err);
+        return 0;
+    }
+}
+
+// Calculate the total amount of booked incoming kg of stocks this month
+async function getIncomingKg() {
+    try {
+        const currentYear = new Date().getUTCFullYear();
+        const currentMonth = new Date().getUTCMonth() + 1;
+        const procurements = await Procurement.find({
+            incomingDate: { $regex: new RegExp(`${currentYear}-${currentMonth.toString().padStart(2, '0')}`) }
+        });
+        let incomingKg = 0;
+
+        for (const procurement of procurements) {
+            for (const item of procurement.bookedItems) {
+                incomingKg += item[1];
+            }
+        }
+        
+        return incomingKg;
+    } catch (err) {
+        console.error('Error in getIncomingKg:', err);
+        return 0;
+    }
+}
+
+// Calculate the total number of completed shipments this month
+async function getCompletedShipments() {
+    try {
+        const currentYear = new Date().getUTCFullYear();
+        const currentMonth = new Date().getUTCMonth() + 1;
+        const procurements = await Procurement.find({
+            receivedDate: { $regex: new RegExp(`${currentYear}-${currentMonth.toString().padStart(2, '0')}`) }
+        });
+        let completedShipments = 0;
+
+        for (const procurement of procurements) {
+            if (procurement.receivedDate !== "") {
+                completedShipments++;
+            }
+        }
+
+        return completedShipments;
+    } catch (err) {
+        console.error('Error in getCompletedShipments:', err);
+        return 0;
+    }
+}
+
+// Calculate the rate of shipments being completed on or before the incomingDate
+async function getOnTimeRate() {
+    try {
+        const currentYear = new Date().getUTCFullYear();
+        const currentMonth = new Date().getUTCMonth() + 1;
+        const procurements = await Procurement.find({
+            incomingDate: { $regex: new RegExp(`${currentYear}-${currentMonth.toString().padStart(2, '0')}`) },
+            status: { $ne: "Cancelled"}
+        });
+        let countOnTime = 0;
+        
+        for (const procurement of procurements) {
+            if (procurement.receivedDate && 
+                new Date(procurement.receivedDate) <= new Date(procurement.incomingDate)) {
+                countOnTime++;
+            }
+        }
+
+        return ((countOnTime / procurements.length) * 100).toFixed(2);
+    } catch (err) {
+        console.error('Error in getOnTimeRate:', err);
         return 0;
     }
 }
