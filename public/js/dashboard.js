@@ -1,131 +1,237 @@
 // public/js/weekly-tasks.js
-class WeeklyTaskList {
-  constructor() {
-    this.currentDate = new Date();
-    this.tasks = {
-      'Wed Nov 13 2024': [
-        { id: 1, text: 'Team Meeting', status: 'completed' },
-        { id: 2, text: 'Project Review', status: 'completed' },
-        { id: 3, text: 'Client Call', status: 'pending' }
-      ],
-      'Fri Nov 15 2024': [
-        { id: 4, text: 'Weekly Report', status: 'pending' },
-        { id: 5, text: 'Team Sync', status: 'pending' }
-      ]
-    };
-    
-    this.init();
-  }
-
-  init() {
-    this.bindEvents();
-    this.renderCalendar();
-  }
-
-  bindEvents() {
-    document.getElementById('prevWeek').addEventListener('click', () => this.navigateWeek('prev'));
-    document.getElementById('nextWeek').addEventListener('click', () => this.navigateWeek('next'));
-  }
-
-  getWeekDates(date) {
-    const start = new Date(date);
-    start.setDate(start.getDate() - start.getDay());
-    const dates = [];
-    
-    for (let i = 0; i < 7; i++) {
-      const day = new Date(start);
-      day.setDate(start.getDate() + i);
-      dates.push(day);
+class WeeklyCalendar {
+    constructor() {
+        this.currentDate = new Date();
+        this.orders = [];
     }
-    return dates;
-  }
 
-  navigateWeek(direction) {
-    const newDate = new Date(this.currentDate);
-    newDate.setDate(this.currentDate.getDate() + (direction === 'next' ? 7 : -7));
-    this.currentDate = newDate;
-    this.renderCalendar();
-  }
+    async init() {
+        await this.fetchOrders();
+        this.bindEvents();
+        this.bindOverlayEvents(); // Add overlay event binding
+        this.renderWeekView();
+    }
 
-  isToday(date) {
-    const today = new Date();
-    return date.toDateString() === today.toDateString();
-  }
+    bindEvents() {
+        document.getElementById('prevWeek').addEventListener('click', () => this.navigateWeek('prev'));
+        document.getElementById('nextWeek').addEventListener('click', () => this.navigateWeek('next'));
+    }
 
-  formatDate(date) {
-    return date.toDateString();
-  }
+    bindOverlayEvents() {
+        const closeButton = document.getElementById('orderCloseOverlay');
+        const overlay = document.getElementById('orderOverlay');
 
-  async renderCalendar() {
-    const weekDates = this.getWeekDates(this.currentDate);
-    const weekData = weekDates.map(date => {
-      const dateStr = this.formatDate(date);
-      return {
-        date: dateStr,
-        dayName: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()],
-        dayNumber: date.getDate(),
-        isToday: this.isToday(date),
-        tasks: this.tasks[dateStr] || []
-      };
-    });
+        if (!closeButton || !overlay) {
+            console.error('Overlay elements not found!');
+            return;
+        }
 
-    // In a real application, you would use server-side rendering with HBS
-    // Here we're updating the DOM directly for demonstration
-    this.updateCalendarHeader(weekData);
-    this.updateCalendarBody(weekData);
-  }
+        // Close button click
+        closeButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.closeOverlay();
+        });
 
-  updateCalendarHeader(weekData) {
-    const headerHtml = weekData.map(day => `
-      <div class="calendar-header-cell ${day.isToday ? 'today' : ''}">
-        <div class="day-name">${day.dayName}</div>
-        <div class="day-number">${day.dayNumber}</div>
-      </div>
-    `).join('');
+        // Click outside overlay
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) {
+                this.closeOverlay();
+            }
+        });
 
-    document.getElementById('calendarHeader').innerHTML = headerHtml;
-  }
+        // Escape key
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && overlay.style.display === 'block') {
+                this.closeOverlay();
+            }
+        });
+    }
 
-  updateCalendarBody(weekData) {
-    const bodyHtml = weekData.map(day => `
-      <div class="calendar-day-column" data-date="${day.date}">
-        ${day.tasks.map(task => `
-          <div class="task-card" data-task-id="${task.id}">
-            <div class="task-content">
-              <button 
-                class="status-button ${task.status === 'completed' ? 'completed' : 'pending'}"
-                onclick="weeklyTaskList.toggleTaskStatus('${day.date}', ${task.id})"
-              >
-                ${task.status === 'completed' 
-                  ? '<svg class="status-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
-                  : '<svg class="status-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>'
-                }
-              </button>
-              <span class="task-text ${task.status === 'completed' ? 'completed' : ''}">${task.text}</span>
+    async fetchOrders() {
+        try {
+            const response = await fetch('/sales/api/orders');
+            if (!response.ok) throw new Error('Failed to fetch orders');
+            const data = await response.json();
+
+            this.orders = data.map(order => ({
+                OrderID: order.OrderID,
+                task: `Order #${order.OrderID}`,
+                details: order.items.map(item => 
+                    `${item.name} (${item.quantity}kg)`
+                ).join(', '),
+                date: new Date(order.deliveryDate).toISOString().split('T')[0],
+                status: order.status,
+                customer: order.customer,
+                restaurant: order.restaurant,
+                customizations: order.customizations,
+                deliveryTimeRange: order.deliveryTimeRange,
+                deliveryAddress: order.deliveryAddress
+            }));
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+            this.orders = [];
+        }
+    }
+
+    getWeekDates() {
+        const start = new Date(this.currentDate);
+        start.setDate(start.getDate() - start.getDay());
+        
+        const dates = [];
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(start);
+            date.setDate(start.getDate() + i);
+            dates.push(date);
+        }
+        return dates;
+    }
+
+    navigateWeek(direction) {
+        const days = direction === 'next' ? 7 : -7;
+        this.currentDate.setDate(this.currentDate.getDate() + days);
+        this.renderWeekView();
+    }
+
+    renderWeekView() {
+        const weekDates = this.getWeekDates();
+        const headerContainer = document.getElementById('calendarHeader');
+        const bodyContainer = document.getElementById('calendarBody');
+
+        // Render header
+        headerContainer.innerHTML = weekDates.map(date => `
+            <div class="calendar-header-cell ${this.isToday(date) ? 'today' : ''}">
+                <div class="day-name">${date.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                <div class="day-number">${date.getDate()}</div>
             </div>
-          </div>
-        `).join('')}
-      </div>
-    `).join('');
+        `).join('');
 
-    document.getElementById('calendarBody').innerHTML = bodyHtml;
-  }
+        // Render body with fixed date handling
+        bodyContainer.innerHTML = weekDates.map(date => {
+            // Normalize date to local timezone midnight
+            const localDate = new Date(date);
+            localDate.setHours(0, 0, 0, 0);
+            
+            // Format date string using local timezone
+            const dateStr = localDate.toISOString().slice(0, 10);
+            
+            // Filter orders for this day
+            const dayOrders = this.orders.filter(order => {
+                const orderDate = new Date(order.date);
+                orderDate.setHours(0, 0, 0, 0);
+                return orderDate.toISOString().slice(0, 10) === dateStr;
+            });
 
-  toggleTaskStatus(dateStr, taskId) {
-    if (this.tasks[dateStr]) {
-      const taskIndex = this.tasks[dateStr].findIndex(task => task.id === taskId);
-      if (taskIndex !== -1) {
-        this.tasks[dateStr][taskIndex].status = 
-          this.tasks[dateStr][taskIndex].status === 'completed' ? 'pending' : 'completed';
-        this.renderCalendar();
-      }
+            return `
+                <div class="calendar-day-column ${this.isToday(date) ? 'today' : ''}" data-date="${dateStr}">
+                    ${dayOrders.map(order => `
+                        <div class="task-card status-${order.status.toLowerCase()}" data-order-id="${order.OrderID}">
+                            <div class="task-content">
+                                <div class="order-title">${order.task}</div>
+                                <div class="order-info">
+                                    <span class="restaurant">${order.restaurant}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }).join('');
+
+        // Add click handlers
+        document.querySelectorAll('.task-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const orderId = card.dataset.orderId;
+                const order = this.orders.find(o => o.OrderID === parseInt(orderId));
+                if (order) this.openOverlay(order);
+            });
+        });
     }
-  }
+
+    isToday(date) {
+        const today = new Date();
+        return date.toDateString() === today.toDateString();
+    }
+
+    openOverlay(order) {
+        console.log('Opening overlay for order:', order);
+        const overlay = document.getElementById('orderOverlay');
+        const title = document.getElementById('orderOverlayTitle');
+        const description = document.getElementById('orderOverlayDescription');
+
+        if (!overlay || !title || !description) {
+            console.error('Overlay elements not found in openOverlay');
+            return;
+        }
+
+        title.textContent = order.task;
+
+        description.innerHTML = `
+            <div class="overlay-section">
+                <div class="order-header">
+                    <div class="order-date">${new Date(order.date).toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    })}</div>
+                    <span class="status-badge ${order.status.toLowerCase()}">${order.status}</span>
+                </div>
+
+                <div class="customer-details">
+                    <h3>Customer Information</h3>
+                    <p><strong>Restaurant:</strong> ${order.restaurant}</p>
+                    <p><strong>Contact Person:</strong> ${order.customer}</p>
+                </div>
+
+                <div class="order-details">
+                    <h3>Order Information</h3>
+                    <p><strong>Items:</strong></p>
+                    <ul>${order.details.split(',').map(item => `<li>${item.trim()}</li>`).join('')}</ul>
+                </div>
+
+                <div class="delivery-details">
+                    <h3>Delivery Information</h3>
+                    <p><strong>Address:</strong> ${order.deliveryAddress}</p>
+                    <p><strong>Time Range:</strong> ${order.deliveryTimeRange}</p>
+                </div>
+
+                <div class="special-instructions">
+                    <h3>Special Instructions</h3>
+                    <p>${order.customizations || 'No special instructions'}</p>
+                </div>
+            </div>
+        `;
+
+        overlay.style.display = 'block';
+    }
+
+    closeOverlay() {
+        const overlay = document.getElementById('orderOverlay');
+        const title = document.getElementById('orderOverlayTitle');
+        const description = document.getElementById('orderOverlayDescription');
+
+        if (!overlay) {
+            console.error('Overlay element not found');
+            return;
+        }
+
+        // Add fade out animation
+        overlay.classList.add('fade-out');
+        
+        // Remove after animation
+        setTimeout(() => {
+            overlay.style.display = 'none';
+            overlay.classList.remove('fade-out');
+            if (title) title.textContent = '';
+            if (description) description.innerHTML = '';
+        }, 200);
+    }
 }
 
-// Initialize the weekly task list
-let weeklyTaskList;
-
-document.addEventListener('DOMContentLoaded', function() {
-  weeklyTaskList = new WeeklyTaskList();
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    const calendar = new WeeklyCalendar();
+    calendar.init().catch(error => {
+        console.error('Failed to initialize calendar:', error);
+    });
 });
