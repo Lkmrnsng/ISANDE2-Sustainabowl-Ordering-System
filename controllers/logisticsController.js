@@ -29,7 +29,7 @@ async function getCalendarView (req, res) {
     try {
         res.render('logistics_calendar', {
             title: 'Calendar',
-            css: ['logistics_calendar.css'],
+            css: ['sales_calendar.css'],
             layout: 'logistics',
             active: 'calendar'
         });
