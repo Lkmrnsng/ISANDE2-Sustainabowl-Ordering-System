@@ -89,7 +89,9 @@ async function submitRequest(req, res) {
 
 async function createRequest(name, contact) {
     try {
-        const requestID = await Request.countDocuments() + 30001;
+        
+        const latestRequest = await Request.findOne().sort({ requestID: -1 });
+        const requestID = latestRequest ? parseInt(latestRequest.requestID) + 1 : 30001;
         const customerID = await getCustomerID(name, contact);
         const pointPersonID = await getSalesInCharge();
         const today = new Date();
@@ -112,7 +114,8 @@ async function createRequest(name, contact) {
 
 async function createOrder(request, cartItem, address, dates, batch, customization, payment) {
     try {
-        let orderID = await Order.countDocuments() + 40001;
+        const latestOrder = await Order.findOne().sort({ OrderID: -1 });
+        let orderID = latestOrder ? parseInt(latestOrder.OrderID) + 1 : 40001;
         const orders = [];
         const formattedItems = [];
 

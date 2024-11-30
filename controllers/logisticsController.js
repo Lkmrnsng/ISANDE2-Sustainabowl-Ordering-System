@@ -614,7 +614,8 @@ async function submitProcurement(req, res) {
 // Save procurement to db
 async function createProcurement(agencyName, items, incomingDate) {
     try {
-        const procurementID = await Procurement.countDocuments() + 60001;
+        const latestProcurement = await Procurement.findOne().sort({ procurementID: -1 });
+        const procurementID = latestProcurement ? latestProcurement.procurementID + 1 : 60001;
         const agency = await Agency.findOne({ name: agencyName });
         const agencyID = agency.agencyID;
         const processedItems = await processItems(items);
@@ -642,7 +643,8 @@ async function createDelivery(req, res) {
     const orderID = req.params.orderID;
 
     try {
-        const deliveryID = await Delivery.countDocuments() + 70001;
+        const latestDelivery = await Delivery.findOne().sort({ deliveryID: -1 });
+        const deliveryID = latestDelivery ? latestDelivery.deliveryID + 1 : 70001;
                 
         const delivery = await Delivery.create({
             deliveryID: deliveryID,
@@ -673,7 +675,8 @@ async function createAgency(req, res) {
             maxWeight
         } = req.body;
 
-        const agencyID = await Agency.countDocuments() + 80001;
+        const latestAgency = await Agency.findOne().sort({ agencyID: -1 });
+        const agencyID = latestAgency ? latestAgency.agencyID + 1 : 80001;
                 
         const agency = await Agency.create({
             agencyID: agencyID,

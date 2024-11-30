@@ -15,8 +15,7 @@ async function uploadUser(req, res) {
 
     if(exists.length === 0) {
         const highestUserID = await User.findOne().sort({ userID: -1 });
-        console.log('Highest User ID:', highestUserID.userID);
-        const newUserID = highestUserID ? parseInt(highestUserID.userID) + 1 : 20001;
+        const newUserID = highestUserID ? parseInt(highestUserID.userID) + 1 : 10001;
 
         try {
             User.create({
