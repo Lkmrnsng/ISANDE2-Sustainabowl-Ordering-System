@@ -248,6 +248,7 @@ router.put('/api/request/:requestId/status',
             }
 
             const isBeingCancelled = request.status !== 'Cancelled' && status === 'Cancelled';
+            const isBeingApproved = request.status !== 'Approved' && status === 'Approved';
 
             // Update request status
             await Request.findOneAndUpdate(
@@ -273,6 +274,24 @@ router.put('/api/request/:requestId/status',
                 await Order.updateMany(
                     { requestID: requestId },
                     { status: 'Cancelled' }
+                );
+            }
+
+            // Create approval alert if being approved
+            if (isBeingApproved) {
+                await createAlert({
+                    concernType: 'Reminder',
+                    details: `Request #${requestId} approved by Sales`,
+                    orders: [],
+                    userType: 'Sales',
+                    byCustomer: false,
+                    createdById: req.session.userId
+                });
+
+                // Update all associated orders to approved if they are waiting for approval
+                await Order.updateMany(
+                    { requestID: requestId, status: 'Waiting Approval' },
+                    { status: 'Preparing' }
                 );
             }
 
