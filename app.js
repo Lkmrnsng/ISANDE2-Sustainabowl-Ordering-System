@@ -296,10 +296,20 @@ app.get('/', (req, res) => {
     if (req.isAuthenticated()) {
         res.redirect('/customer/dashboard');
     } else {
-        // If user is not authenticated, redirect to login page
-        res.redirect('/login');
+        // If user is not authenticated, redirect to welcome page
+        res.redirect('/welcome');
     }
 });
+
+app.get('/welcome', (req, res) => {
+    res.render('welcome', {
+        title: "Welcome to Sustainabowl",
+        css: ["index.css"],
+        layout: "landing",
+        messages: req.flash('info')
+    });
+});
+
 
 app.get('/login', (req, res) => {
     res.render('index', {
