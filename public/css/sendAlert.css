@@ -102,6 +102,16 @@
   color: #856404;
 }
 
+.status-badge[data-status="Processing"] {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge[data-status="Waiting Approval"] {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
 .status-badge[data-status="Dispatched"] {
   background-color: #cce5ff;
   color: #004085;
@@ -110,6 +120,11 @@
 .status-badge[data-status="Delivered"] {
   background-color: #d4edda;
   color: #155724;
+}
+
+.status-badge[data-status="Cancelled"] {
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
 /* Pagination */
