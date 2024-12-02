@@ -14,12 +14,12 @@
 
 /* Layout and Containers */
 .reviews-container, .dashboard-container, .review-container {
-  /* margin: 2rem auto; */
+  margin: 2rem auto;
   padding: 2rem;
   background: white;
   border-radius: 8px;
   box-shadow: var(--shadow-md);
-  margin-left: 220px;
+  /* margin-left: 220px; */
 }
 
 .reviews-container {
