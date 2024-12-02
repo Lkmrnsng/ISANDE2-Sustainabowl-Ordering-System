@@ -79,7 +79,7 @@ async function getWarehouseView (req, res) {
             title: 'Warehouse',
             css: ['logisales_dashboard.css'],
             layout: 'logistics',
-            active: 'warehouseinventory'
+            active: 'warehouse'
         });
     }
     catch (error) {
