@@ -234,7 +234,7 @@ async function getPendingProcurements() {
 // Calculate the total number of pending food processing
 async function getPendingFoodprocessing() {
     try {
-        const orders = await Order.find({ status: "Processing" });
+        const orders = await Order.find({ status: "Preparing" });
         return orders.length;
     } catch (err) {
         console.error('Error in getPendingFoodprocessing:', err);

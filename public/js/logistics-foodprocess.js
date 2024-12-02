@@ -51,7 +51,7 @@ async function getOrdersJson() {
             })
         }
 
-        processingOrders = orders.filter(order => order.status === "Processing");
+        processingOrders = orders.filter(order => order.status === "Preparing");
     } catch (err) {
         console.error('Error initializing orders:', err);
     }
@@ -93,7 +93,7 @@ function updateProcessingTable() {
             <td>${dateString}</td>
             <td>
                 <select class="status-dropdown">
-                    <option class="select-option" value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
+                    <option class="select-option" value="Preparing" ${order.status === 'Preparing' ? 'selected' : ''}>Preparing</option>
                     <option class="select-option" value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
                     <option class="select-option" value="Dispatched" ${order.status === 'Dispatched' ? 'selected' : ''}>Dispatched</option>
                 </select>
@@ -138,7 +138,7 @@ function updateProcessingTable() {
                             alert('Failed to update order status');
                         }
                     } else {
-                        event.target.value = 'Processing'; 
+                        event.target.value = 'Preparing'; 
                     }
                 }
             });

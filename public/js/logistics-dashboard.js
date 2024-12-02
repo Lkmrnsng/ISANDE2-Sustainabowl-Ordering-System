@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
             }
 
-            processingOrders = orders.filter(order => order.status === "Processing");
+            processingOrders = orders.filter(order => order.status === "Preparing");
         } catch (err) {
             console.error('Error initializing orders:', err);
         }
