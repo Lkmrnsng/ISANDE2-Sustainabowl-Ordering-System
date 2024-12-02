@@ -88,7 +88,7 @@ async function getWarehousePage(req, res) {
             title: 'Warehouse Inventory',
             css: ['logisales_dashboard.css'],
             layout: 'sales',
-            active: 'warehouseinventory',
+            active: 'warehouse',
             items: items,
             inventory: inventory
         });
