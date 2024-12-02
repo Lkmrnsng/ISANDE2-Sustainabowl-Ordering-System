@@ -205,7 +205,9 @@
     onChange: function(selectedDates, dateStr) {
       const preview = document.getElementById("datePreview");
       preview.style.whiteSpace = "pre-line";
-      preview.textContent = selectedDates.map(date => date.toISOString().split('T')[0]).join('\n');
+      preview.textContent = selectedDates.map(date => 
+        date.toLocaleDateString('en-CA')
+      ).join('\n');
     }
   });
 </script>
