@@ -122,14 +122,15 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', function(e) {
             const card = e.target.closest('.card-element') || e.target.closest('.overlay-content');
             const itemId = button.getAttribute('data-item-id');
-            const quantityElement = card.querySelector(`#quantity-${itemId}`) || 
-                                  document.getElementById('overlay-quantity');
-            const quantity = parseInt(quantityElement.textContent);
+            const quantityInput = card.querySelector(`#quantity-input-${itemId}`) || 
+                    document.getElementById('overlay-quantity');
+            const quantity = parseInt(quantityInput.value);
             
             const itemData = {
                 name: button.getAttribute('data-name'),
                 price: button.getAttribute('data-price'),
-                image: button.getAttribute('data-image')
+                image: button.getAttribute('data-image'),
+                stock: button.getAttribute('data-stock')
             };
             
             addToCart(itemData, quantity);

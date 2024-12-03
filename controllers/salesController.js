@@ -12,7 +12,7 @@ async function getDashboardPage(req, res) {
         const filteredData = compiledData.filter(unit => unit.salesInCharge.userID === req.user.userID);
         const requests = [];
         const inventory = await getInventoryData();
-        // const weekDays = await getWeekDays();
+        inventory.sort((a, b) => parseInt(b.reserved) - parseInt(a.reserved));
         
         for (const unit of filteredData) {
             const requestID = unit.request.requestID;
@@ -364,7 +364,7 @@ async function getInventoryData() {
         const items = await Item.find({});
         
         const pendingOrders = await Order.find({ 
-            status: { $in: ['Waiting Approval', 'Preparing'] }
+            status: { $in: ['Preparing'] }
         });
         
         const reservedQuantities = {};

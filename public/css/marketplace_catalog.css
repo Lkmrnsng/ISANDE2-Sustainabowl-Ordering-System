@@ -73,22 +73,23 @@
 }
 
 .card-element h3 {
-    font-size: 18px;
+    font-size: 20px;
 }
 
 .card-element p {
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .card-element button {
     background-color: var(--green);
+    margin-left: 10px;
     color: var(--black) ;
     border: none;
     padding: 10px 15px;
     border-radius: 5px;
     cursor: pointer;
     font-size: 10px;
-    width: 100%;
+    width: 80%;
 }
 
 .card-element button:hover {
@@ -260,4 +261,37 @@
     margin-top: 20px;
     font-size: 24px;
     margin-bottom: 10px;
+}
+
+.card-stock {
+    color: #666;
+    font-size: 0.9em;
+    margin-top: 4px;
+}
+
+#overlay-stock {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 30px;
+}
+
+.quantity-input-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.quantity-input {
+    width: 60px;
+    padding: 2px 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.stock-warning {
+    color: #b45309;
+    font-size: 0.85em;
+    margin: 4px 0;
+    min-height: 20px;
 }

@@ -9,13 +9,14 @@ const { createAlertNoMsg } = require('./alertController');
 async function getCatalog(req, res) {
     try {
         const items = await Item.find({});
+        const availableArray = await getAvailableStocks(items);
         
         res.render('marketplace_catalog', {
             title: "Catalog",
             css: ["marketplace_catalog.css", "marketplace.css"],
             layout: "marketplace",
             user: req.user || null,
-            items: items
+            items: availableArray
         });
     } catch(err) {
         console.error('Error fetching items:', err);
@@ -64,6 +65,35 @@ async function getAddresses(user) {
         console.log(error);
         return [];
     }
+}
+
+async function getAvailableStocks(items) {
+    const preparingOrders = await Order.find({ status: "Preparing" });
+    const availableArray = [];
+    let reservedStock = 0;
+
+    for (const item of items) {
+        for (const order of preparingOrders) {
+            for (const orderItem of order.items) {
+                if (orderItem.itemID == item.itemID) {
+                    reservedStock += orderItem.quantity;
+                }
+            }
+        }
+
+        availableArray.push({
+            itemID: item.itemID,
+            itemName: item.itemName,
+            itemDescription: item.itemDescription,
+            itemImage: item.itemImage,
+            itemPrice: item.itemPrice,
+            itemStock: item.itemStock - reservedStock
+        });
+
+        reservedStock = 0;
+    }
+
+    return availableArray;
 }
 
 async function submitRequest(req, res) {

@@ -556,7 +556,7 @@ async function getInventoryData() {
         const items = await Item.find({});
         
         const pendingOrders = await Order.find({ 
-            status: { $in: ['Waiting Approval', 'Preparing'] }
+            status: { $in: ['Preparing'] }
         });
         
         const reservedQuantities = {};
@@ -784,6 +784,16 @@ async function setOrderStatus(req, res) {
 
         // Update the request status
         await Order.updateOne({ OrderID: orderID }, { $set: { status: status }});
+
+        // If the order is being Dispatched, deduct the stock from the warehouse
+        if (status === 'Dispatched') {
+            for (const item of order.items) {
+                const itemDoc = await Item.findOneAndUpdate({ itemID: item.itemID }, { $inc: { itemStock: -item.quantity }});
+                if (!itemDoc) {
+                    throw new Error(`Failed to update stock for item: ${item.itemID}`);
+                }
+            }
+        }
 
         return res.status(200).json({
             success: true,
