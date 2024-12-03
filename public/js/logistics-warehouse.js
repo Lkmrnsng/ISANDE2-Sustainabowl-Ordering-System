@@ -32,7 +32,7 @@ async function getInventoryJson() {
         }));
 
         inventoryData = [...compiledData];
-        inventoryData.sort((a, b) => a.type.localeCompare(b.type));
+        inventoryData.sort((a, b) => parseInt(b.reserved) - parseInt(a.reserved));
     } catch (err) {
         console.error('Error initializing inventory:', err);
     }
@@ -53,12 +53,16 @@ function updateInventoryTable() {
     pageData.forEach(inventory => {
         const row = document.createElement('tr');
 
+        // Check if reserved is greater than total
+        const isReservedExceeded = parseInt(inventory.reserved) > parseInt(inventory.total);
+        const textColor = isReservedExceeded ? 'style="color: red;"' : '';
+
         row.innerHTML = `
             <td>${inventory.particular}</td>
             <td>${inventory.type}</td>
             <td>${inventory.available}</td>
-            <td>${inventory.reserved}</td>
-            <td>${inventory.total}</td>
+            <td ${textColor}>${inventory.reserved}</td>
+            <td ${textColor}>${inventory.total}</td>
         `;
 
         tbody.appendChild(row);
