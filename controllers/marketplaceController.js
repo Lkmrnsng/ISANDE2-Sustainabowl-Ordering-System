@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Request = require('../models/Request');
 const Order = require('../models/Order');
 const Item = require('../models/Item');
+const { createAlertNoMsg } = require('./alertController');
 
 // Render the marketplace catalog page
 async function getCatalog(req, res) {
@@ -80,10 +81,36 @@ async function submitRequest(req, res) {
 
         const request = await createRequest(name, formattedContact);
         const orders = await createOrder(request, cartItem, address, dates, batch, customization, payment);
+
+        // Create alert after both request and orders are created
+        if (request && orders.length > 0) {
+            await createRequestAlert(request, request.customerID);
+        }
+
         res.status(200).json({ request: request, orders: orders });
     } catch (err) {
         console.error('Error saving to db:', err);
         res.status(500).json({ error: 'Failed to save to db' });
+    }
+}
+
+async function createRequestAlert(request, customerID) {
+    try {
+        const customer = await User.findOne({ userID: customerID });
+        const restaurant = customer.restaurantName || customer.name;
+        
+        // Get all orders associated with this request
+        const orders = await Order.find({ requestID: request.requestID });
+        const orderIds = orders.map(order => order.OrderID);
+        
+        await createAlertNoMsg({
+            category: 'Reminder',
+            details: `New request received from ${restaurant}`,
+            orders: orderIds,
+            createdById: customerID,
+        });
+    } catch (error) {
+        console.error('Error creating request alert:', error);
     }
 }
 

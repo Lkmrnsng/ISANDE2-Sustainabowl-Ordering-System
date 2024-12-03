@@ -87,6 +87,73 @@ exports.createAlert = async (data) => {
     }
 };
 
+exports.createAlertNoMsg = async (data) => {
+    try {
+        // Map the incoming data to match required fields
+        const alertData = {
+            category: data.concernType || data.category,
+            details: data.details,
+            orders: Array.isArray(data.orders) ? data.orders : [data.orderID],
+            createdById: data.createdById
+        };
+
+        // Validate required fields
+        const requiredFields = ['category', 'details', 'orders', 'createdById'];
+        for (const field of requiredFields) {
+            if (!alertData[field]) {
+                throw new Error(`Missing required field: ${field}`);
+            }
+        }
+
+        // Get creator's user type
+        const creator = await User.findOne({ userID: alertData.createdById });
+        if (!creator) {
+            throw new Error('Creator not found');
+        }
+
+        // Get Orders from orders array
+        const orders = await Order.find({ OrderID: { $in: alertData.orders } });
+
+        // Get Request IDs from orders
+        const requestIds = [...new Set(orders.map(order => order.requestID))];
+
+        // Get Requests from request IDs
+        const requests = await Request.find({ requestID: { $in: requestIds } });
+        
+        const alert = new Alert({
+            alertID: await getNextAlertId(),
+            category: alertData.category,
+            details: alertData.details,
+            dateCreated: new Date().toISOString(),
+            orders: alertData.orders,
+            createdById: alertData.createdById
+        });
+
+        // Handle cancellations
+        if (data.cancelOrder || data.cancelOrders) {
+            if (data.cancelRequest) {
+                await Request.updateMany(
+                    { requestID: { $in: requestIds } },
+                    { status: 'Cancelled' }
+                );
+            }
+
+            await Order.updateMany(
+                { OrderID: { $in: alertData.orders } },
+                { status: 'Cancelled' }
+            );
+        }
+
+        // Save the alert to the database
+        await alert.save();
+        
+        return alert;
+    } catch (error) {
+        console.error('Error creating alert:', error);
+        throw error;
+    }
+};
+
 // Add delete alert functionality
 exports.deleteAlert = async (alertId, userId, userType) => {
     try {

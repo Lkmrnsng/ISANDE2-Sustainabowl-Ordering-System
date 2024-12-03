@@ -3,6 +3,7 @@ const Request = require('../models/Request');
 const Order = require('../models/Order');
 const Item = require('../models/Item');
 const User = require('../models/User');
+const { createAlertNoMsg } = require('./alertController');
 
 // Custom error handler
 class ChatError extends Error {
@@ -226,6 +227,23 @@ const chatController = {
                 requestID,
                 date: new Date()
             });
+
+            // Create notification for new message
+            if (newMessage) {
+                const sender = await User.findOne({ userID: senderID });
+                const senderName = sender.restaurantName || sender.name;
+
+                // Get all orders associated with this request
+                const orders = await Order.find({ requestID: requestID });
+                const orderIds = orders.map(order => order.OrderID);
+
+                await createAlertNoMsg({
+                    category: 'Reminder',
+                    details: `New message from ${senderName} regarding Request #${requestID}`,
+                    orders: orderIds,
+                    createdById: senderID,
+                });
+            }
 
             res.status(201).json(newMessage);
         } catch (error) {
