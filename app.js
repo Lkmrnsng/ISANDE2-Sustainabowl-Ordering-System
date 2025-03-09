@@ -1,5 +1,5 @@
+
 /* Dependencies */
-require('dotenv').config();
 const express = require('express'); // Import Express, allows you to create a server and routes
 const exphbs = require('express-handlebars'); // Import Express-Handlebars, allows you to create views
 const mongoose = require('mongoose'); // Import Mongoose, allows you to connect to MongoDB
@@ -39,7 +39,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 /* Connect to MongoDB and then Listen for Requests */
-const dbURI = process.env.MONGODB_URI;
+/**
+ * dbuser1 is the username
+ * PioneeringParagons2024 is the password
+ * isande2 is the database name
+ */
+const dbURI = 'mongodb+srv://dbuser1:PioneeringParagons2024@isande2.zq1ez.mongodb.net/ISANDE2'; 
 mongoose.connect(dbURI)
     .then((result) => {
         console.log("App connected to MongoDB Atlas ISANDE2 database.");
